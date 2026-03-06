@@ -1,30 +1,22 @@
 {
   "name": "awesome-copilot",
   "version": "1.0.0",
-  "description": "Enhance your GitHub Copilot experience with community-contributed instructions, prompts, agents, and skills.",
+  "description": "Internal golden repo for embedded and automotive GitHub Copilot agents, instructions, and skills.",
   "main": "./eng/update-readme.js",
   "private": true,
   "scripts": {
     "start": "npm run build",
     "build": "node ./eng/update-readme.mjs && node ./eng/generate-marketplace.mjs",
-    "contributors:add": "all-contributors add",
-    "contributors:report": "node ./eng/contributor-report.mjs",
-    "contributors:generate": "all-contributors generate",
-    "contributors:check": "all-contributors check",
     "plugin:validate": "node ./eng/validate-plugins.mjs",
     "plugin:create": "node ./eng/create-plugin.mjs",
     "skill:validate": "node ./eng/validate-skills.mjs",
     "skill:create": "node ./eng/create-skill.mjs",
     "plugin:clean": "node ./eng/clean-materialized-plugins.mjs",
-    "plugin:generate-marketplace": "node ./eng/generate-marketplace.mjs",
-    "website:data": "node ./eng/generate-website-data.mjs",
-    "website:dev": "npm run website:data && npm run --prefix website dev",
-    "website:build": "npm run build && npm run website:data && npm run --prefix website build",
-    "website:preview": "npm run --prefix website preview"
+    "plugin:generate-marketplace": "node ./eng/generate-marketplace.mjs"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/github/awesome-copilot.git"
+    "url": "https://github.vitesco.io/SWProductivity/AURA_Marketplace.git"
   },
   "keywords": [
     "github",
@@ -37,9 +29,6 @@
   ],
   "author": "GitHub",
   "license": "MIT",
-  "devDependencies": {
-    "all-contributors-cli": "^6.26.1"
-  },
   "dependencies": {
     "js-yaml": "^4.1.1",
     "vfile": "^6.0.3",

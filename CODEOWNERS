@@ -1,6 +1,2 @@
 # Default owner for everything
-* @aaronpowell
-
-# Agentic Workflows
-/workflows/ @brunoborges
-/.github/workflows/validate-agentic-workflows-pr.yml @brunoborges
+* @SWProductivity/aura-maintainers

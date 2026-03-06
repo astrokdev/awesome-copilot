@@ -1,6 +1,30 @@
-# Contributing to Awesome GitHub Copilot
+# Contributing to Awesome Copilot - Embedded & Automotive
 
-Thank you for your interest in contributing to the Awesome GitHub Copilot repository! We welcome contributions from the community to help expand our collection of custom instructions and skills.
+Thank you for your interest in contributing! We welcome contributions to help expand our collection of custom agents, instructions, and skills for embedded and automotive development.
+
+## Scope
+
+### In Scope
+
+Contributions should focus on embedded and automotive development, including:
+
+- **Languages:** C, C++, Rust, Python (tooling/testing), Assembly
+- **Standards:** AUTOSAR, MISRA C/C++, ISO 26262, ASPICE, IEC 61508, DO-178C
+- **RTOS:** FreeRTOS, Zephyr, RTX, QNX, VxWorks
+- **Protocols:** CAN, LIN, FlexRay, Ethernet (SOME/IP, DoIP), SPI, I2C, UART
+- **Build Systems:** CMake, Make, Bazel, Meson, Yocto/BitBake
+- **Testing:** Unity, CppUTest, GoogleTest, VectorCAST, LDRA, static analysis
+- **Tools:** GDB, JTAG/SWD debuggers, hardware abstraction layers, linker scripts
+- **Domains:** Firmware, device drivers, bootloaders, safety-critical systems, ECU development
+
+General development topics (code review, architecture, CI/CD, testing patterns, documentation) are also welcome when they apply broadly to embedded workflows.
+
+### Out of Scope
+
+- Web frameworks (React, Angular, Vue, Next.js, etc.)
+- Cloud-native services (Azure, AWS, GCP-specific)
+- SaaS platform integrations (Salesforce, Shopify, Power BI, etc.)
+- Mobile app development (Flutter, MAUI, Swift UI, etc.)
 
 ## Table of Contents
 

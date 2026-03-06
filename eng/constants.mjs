@@ -180,12 +180,13 @@ const vscodeInsidersInstallImage =
   "https://img.shields.io/badge/VS_Code_Insiders-Install-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white";
 
 const repoBaseUrl =
-  "https://raw.githubusercontent.com/github/awesome-copilot/main";
+  "https://raw.github.vitesco.io/SWProductivity/AURA_Marketplace/main";
 
+// Install URL redirects — update these if you set up internal redirect URLs
 const AKA_INSTALL_URLS = {
-  instructions: "https://aka.ms/awesome-copilot/install/instructions",
-  agent: "https://aka.ms/awesome-copilot/install/agent",
-  hook: "https://aka.ms/awesome-copilot/install/hook",
+  instructions: "",
+  agent: "",
+  hook: "",
 };
 
 const ROOT_FOLDER = path.join(__dirname, "..");

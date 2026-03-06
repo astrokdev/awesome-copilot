@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-The Awesome GitHub Copilot repository is a community-driven collection of custom agents and instructions designed to enhance GitHub Copilot experiences across various domains, languages, and use cases. The project includes:
+This is an internal golden repo for embedded and automotive development, based on the Awesome GitHub Copilot framework. It provides a contribution model for company users to add specialized GitHub Copilot resources for embedded systems, AUTOSAR, safety-critical development, and related domains. The project includes:
 
 - **Agents** - Specialized GitHub Copilot agents that integrate with MCP servers
 - **Instructions** - Coding standards and best practices applied to specific file patterns
