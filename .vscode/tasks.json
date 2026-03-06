@@ -22,30 +22,6 @@
       "dependsOn": "npm install"
     },
     {
-      "label": "validate-collections",
-      "type": "shell",
-      "command": "npm run collection:validate",
-      "problemMatcher": [],
-      "group": "build",
-      "detail": "Validates all collection manifest files.",
-      "dependsOn": "npm install"
-    },
-    {
-      "label": "create-collection",
-      "type": "shell",
-      "command": "npm run collection:create",
-      "args": [
-        "--id",
-        "${input:collectionId}",
-        "--tags",
-        "${input:tags}"
-      ],
-      "problemMatcher": [],
-      "group": "none",
-      "detail": "Creates a new collection manifest template.",
-      "dependsOn": "npm install"
-    },
-    {
       "label": "create-skill",
       "type": "shell",
       "command": "npm run skill:create",
@@ -71,18 +47,6 @@
     }
   ],
   "inputs": [
-    {
-      "id": "collectionId",
-      "description": "Collection ID (lowercase, hyphen-separated)",
-      "default": "my-collection",
-      "type": "promptString"
-    },
-    {
-      "id": "tags",
-      "description": "Comma separated list of tags",
-      "default": "tag1,tag2",
-      "type": "promptString"
-    },
     {
       "id": "skillName",
       "description": "Skill name (PascalCase)",

@@ -279,10 +279,6 @@ This is a community-driven project. Contributions are welcome! Please see:
 - [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for community standards
 - [SECURITY.md](SECURITY.md) for security policies
 
-## MCP Server
-
-The repository includes an MCP (Model Context Protocol) Server for searching and installing resources directly from this repository. Docker is required to run the server.
-
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details

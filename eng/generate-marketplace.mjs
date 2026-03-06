@@ -162,15 +162,15 @@ function generateMarketplace() {
 
   // Create marketplace.json structure
   const marketplace = {
-    name: "awesome-copilot",
+    name: "AURA_Marketplace",
     metadata: {
-      description: "Community-driven collection of GitHub Copilot plugins, agents, prompts, and skills",
+      description: "Internal collection of GitHub Copilot plugins, agents, and skills for embedded and automotive development",
       version: "1.0.0",
       pluginRoot: "./plugins"
     },
     owner: {
-      name: "GitHub",
-      email: "copilot@github.com"
+      name: "SWProductivity",
+      email: ""
     },
     plugins: plugins
   };
