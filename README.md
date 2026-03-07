@@ -1,4 +1,4 @@
-# Awesome Copilot - Embedded & Automotive
+# AURA Marketplace - Embedded & Automotive
 
 A company-internal collection of custom agents, instructions, and skills to supercharge GitHub Copilot for embedded and automotive development.
 

@@ -1,4 +1,4 @@
-# Contributing to Awesome Copilot - Embedded & Automotive
+# Contributing to AURA Marketplace
 
 Thank you for your interest in contributing! We welcome contributions to help expand our collection of custom agents, instructions, and skills for embedded and automotive development.
 
@@ -158,8 +158,8 @@ plugins/my-plugin-id/
   "description": "Plugin description",
   "version": "1.0.0",
   "keywords": [],
-  "author": { "name": "Awesome Copilot Community" },
-  "repository": "https://github.com/github/awesome-copilot",
+  "author": { "name": "AURA Maintainers" },
+  "repository": "https://github.vitesco.io/SWProductivity/AURA_Marketplace",
   "license": "MIT",
   "agents": ["./agents/my-agent.md"],
   "commands": ["./commands/my-command.md"],

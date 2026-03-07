@@ -202,10 +202,10 @@ Use this skill when you need to:
 
     console.log("\n📖 Resources:");
     console.log(
-      "   - Anthropic Skills Spec: https://agentskills.io/specification"
+      "   - Skills documentation: docs/README.skills.md"
     );
     console.log(
-      "   - Project Documentation: AGENTS.md (section on Agent Skills)"
+      "   - Project documentation: AGENTS.md (section on Agent Skills)"
     );
   } catch (error) {
     console.error(`❌ Error creating skill template: ${error.message}`);

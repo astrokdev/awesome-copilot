@@ -29,7 +29,7 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md#adding-instructions) for guidelines on 
 
 Curated plugins of related agents and skills organized around specific themes, workflows, or use cases. Plugins can be installed directly via GitHub Copilot CLI or VS Code.
 
-> **Awesome Copilot is a default plugin marketplace** — no setup required in either Copilot CLI or VS Code.`,
+> **AURA_Marketplace** is the internal plugin marketplace for embedded and automotive GitHub Copilot resources.`,
 
   pluginsUsage: `### How to Contribute
 
@@ -44,8 +44,8 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md#adding-plugins) for guidelines on how t
 - Plugins make it easy to adopt comprehensive toolkits for particular scenarios
 
 **Find & Install in Copilot CLI:**
-- Browse the marketplace from within an interactive Copilot session: \\\`/plugin marketplace browse awesome-copilot\\\`
-- Install a plugin: \\\`copilot plugin install <plugin-name>@awesome-copilot\\\`
+- Browse the marketplace from within an interactive Copilot session: \\\`/plugin marketplace browse AURA_Marketplace\\\`
+- Install a plugin: \\\`copilot plugin install <plugin-name>@AURA_Marketplace\\\`
 
 **Find & Install in VS Code:**
 - Open the Extensions search view and type \\\`@agentPlugins\\\` to browse available plugins

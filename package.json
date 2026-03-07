@@ -1,5 +1,5 @@
 {
-  "name": "awesome-copilot",
+  "name": "aura-marketplace",
   "version": "1.0.0",
   "description": "Internal golden repo for embedded and automotive GitHub Copilot agents, instructions, and skills.",
   "main": "./eng/update-readme.js",

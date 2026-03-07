@@ -1,29 +1,23 @@
 # Security
 
-GitHub takes the security of our software products and services seriously, including all of the open source code repositories managed through our GitHub organizations, such as [GitHub](https://github.com/GitHub).
-
-Even though [open source repositories are outside of the scope of our bug bounty program](https://bounty.github.com/index.html#scope) and therefore not eligible for bounty rewards, we will ensure that your finding gets passed along to the appropriate maintainers for remediation. 
-
 ## Reporting Security Issues
-
-If you believe you have found a security vulnerability in any GitHub-owned repository, please report it to us through coordinated disclosure.
 
 **Please do not report security vulnerabilities through public GitHub issues, discussions, or pull requests.**
 
-Instead, please send an email to opensource-security[@]github.com.
+If you believe you have found a security issue in AURA_Marketplace content (e.g., an agent or instruction that could be used to exfiltrate sensitive data, bypass security controls, or cause harm), please report it through your company's internal security disclosure process.
 
-Please include as much of the information listed below as you can to help us better understand and resolve the issue:
+Contact the AURA maintainers team privately via [@SWProductivity/aura-maintainers](https://github.vitesco.io/orgs/SWProductivity/teams/aura-maintainers) or follow your company's Responsible Disclosure Policy.
 
-  * The type of issue (e.g., buffer overflow, SQL injection, or cross-site scripting)
-  * Full paths of source file(s) related to the manifestation of the issue
-  * The location of the affected source code (tag/branch/commit or direct URL)
-  * Any special configuration required to reproduce the issue
-  * Step-by-step instructions to reproduce the issue
-  * Proof-of-concept or exploit code (if possible)
-  * Impact of the issue, including how an attacker might exploit the issue
+When reporting, please include:
 
-This information will help us triage your report more quickly.
+- A description of the issue and its potential impact
+- The file(s) affected (agent, instruction, skill, or plugin)
+- Steps to reproduce or demonstrate the vulnerability
 
-## Policy
+## Scope
 
-See [GitHub's Safe Harbor Policy](https://docs.github.com/en/site-policy/security-policies/github-bug-bounty-program-legal-safe-harbor#1-safe-harbor-terms)
+This repository contains GitHub Copilot configuration files (agents, instructions, skills, plugins). Security concerns include:
+
+- Prompt injection vulnerabilities in agent definitions
+- Instructions designed to bypass security policies or exfiltrate data
+- Skills or plugins that execute unsafe commands or expose sensitive information
