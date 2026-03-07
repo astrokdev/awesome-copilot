@@ -11,6 +11,8 @@
     "plugin:create": "node ./eng/create-plugin.mjs",
     "skill:validate": "node ./eng/validate-skills.mjs",
     "skill:create": "node ./eng/create-skill.mjs",
+    "agent:create": "node ./eng/create-agent.mjs",
+    "instructions:create": "node ./eng/create-instructions.mjs",
     "plugin:clean": "node ./eng/clean-materialized-plugins.mjs",
     "plugin:generate-marketplace": "node ./eng/generate-marketplace.mjs"
   },

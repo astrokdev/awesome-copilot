@@ -1,0 +1,11 @@
+{
+  "name": "embedded-c-starter",
+  "description": "Starter toolkit for embedded C/C++ development: a MISRA-aware code reviewer agent and a CMake build helper skill.",
+  "version": "1.0.0",
+  "keywords": ["embedded", "c", "cpp", "misra", "cmake", "automotive"],
+  "author": { "name": "AURA Maintainers" },
+  "repository": "https://github.vitesco.io/SWProductivity/AURA_Marketplace",
+  "license": "MIT",
+  "agents": ["./agents/embedded-c-reviewer.md"],
+  "skills": ["./skills/cmake-build-helper/"]
+}

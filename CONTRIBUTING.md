@@ -30,8 +30,7 @@ General development topics (code review, architecture, CI/CD, testing patterns, 
 
 - [How to Contribute](#how-to-contribute)
   - [Adding Instructions](#adding-instructions)
-  - [Adding Prompts](#adding-prompts)
-  - [Adding Agents](#adding-agents)
+  - [Adding an Agent](#adding-an-agent)
   - [Adding Skills](#adding-skills)
   - [Adding Plugins](#adding-plugins)
   - [Adding Hooks](#adding-hooks)
@@ -40,8 +39,7 @@ General development topics (code review, architecture, CI/CD, testing patterns, 
 - [What We Accept](#what-we-accept)
 - [What We Don't Accept](#what-we-dont-accept)
 - [Quality Guidelines](#quality-guidelines)
-- [Contributor Recognition](#contributor-recognition)
-  - [Contribution Types](#contribution-types)
+- [Contribution Types](#contribution-types)
 - [Code of Conduct](#code-of-conduct)
 - [License](#license)
 
@@ -61,6 +59,7 @@ Instructions help customize GitHub Copilot's behavior for specific technologies,
 ```markdown
 ---
 description: 'Instructions for customizing GitHub Copilot behavior for specific technologies and practices'
+applyTo: '**.c, **.cpp, **.h'
 ---
 
 # Your Technology/Framework Name
@@ -81,7 +80,7 @@ description: 'Instructions for customizing GitHub Copilot behavior for specific 
 Agents are specialized configurations that transform GitHub Copilot Chat into domain-specific assistants or personas for particular development scenarios.
 
 1. **Create your agent file**: Add a new `.agent.md` file in the `agents/` directory
-2. **Follow the naming convention**: Use descriptive, lowercase filenames with hyphens and the `.agent.md` extension (e.g., `react-performance-expert.agent.md`)
+2. **Follow the naming convention**: Use descriptive, lowercase filenames with hyphens and the `.agent.md` extension (e.g., `misra-c-reviewer.agent.md`)
 3. **Include frontmatter**: Add metadata at the top of your file with required fields
 4. **Define the persona**: Create a clear identity and expertise area for the agent
 5. **Test your agent**: Ensure the agent provides helpful, accurate responses in its domain
@@ -91,7 +90,7 @@ Agents are specialized configurations that transform GitHub Copilot Chat into do
 ```markdown
 ---
 description: 'Brief description of the agent and its purpose'
-model: 'gpt-5'
+model: 'gpt-4o'
 tools: ['codebase', 'terminalCommand']
 name: 'My Agent Name'
 ---
@@ -295,34 +294,19 @@ Create a daily summary of open issues for the team.
 
 ## Submitting Your Contribution
 
-1. **Fork this repository**
-2. **Create a new branch** for your contribution
-3. **Add your instruction, skills, agents, workflow, or plugin** following the guidelines above
-4. **Run the update script**: `npm start` to update the README with your new file (make sure you run `npm install` first if you haven't already)
-   - A GitHub Actions workflow will verify that this step was performed correctly
-   - If the README.md would be modified by running the script, the PR check will fail with a comment showing the required changes
-5. **Submit a pull request** targeting the `staged` branch with:
-   - A clear title describing your contribution
-   - A brief description of what your instruction/skill/agent does
-   - Any relevant context or usage notes
+1. **Fork this repository** and create a new branch for your contribution
+2. **Add your resource** following the guidelines above — use `npm run agent:create`, `npm run instructions:create`, or `npm run skill:create` to scaffold a correct template
+3. **Run `npm run build`** to regenerate the README tables (run `npm install` first if needed)
+   - A GitHub Actions workflow will verify this step was performed correctly
+   - If `README.md` would be modified by running the script, the PR check will fail with a comment showing the required changes
+4. **Submit a pull request** targeting the `staged` branch with a clear title and brief description
 
 > [!IMPORTANT]
-> All pull requests should target the **`staged`** branch, not `main`.
-
-> [!NOTE] 
-> We use [all-contributors](https://github.com/all-contributors/all-contributors) to recognize all types of contributions to the project. Jump to [Contributors Recognition](#contributor-recognition) to learn more!
+> All pull requests must target the **`staged`** branch, not `main`.
 
 ## What We Accept
 
-We welcome contributions covering any technology, framework, or development practice that helps developers work more effectively with GitHub Copilot. This includes:
-
-- Programming languages and frameworks
-- Development methodologies and best practices
-- Architecture patterns and design principles
-- Testing strategies and quality assurance
-- DevOps and deployment practices
-- Accessibility and inclusive design
-- Performance optimization techniques
+We welcome contributions covering embedded and automotive development topics that help engineers work more effectively with GitHub Copilot. This includes everything listed in the [In Scope](#in-scope) section above, plus general software quality topics (code review, testing patterns, CI/CD, documentation) when they apply to embedded workflows.
 
 ## What We Don't Accept
 
@@ -344,34 +328,20 @@ To maintain a safe, responsible, and constructive community, we will **not accep
 - **Write clearly**: Use simple, direct language
 - **Promote best practices**: Encourage secure, maintainable, and ethical development practices
 
-## Contributor Recognition
+## Contribution Types
 
-We use [all-contributors](https://github.com/all-contributors/all-contributors) to recognize **all types of contributions** to this project.
+We welcome many kinds of contributions:
 
-To add yourself, leave a comment on a relevant issue or pull request using your GitHub username and the appropriate contribution type(s):
+| Category | Description |
+| --- | --- |
+| **Instructions** | Custom instruction sets that guide GitHub Copilot behavior |
+| **Agents** | Defined GitHub Copilot roles or personas for embedded domains |
+| **Skills** | Specialized knowledge of a task for GitHub Copilot |
+| **Workflows** | Agentic Workflows for AI-powered repository automation |
+| **Plugins** | Installable packages of related agents, instructions, or skills |
+| **Hooks** | Automated workflows triggered by Copilot agent session events |
 
-```markdown
-@all-contributors add @username for contributionType1, contributionType2
-```
-
-The contributors list is updated automatically every Sunday at **3:00 AM UTC**. When the next run completes, your name will appear in the [README Contributors](./README.md#contributors-) section.
-
-### Contribution Types
-
-We welcome many kinds of contributions, including the custom categories below:
-
-| Category | Description | Emoji |
-| --- | --- | :---: |
-| **Instructions** | Custom instruction sets that guide GitHub Copilot behavior | 🧭 |
-| **Agents** | Defined GitHub Copilot roles or personalities | 🎭 |
-| **Skills** | Specialized knowledge of a task for GitHub Copilot | 🧰 |
-| **Workflows** | Agentic Workflows for AI-powered repository automation | ⚡ |
-| **Plugins** | Installable packages of related prompts, agents, or skills | 🎁 |
-
-In addition, all standard contribution types supported by [All Contributors](https://allcontributors.org/emoji-key/) are recognized.
-
-> Every contribution matters. Thanks for helping improve this resource for the GitHub Copilot community.
-
+> Every contribution matters. Thanks for helping build this resource for the embedded engineering community.
 
 ## Code of Conduct
 

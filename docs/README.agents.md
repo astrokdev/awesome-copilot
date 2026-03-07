@@ -1,7 +1,6 @@
 # 🤖 Custom Agents
 
 Custom agents for GitHub Copilot, making it easy for users and organizations to "specialize" their Copilot coding agent (CCA) through simple file-based configuration.
-
 ### How to Contribute
 
 See [CONTRIBUTING.md](../CONTRIBUTING.md#adding-agents) for guidelines on how to contribute new agents, improve existing ones, and share your use cases.
@@ -22,4 +21,6 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md#adding-agents) for guidelines on how to
 - Agents will have access to tools from configured MCP servers
 - Follow agent-specific instructions for optimal usage
 
-_No entries found yet._
+| Title | Description | MCP Servers |
+| ----- | ----------- | ----------- |
+| [Embedded C Reviewer](../agents/embedded-c-reviewer.agent.md)<br />[![Install in VS Code](https://img.shields.io/badge/VS_Code-Install-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](?url=vscode%3Achat-agent%2Finstall%3Furl%3Dhttps%3A%2F%2Fraw.github.vitesco.io%2FSWProductivity%2FAURA_Marketplace%2Fmain%2Fagents%2Fembedded-c-reviewer.agent.md)<br />[![Install in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-Install-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](?url=vscode-insiders%3Achat-agent%2Finstall%3Furl%3Dhttps%3A%2F%2Fraw.github.vitesco.io%2FSWProductivity%2FAURA_Marketplace%2Fmain%2Fagents%2Fembedded-c-reviewer.agent.md) | Expert code reviewer for embedded C/C++ with deep knowledge of MISRA C:2012, AUTOSAR C++14, and safety-critical development practices. |  |

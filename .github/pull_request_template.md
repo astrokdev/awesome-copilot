@@ -1,11 +1,14 @@
 ## Pull Request Checklist
 
-- [ ] I have read and followed the [CONTRIBUTING.md](https://github.com/github/awesome-copilot/blob/main/CONTRIBUTING.md) guidelines.
-- [ ] My contribution adds a new instruction, prompt, agent, skill, or workflow file in the correct directory.
-- [ ] The file follows the required naming convention.
-- [ ] The content is clearly structured and follows the example format.
-- [ ] I have tested my instructions, prompt, agent, skill, or workflow with GitHub Copilot.
-- [ ] I have run `npm start` and verified that `README.md` is up to date.
+> [!IMPORTANT]
+> This PR must target the **`staged`** branch, not `main`.
+
+- [ ] I have read the [CONTRIBUTING.md](https://github.vitesco.io/SWProductivity/AURA_Marketplace/blob/staged/CONTRIBUTING.md) guidelines.
+- [ ] My contribution is focused on embedded or automotive development (see scope in CONTRIBUTING.md).
+- [ ] The file follows the required naming convention (e.g., `my-agent.agent.md`, `my-topic.instructions.md`).
+- [ ] Required frontmatter fields are present (see CONTRIBUTING.md for each resource type).
+- [ ] I have tested my contribution with GitHub Copilot.
+- [ ] I have run `npm run build` and verified that `README.md` is up to date.
 
 ---
 
@@ -17,13 +20,13 @@
 
 ## Type of Contribution
 
-- [ ] New instruction file.
-- [ ] New prompt file.
-- [ ] New agent file.
-- [ ] New plugin.
-- [ ] New skill file.
-- [ ] New agentic workflow.
-- [ ] Update to existing instruction, prompt, agent, plugin, skill, or workflow.
+- [ ] New instruction file
+- [ ] New agent file
+- [ ] New skill
+- [ ] New plugin
+- [ ] New agentic workflow
+- [ ] New hook
+- [ ] Update to existing resource
 - [ ] Other (please specify):
 
 ---

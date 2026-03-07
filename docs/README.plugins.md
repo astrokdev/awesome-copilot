@@ -3,7 +3,6 @@
 Curated plugins of related agents and skills organized around specific themes, workflows, or use cases. Plugins can be installed directly via GitHub Copilot CLI or VS Code.
 
 > **Awesome Copilot is a default plugin marketplace** — no setup required in either Copilot CLI or VS Code.
-
 ### How to Contribute
 
 See [CONTRIBUTING.md](../CONTRIBUTING.md#adding-plugins) for guidelines on how to contribute new plugins, improve existing ones, and share your use cases.
@@ -24,4 +23,6 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md#adding-plugins) for guidelines on how t
 - Open the Extensions search view and type \`@agentPlugins\` to browse available plugins
 - Or open the Command Palette and run \`Chat: Plugins\`
 
-_No entries found yet._
+| Name | Description | Items | Tags |
+| ---- | ----------- | ----- | ---- |
+| [embedded-c-starter](../plugins/embedded-c-starter/README.md) | Starter toolkit for embedded C/C++ development: a MISRA-aware code reviewer agent and a CMake build helper skill. | 2 items | embedded, c, cpp, misra, cmake, automotive |

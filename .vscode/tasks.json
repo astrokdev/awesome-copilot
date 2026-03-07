@@ -44,19 +44,73 @@
       "group": "build",
       "detail": "Validates all skill manifest files.",
       "dependsOn": "npm install"
+    },
+    {
+      "label": "create-agent",
+      "type": "shell",
+      "command": "npm run agent:create",
+      "args": [
+        "--name",
+        "${input:agentName}",
+        "--description",
+        "${input:agentDescription}"
+      ],
+      "problemMatcher": [],
+      "group": "none",
+      "detail": "Creates a new agent file template.",
+      "dependsOn": "npm install"
+    },
+    {
+      "label": "create-instructions",
+      "type": "shell",
+      "command": "npm run instructions:create",
+      "args": [
+        "--name",
+        "${input:instructionsName}",
+        "--description",
+        "${input:instructionsDescription}"
+      ],
+      "problemMatcher": [],
+      "group": "none",
+      "detail": "Creates a new instructions file template.",
+      "dependsOn": "npm install"
     }
   ],
   "inputs": [
     {
       "id": "skillName",
-      "description": "Skill name (PascalCase)",
-      "default": "MySkill",
+      "description": "Skill name (lowercase, hyphens only)",
+      "default": "my-skill",
       "type": "promptString"
     },
     {
       "id": "skillDescription",
       "description": "Brief description of the skill",
       "default": "A brief description of my skill.",
+      "type": "promptString"
+    },
+    {
+      "id": "agentName",
+      "description": "Agent name (lowercase, hyphens only, e.g. misra-c-reviewer)",
+      "default": "my-agent",
+      "type": "promptString"
+    },
+    {
+      "id": "agentDescription",
+      "description": "Brief description of what this agent does",
+      "default": "A brief description of my agent.",
+      "type": "promptString"
+    },
+    {
+      "id": "instructionsName",
+      "description": "Instructions name (lowercase, hyphens only, e.g. freertos-development)",
+      "default": "my-instructions",
+      "type": "promptString"
+    },
+    {
+      "id": "instructionsDescription",
+      "description": "Brief description of what these instructions cover",
+      "default": "A brief description of my instructions.",
       "type": "promptString"
     }
   ]

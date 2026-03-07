@@ -69,3 +69,63 @@ The following instructions are only to be applied when performing a code review.
 - [ ] If `items` is present, each item has `path` and `kind` fields.
 - [ ] The `kind` field value is one of: `prompt`, `agent`, `instruction`, `skill`, or `hook`.
 - [ ] The plugin does not reference non-existent files.
+
+## Contributing with Copilot
+
+The following guidance applies when you are **writing a new resource** for this repository with Copilot's assistance.
+
+### Scope
+
+This is the AURA_Marketplace — an internal repository for embedded and automotive GitHub Copilot resources. Every contribution must be relevant to:
+
+- Languages: C, C++, Rust, Python (tooling/testing), Assembly
+- Standards: AUTOSAR, MISRA C/C++, ISO 26262, ASPICE, IEC 61508, DO-178C
+- RTOS: FreeRTOS, Zephyr, RTX, QNX, VxWorks
+- Protocols: CAN, LIN, FlexRay, Ethernet (SOME/IP, DoIP), SPI, I2C, UART
+- Build systems: CMake, Make, Bazel, Meson, Yocto/BitBake
+- Testing: Unity, CppUTest, GoogleTest, VectorCAST, LDRA, static analysis
+- Domains: firmware, device drivers, bootloaders, ECU development, safety-critical systems
+
+### Naming conventions
+
+| Resource | File pattern | Example |
+| --- | --- | --- |
+| Agent | `lowercase-hyphens.agent.md` | `misra-c-reviewer.agent.md` |
+| Instructions | `lowercase-hyphens.instructions.md` | `freertos-development.instructions.md` |
+| Skill | folder `lowercase-hyphens/SKILL.md` | `cmake-build-helper/SKILL.md` |
+| Workflow | `lowercase-hyphens.md` | `stale-issue-reporter.md` |
+
+### Required frontmatter
+
+**Agent** (`.agent.md`):
+```yaml
+---
+description: 'One-sentence description of what this agent does'
+model: 'gpt-4o'
+tools: ['codebase']
+name: 'Display Name'
+---
+```
+
+**Instructions** (`.instructions.md`):
+```yaml
+---
+description: 'One-sentence description of what these instructions cover'
+applyTo: '**.c, **.cpp, **.h, **.s'
+---
+```
+
+**Skill** (`SKILL.md`):
+```yaml
+---
+name: skill-folder-name
+description: 'One-sentence description — must match the folder name exactly'
+---
+```
+
+### Contribution workflow
+
+1. Use `npm run agent:create`, `npm run instructions:create`, or `npm run skill:create` to scaffold a valid template
+2. Fill in the placeholder sections with embedded-specific, actionable content
+3. Run `npm run build` to regenerate README tables
+4. Submit a PR targeting the `staged` branch (not `main`)
