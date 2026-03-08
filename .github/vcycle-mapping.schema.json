@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "vcycle-mapping.schema.json",
+  "title": "AURA V-Cycle Phase Mapping",
+  "description": "Maps ASPICE V-cycle phases to AURA resources for the Copilot Ecosystem Explorer (CEE) VS Code extension. Used as a placeholder/override layer on top of resource front-matter metadata.",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string" },
+    "$comment": { "type": "string" }
+  },
+  "patternProperties": {
+    "^(SYS|SWE|SUP|MAN|REU|ACQ)\\.[0-9]+(\\.[0-9]+)?$": {
+      "$ref": "#/definitions/PhaseEntry"
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "PhaseEntry": {
+      "type": "object",
+      "description": "Describes one ASPICE phase and the AURA resources recommended for it.",
+      "required": ["aspiceProcess", "resources"],
+      "additionalProperties": false,
+      "properties": {
+        "aspiceProcess": {
+          "type": "string",
+          "description": "Full ASPICE process name (e.g. 'Software Unit Verification').",
+          "minLength": 1
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Short human-readable label for the phase shown in the UI."
+        },
+        "roles": {
+          "type": "array",
+          "description": "Engineering roles responsible for or involved in this phase.",
+          "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+          "uniqueItems": true
+        },
+        "workProducts": {
+          "type": "array",
+          "description": "ASPICE work products produced or consumed in this phase.",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "resources": {
+          "type": "array",
+          "description": "AURA resource IDs to associate with this phase. Format: 'type:source:name' (e.g. 'agent:aura:embedded-c-reviewer', 'skill:aura:cmake-build-helper').",
+          "items": {
+            "type": "string",
+            "pattern": "^(agent|skill|instruction|prompt|hook|workflow|plugin):([a-z0-9-]+):([a-z0-9][a-z0-9-]*)$",
+            "description": "Resource ID in the format type:source:name"
+          },
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}

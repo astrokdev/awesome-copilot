@@ -1,0 +1,107 @@
+{
+  "$schema": "./.vcycle-mapping.schema.json",
+  "$comment": "ASPICE V-cycle phase → AURA resource mapping for the CEE VS Code extension. Resource IDs follow the pattern type:source:name (e.g. 'agent:aura:embedded-c-reviewer').",
+
+  "SYS.2": {
+    "aspiceProcess": "System Requirements Analysis",
+    "displayName": "System Requirements Analysis",
+    "roles": ["systems-engineer", "safety-engineer"],
+    "workProducts": ["SYS.RS", "SYS.2-WP1-System Requirements", "SYS.2-WP2-System Requirements Test Criteria"],
+    "resources": [
+      "agent:aura:autosar-architect",
+      "skill:aura:iso26262-review",
+      "skill:aura:tara-analysis"
+    ]
+  },
+
+  "SYS.3": {
+    "aspiceProcess": "System Architectural Design",
+    "displayName": "System Architectural Design",
+    "roles": ["systems-engineer", "safety-engineer", "security-engineer"],
+    "workProducts": ["SYS.AS", "SYS.3-WP1-System Architectural Design", "SYS.3-WP2-System Interface Requirements"],
+    "resources": [
+      "agent:aura:autosar-architect",
+      "skill:aura:iso26262-review",
+      "skill:aura:tara-analysis"
+    ]
+  },
+
+  "SWE.1": {
+    "aspiceProcess": "Software Requirements Analysis",
+    "displayName": "Software Requirements Analysis",
+    "roles": ["software-engineer", "safety-engineer", "security-engineer"],
+    "workProducts": ["SWE.RS", "SWE.1-WP1-Software Requirements", "SWE.1-WP2-Software Requirements Test Criteria"],
+    "resources": [
+      "agent:aura:autosar-swc-design",
+      "skill:aura:iso26262-review",
+      "skill:aura:tara-analysis"
+    ]
+  },
+
+  "SWE.2": {
+    "aspiceProcess": "Software Architectural Design",
+    "displayName": "Software Architectural Design",
+    "roles": ["software-architect", "safety-engineer", "security-engineer"],
+    "workProducts": ["SWE.AS", "SWE.2-WP1-Software Architectural Design", "SWE.2-WP2-Software Interface Requirements"],
+    "resources": [
+      "agent:aura:autosar-architect",
+      "agent:aura:autosar-swc-design",
+      "agent:aura:embedded-c-reviewer",
+      "skill:aura:cmake-build-helper",
+      "skill:aura:iso26262-review",
+      "skill:aura:tara-analysis"
+    ]
+  },
+
+  "SWE.3": {
+    "aspiceProcess": "Software Detailed Design and Unit Construction",
+    "displayName": "Software Detailed Design & Unit Construction",
+    "roles": ["software-developer", "safety-engineer"],
+    "workProducts": ["SWE.DD", "SWE.3-WP1-Software Detailed Design", "SWE.3-WP2-Unit Test Specification"],
+    "resources": [
+      "agent:aura:autosar-swc-design",
+      "agent:aura:embedded-c-reviewer",
+      "skill:aura:cmake-build-helper",
+      "skill:aura:low-level-driver-design",
+      "skill:aura:can-dbc-parser",
+      "skill:aura:iso26262-review"
+    ]
+  },
+
+  "SWE.4": {
+    "aspiceProcess": "Software Unit Verification",
+    "displayName": "Software Unit Verification",
+    "roles": ["software-developer", "test-engineer"],
+    "workProducts": ["SWE.4-WP1-Unit Test Specification", "SWE.4-WP2-Unit Test Results", "SWE.4-WP3-Unit Test Coverage"],
+    "resources": [
+      "agent:aura:embedded-c-reviewer",
+      "skill:aura:cmake-build-helper",
+      "skill:aura:ceedling-unit-test",
+      "instruction:aura:freertos-development"
+    ]
+  },
+
+  "SWE.5": {
+    "aspiceProcess": "Software Integration and Integration Test",
+    "displayName": "Software Integration & Integration Test",
+    "roles": ["software-developer", "test-engineer", "safety-engineer"],
+    "workProducts": ["SWE.5-WP1-Software Integration Test Specification", "SWE.5-WP2-Software Integration Test Results", "SWE.5-WP3-Software Integration Test Coverage"],
+    "resources": [
+      "agent:aura:embedded-c-reviewer",
+      "skill:aura:cmake-build-helper",
+      "skill:aura:iso26262-review"
+    ]
+  },
+
+  "SWE.6": {
+    "aspiceProcess": "Software Qualification Test",
+    "displayName": "Software Qualification Test",
+    "roles": ["test-engineer", "safety-engineer", "security-engineer"],
+    "workProducts": ["SWE.6-WP1-Software Qualification Test Specification", "SWE.6-WP2-Software Qualification Test Results"],
+    "resources": [
+      "agent:aura:embedded-c-reviewer",
+      "skill:aura:iso26262-review",
+      "skill:aura:tara-analysis"
+    ]
+  }
+}
