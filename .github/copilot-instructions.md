@@ -128,4 +128,4 @@ description: 'One-sentence description — must match the folder name exactly'
 1. Use `npm run agent:create`, `npm run instructions:create`, or `npm run skill:create` to scaffold a valid template
 2. Fill in the placeholder sections with embedded-specific, actionable content
 3. Run `npm run build` to regenerate README tables
-4. Submit a PR targeting the `staged` branch (not `main`)
+4. Submit a PR targeting the `develop` branch (not `main`)

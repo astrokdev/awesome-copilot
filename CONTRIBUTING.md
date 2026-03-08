@@ -28,20 +28,37 @@ General development topics (code review, architecture, CI/CD, testing patterns, 
 
 ## Table of Contents
 
-- [How to Contribute](#how-to-contribute)
-  - [Adding Instructions](#adding-instructions)
-  - [Adding an Agent](#adding-an-agent)
-  - [Adding Skills](#adding-skills)
-  - [Adding Plugins](#adding-plugins)
-  - [Adding Hooks](#adding-hooks)
-  - [Adding Agentic Workflows](#adding-agentic-workflows)
-- [Submitting Your Contribution](#submitting-your-contribution)
-- [What We Accept](#what-we-accept)
-- [What We Don't Accept](#what-we-dont-accept)
-- [Quality Guidelines](#quality-guidelines)
-- [Contribution Types](#contribution-types)
-- [Code of Conduct](#code-of-conduct)
-- [License](#license)
+- [Contributing to AURA Marketplace](#contributing-to-aura-marketplace)
+  - [Scope](#scope)
+    - [In Scope](#in-scope)
+    - [Out of Scope](#out-of-scope)
+  - [Table of Contents](#table-of-contents)
+  - [How to Contribute](#how-to-contribute)
+    - [Adding Instructions](#adding-instructions)
+      - [Example instruction format](#example-instruction-format)
+    - [Adding an Agent](#adding-an-agent)
+      - [Example agent format](#example-agent-format)
+    - [Adding Skills](#adding-skills)
+    - [Adding Plugins](#adding-plugins)
+      - [Creating a plugin](#creating-a-plugin)
+      - [Plugin structure](#plugin-structure)
+      - [plugin.json example](#pluginjson-example)
+      - [Plugin Guidelines](#plugin-guidelines)
+      - [Adding External Plugins](#adding-external-plugins)
+    - [Adding Hooks](#adding-hooks)
+      - [Example hook structure](#example-hook-structure)
+      - [Example README.md frontmatter](#example-readmemd-frontmatter)
+      - [Hook Guidelines](#hook-guidelines)
+    - [Adding Agentic Workflows](#adding-agentic-workflows)
+      - [Workflow file example](#workflow-file-example)
+      - [Workflow Guidelines](#workflow-guidelines)
+  - [Submitting Your Contribution](#submitting-your-contribution)
+  - [What We Accept](#what-we-accept)
+  - [What We Don't Accept](#what-we-dont-accept)
+  - [Quality Guidelines](#quality-guidelines)
+  - [Contribution Types](#contribution-types)
+  - [Code of Conduct](#code-of-conduct)
+  - [License](#license)
 
 ## How to Contribute
 
@@ -58,8 +75,8 @@ Instructions help customize GitHub Copilot's behavior for specific technologies,
 
 ```markdown
 ---
-description: 'Instructions for customizing GitHub Copilot behavior for specific technologies and practices'
-applyTo: '**.c, **.cpp, **.h'
+description: "Instructions for customizing GitHub Copilot behavior for specific technologies and practices"
+applyTo: "**.c, **.cpp, **.h"
 ---
 
 # Your Technology/Framework Name
@@ -89,10 +106,10 @@ Agents are specialized configurations that transform GitHub Copilot Chat into do
 
 ```markdown
 ---
-description: 'Brief description of the agent and its purpose'
-model: 'gpt-4o'
-tools: ['codebase', 'terminalCommand']
-name: 'My Agent Name'
+description: "Brief description of the agent and its purpose"
+model: "gpt-4o"
+tools: ["codebase", "terminalCommand"]
+name: "My Agent Name"
 ---
 
 You are an expert [domain/role] with deep knowledge in [specific areas].
@@ -196,6 +213,7 @@ To add an external plugin, append an entry to `plugins/external.json` following 
 ```
 
 Supported source types:
+
 - **GitHub**: `{ "source": "github", "repo": "owner/repo", "ref": "v1.0.0" }`
 - **Git URL**: `{ "source": "url", "url": "https://gitlab.com/team/plugin.git" }`
 - **npm**: `{ "source": "npm", "package": "@scope/package", "version": "1.0.0" }`
@@ -226,9 +244,9 @@ hooks/my-hook/
 
 ```markdown
 ---
-name: 'My Hook Name'
-description: 'Brief description of what this hook does'
-tags: ['logging', 'automation']
+name: "My Hook Name"
+description: "Brief description of what this hook does"
+tags: ["logging", "automation"]
 ---
 
 # My Hook Name
@@ -299,10 +317,10 @@ Create a daily summary of open issues for the team.
 3. **Run `npm run build`** to regenerate the README tables (run `npm install` first if needed)
    - A GitHub Actions workflow will verify this step was performed correctly
    - If `README.md` would be modified by running the script, the PR check will fail with a comment showing the required changes
-4. **Submit a pull request** targeting the `staged` branch with a clear title and brief description
+4. **Submit a pull request** targeting the `develop` branch with a clear title and brief description
 
 > [!IMPORTANT]
-> All pull requests must target the **`staged`** branch, not `main`.
+> All pull requests must target the **`develop`** branch, not `main`.
 
 ## What We Accept
 
@@ -332,14 +350,14 @@ To maintain a safe, responsible, and constructive community, we will **not accep
 
 We welcome many kinds of contributions:
 
-| Category | Description |
-| --- | --- |
-| **Instructions** | Custom instruction sets that guide GitHub Copilot behavior |
-| **Agents** | Defined GitHub Copilot roles or personas for embedded domains |
-| **Skills** | Specialized knowledge of a task for GitHub Copilot |
-| **Workflows** | Agentic Workflows for AI-powered repository automation |
-| **Plugins** | Installable packages of related agents, instructions, or skills |
-| **Hooks** | Automated workflows triggered by Copilot agent session events |
+| Category         | Description                                                     |
+| ---------------- | --------------------------------------------------------------- |
+| **Instructions** | Custom instruction sets that guide GitHub Copilot behavior      |
+| **Agents**       | Defined GitHub Copilot roles or personas for embedded domains   |
+| **Skills**       | Specialized knowledge of a task for GitHub Copilot              |
+| **Workflows**    | Agentic Workflows for AI-powered repository automation          |
+| **Plugins**      | Installable packages of related agents, instructions, or skills |
+| **Hooks**        | Automated workflows triggered by Copilot agent session events   |
 
 > Every contribution matters. Thanks for helping build this resource for the embedded engineering community.
 

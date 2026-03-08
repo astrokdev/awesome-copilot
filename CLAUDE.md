@@ -31,14 +31,14 @@ This is a **content repository** (not a traditional code project). The primary c
 
 ### Resource Directories
 
-| Directory | File Pattern | Purpose |
-|-----------|-------------|---------|
-| `agents/` | `*.agent.md` | GitHub Copilot agent definitions |
-| `instructions/` | `*.instructions.md` | Coding standards applied to file patterns |
-| `skills/*/` | `SKILL.md` + assets | Self-contained skill folders |
-| `hooks/*/` | `README.md` + `hooks.json` | Automated event-triggered workflows |
-| `workflows/` | `*.md` | Agentic workflows for GitHub Actions |
-| `plugins/*/` | `.github/plugin/plugin.json` | Installable bundles of agents/skills |
+| Directory       | File Pattern                 | Purpose                                   |
+| --------------- | ---------------------------- | ----------------------------------------- |
+| `agents/`       | `*.agent.md`                 | GitHub Copilot agent definitions          |
+| `instructions/` | `*.instructions.md`          | Coding standards applied to file patterns |
+| `skills/*/`     | `SKILL.md` + assets          | Self-contained skill folders              |
+| `hooks/*/`      | `README.md` + `hooks.json`   | Automated event-triggered workflows       |
+| `workflows/`    | `*.md`                       | Agentic workflows for GitHub Actions      |
+| `plugins/*/`    | `.github/plugin/plugin.json` | Installable bundles of agents/skills      |
 
 ### Build Pipeline
 
@@ -66,7 +66,7 @@ All file and folder names use **lowercase with hyphens** (e.g., `my-resource-nam
 
 ### Pull Requests
 
-PRs must target the **`staged`** branch, not `main`.
+PRs must target the **`develop`** branch, not `main`.
 
 ### External Plugins
 

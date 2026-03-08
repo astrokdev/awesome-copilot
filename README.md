@@ -66,7 +66,7 @@ For AI coding agents working with this project, refer to [AGENTS.md](AGENTS.md) 
 1. Follow our file naming conventions and frontmatter requirements
 2. Run `npm run build` to update the generated README tables
 3. Run `bash scripts/fix-line-endings.sh` to normalize line endings
-4. Submit a pull request targeting the **`staged`** branch
+4. Submit a pull request targeting the **`develop`** branch
 
 ## Repository Structure
 

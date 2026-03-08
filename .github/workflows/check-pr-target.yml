@@ -17,13 +17,13 @@ jobs:
         with:
           script: |
             const body = [
-              '⚠️ **This PR targets `main`, but PRs should target `staged`.**',
+              '⚠️ **This PR targets `main`, but PRs should target `develop`.**',
               '',
-              'The `main` branch is auto-published from `staged` and should not receive direct PRs.',
-              'Please close this PR and re-open it against the `staged` branch.',
+              'The `main` branch is auto-published from `develop` and should not receive direct PRs.',
+              'Please close this PR and re-open it against the `develop` branch.',
               '',
               'You can change the base branch using the **Edit** button at the top of this PR,',
-              'or run: `gh pr edit ${{ github.event.pull_request.number }} --base staged`'
+              'or run: `gh pr edit ${{ github.event.pull_request.number }} --base develop`'
             ].join('\n');
 
             await github.rest.pulls.createReview({

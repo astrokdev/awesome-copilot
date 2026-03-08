@@ -1,9 +1,9 @@
 ## Pull Request Checklist
 
 > [!IMPORTANT]
-> This PR must target the **`staged`** branch, not `main`.
+> This PR must target the **`develop`** branch, not `main`.
 
-- [ ] I have read the [CONTRIBUTING.md](https://github.vitesco.io/SWProductivity/AURA_Marketplace/blob/staged/CONTRIBUTING.md) guidelines.
+- [ ] I have read the [CONTRIBUTING.md](https://github.vitesco.io/SWProductivity/AURA_Marketplace/blob/develop/CONTRIBUTING.md) guidelines.
 - [ ] My contribution is focused on embedded or automotive development (see scope in CONTRIBUTING.md).
 - [ ] The file follows the required naming convention (e.g., `my-agent.agent.md`, `my-topic.instructions.md`).
 - [ ] Required frontmatter fields are present (see CONTRIBUTING.md for each resource type).

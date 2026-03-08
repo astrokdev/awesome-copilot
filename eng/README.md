@@ -36,7 +36,7 @@ Interactive CLI for creating a new skill: `npm run skill:create -- --name <name>
 
 ### `materialize-plugins.mjs`
 
-Copies agent/skill source files into plugin directories during the `staged` -> `main` publish workflow.
+Copies agent/skill source files into plugin directories during the `develop` -> `main` publish workflow.
 
 ### `clean-materialized-plugins.mjs`
 

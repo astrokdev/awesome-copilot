@@ -2,7 +2,7 @@ name: Publish to main
 
 on:
   push:
-    branches: [staged]
+    branches: [develop]
 
 concurrency:
   group: publish-to-main
@@ -16,10 +16,10 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout staged branch
+      - name: Checkout develop branch
         uses: actions/checkout@v4
         with:
-          ref: staged
+          ref: develop
           fetch-depth: 0
 
       - name: Extract Node version from package.json
@@ -51,10 +51,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git add -f plugins/*/agents/ plugins/*/skills/
-          git commit -m "chore: publish from staged" --allow-empty
+          git commit -m "chore: publish from develop" --allow-empty
           git push origin HEAD:main --force
-
-      - name: Dispatch website deployment
-        run: gh workflow run deploy-website.yml --ref main
-        env:
-          GH_TOKEN: ${{ github.token }}
