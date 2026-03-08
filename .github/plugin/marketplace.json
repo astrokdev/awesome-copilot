@@ -13,8 +13,8 @@
     {
       "name": "embedded-c-starter",
       "source": "embedded-c-starter",
-      "description": "Starter toolkit for embedded C/C++ development: a MISRA-aware code reviewer agent and a CMake build helper skill.",
-      "version": "1.0.0"
+      "description": "Starter toolkit for embedded C/C++ development: MISRA-aware code reviewer, AUTOSAR SWC designer agent, and a CMake build helper skill.",
+      "version": "1.1.0"
     }
   ]
 }
