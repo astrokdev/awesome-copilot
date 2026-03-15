@@ -50,6 +50,12 @@ skills/visual-explainer/
 | `/generate-misra-heatmap` | MISRA checker output → violation heatmap |
 | `/generate-fmea-matrix` | FMEA/TARA data → risk matrix |
 | `/generate-memory-map` | Linker script / region list → MCU memory map |
+| `/generate-dtc-catalog` | DEM config / DTC list → diagnostic trouble code catalog |
+| `/generate-test-coverage` | gcov/lcov/Ceedling output → ISO 26262 coverage dashboard |
+| `/generate-rte-timing` | ARXML OsTask config → AUTOSAR RTE/OS Gantt schedule |
+| `/generate-signal-routing` | ComMatrix / DBC / ARXML → gateway signal routing matrix |
+| `/generate-calibration-map` | CalPrm ARXML / A2L → ECU calibration parameter overview |
+| `/generate-boot-sequence` | EcuM config / timing data → ECU boot sequence timeline |
 
 ## Aesthetic Principles
 

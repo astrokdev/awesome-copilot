@@ -153,3 +153,168 @@ Use as connector labels and port socket colors.
 | I2 | Moderate |
 | I3 | Major |
 | I4 | Severe (safety, financial, operational, privacy) |
+
+---
+
+## DTC Status Badge Colors
+
+Use these for DTC catalog status column badges. Status reflects current DEM event memory state.
+
+| Status | Background | Text | Border | Meaning |
+|--------|------------|------|--------|---------|
+| Active | `#7b0000` | `#ff6666` | `#ff2222` | Fault currently present |
+| Confirmed | `#b34700` | `#fff` | `#ff6600` | Confirmed by debounce — in primary memory |
+| Pending | `#806600` | `#fff` | `#ffcc00` | Pre-confirmed — debounce in progress |
+| Stored | `#1a3a5c` | `#4da6ff` | `#3399ff` | Previously active — in DEM event memory |
+| Cleared | `#1a5c1a` | `#66cc66` | `#33cc33` | Cleared by tester or aging |
+
+## DTC Severity Badge Colors
+
+| Severity | Background | Usage |
+|----------|------------|-------|
+| Critical | `#7b0000` / `#ff6666` text | Safety-relevant faults (ASIL > QM); immediate safe-state risk |
+| Warning | `#806600` / `#ffcc00` text | Degraded operation; function available but impaired |
+| Info | `#1a3a5c` / `#4da6ff` text | Informational / QM; no safety impact |
+
+## DTC Domain System Badge Colors
+
+| Domain | Background | Usage |
+|--------|------------|-------|
+| Powertrain | `#003366` | Engine, motor, battery, transmission ECUs |
+| Body | `#3d1a4d` | Body control, lighting, comfort ECUs |
+| Chassis | `#1a4d1a` | Brakes, steering, suspension ECUs |
+| Network | `#4d1a00` | CAN bus, gateway, NM faults |
+
+---
+
+## Test Coverage Adequacy Colors
+
+Use for coverage bar fill and adequacy badge colors in test coverage dashboards.
+
+| State | Color | Condition |
+|-------|-------|-----------|
+| Adequate (pass) | `#1a5c1a` green | Meets or exceeds ASIL threshold |
+| Near threshold | `#806600` amber | ≥ 80% of required threshold |
+| Insufficient | `#7b0000` red | < 80% of required threshold |
+| N/A | `--surface-raised` | Coverage method not required for this ASIL |
+
+### ISO 26262 Coverage Thresholds Reference
+
+| ASIL | Statement | Branch | MC/DC |
+|------|-----------|--------|-------|
+| D    | 100%      | 100%   | 100% (mandatory) |
+| C    | 100%      | 100%   | 100% (mandatory) |
+| B    | 100%      | 100%   | N/A |
+| A    | 100%      | 100%   | N/A |
+| QM   | ≥ 80%     | ≥ 70%  | N/A |
+
+---
+
+## RTE / OS Task Colors
+
+Task track color is determined by the highest ASIL runnable mapped to the task.
+
+| ASIL | Track Background | Border | Usage |
+|------|-----------------|--------|-------|
+| D (highest) | `#7b0000` | `#ff2222` | Safety-critical cyclic task |
+| C | `#b34700` | `#ff6600` | High-criticality task |
+| B | `#806600` | `#ffcc00` | Medium-criticality task |
+| A | `#1a5c1a` | `#33cc33` | Low-criticality task |
+| QM | `#1a3a5c` | `#3399ff` | Quality-managed background task |
+| ISR | `#4d1a00` | `#ff6600` | Interrupt service routine (always highest prio) |
+
+### AUTOSAR Execution Context Colors (for runnable type annotation)
+
+| Context | Color | Description |
+|---------|-------|-------------|
+| Init Runnable | `#003366` | Runs once at startup (EcuM phase) |
+| Cyclic Runnable | `#1a4d1a` | Triggered by OS alarm at fixed period |
+| Event Runnable | `#4d3300` | Triggered by DataReceivedEvent or ModeSwitchEvent |
+| Background Runnable | `#2a2a4d` | Idle loop / lowest priority |
+
+### CPU Load Color Zones
+
+| Load | Color | Threshold |
+|------|-------|-----------|
+| Normal | `#1a5c1a` green | ≤ 60% |
+| Warning | `#806600` amber | 60–80% |
+| Critical | `#7b0000` red | > 80% |
+
+---
+
+## Signal Routing / Network Bus Colors
+
+Use for swimlane backgrounds, bus line strokes, routing arrow colors, and ECU chip borders.
+
+| Bus Type | Background | Border/Stroke | Usage |
+|----------|------------|---------------|-------|
+| CAN | `#1a4d1a` | `#33cc33` | Standard CAN / CAN FD |
+| LIN | `#4d3300` | `#ff9900` | LIN sub-bus (body, lighting) |
+| Ethernet | `#003366` | `#3399ff` | 100BASE-T1 / 1000BASE-T1 / SOME-IP |
+| FlexRay | `#4d2200` | `#ff6633` | FlexRay (legacy chassis/powertrain) |
+| MOST | `#4d1a4d` | `#cc66ff` | MOST optical (legacy infotainment) |
+
+### Signal Direction Symbols
+
+| Symbol | Meaning |
+|--------|---------|
+| `→` | Unidirectional gateway routing |
+| `↔` | Bidirectional routing (rare) |
+| `⇒` | Protocol translation (CAN → SOME-IP) |
+| `⊕` | Signal fusion (multiple sources → one signal) |
+
+**Safety-critical routing arrows** (ASIL > QM): use dashed red stroke `#ff2222` to distinguish from QM signals.
+
+---
+
+## Calibration Parameter Type Colors
+
+Use as type badge backgrounds in calibration parameter cards and tables.
+
+| Type | Background | Meaning |
+|------|------------|---------|
+| Map | `#003366` blue | 2D lookup table (e.g. speed × load → torque) |
+| Curve | `#1a4d1a` green | 1D lookup / characteristic curve |
+| Scalar | `#4d3300` amber | Single calibration value |
+| Array | `#3d1a4d` purple | 1D fixed-size vector |
+| Switch | `#4d1a00` orange-red | Enumerated selection / boolean |
+
+### Memory Section Badge Colors
+
+| Section | Color | Runtime Behavior |
+|---------|-------|-----------------|
+| Flash | `--accent` (`#005a9e` / `#4da6ff` dark) | Read-only at runtime — set at programming time |
+| RAM | `--accent-2` (`#c05a2e` / `#e07a4e` dark) | Online adjustable during vehicle lifetime |
+| NVM | `#3d1a4d` purple | Persisted across power cycles — written at EOL/service |
+
+---
+
+## Boot Sequence Phase Colors
+
+Use for phase block backgrounds in boot sequence timeline diagrams.
+
+| Phase | Background | Border | Description |
+|-------|------------|--------|-------------|
+| HW Init | `#4d1a00` | `#ff6600` | MCU clock, RAM ECC, flash config |
+| Bootloader | `#003366` | `#3399ff` | BL validation, app CRC check, reprog check |
+| OS Startup | `#1a4d1a` | `#33cc33` | OSEK/AUTOSAR OS task activation |
+| BSW Init | `#3d1a4d` | `#9966ff` | EcuM, WdgM, CanIf, ComM init |
+| App Init | `#806600` | `#ffcc00` | RTE_Start, SWC init runnables |
+| Run Mode | `#1a5c1a` | `#33cc33` | Full operation — all cyclic tasks active |
+| Error / Safe State | `#7b0000` | `#ff2222` | Fault detected, safe state activated |
+
+### Watchdog Window Colors
+
+| Window Type | Color | Description |
+|-------------|-------|-------------|
+| Init window | `rgba(255,102,0,0.15)` | Wide tolerance during slow startup |
+| Tight window | `rgba(255,102,0,0.25)` | Shorter BSW-phase tolerance |
+| Operational | `rgba(255,102,0,0.35)` | Strict runtime WDG service interval |
+
+### Boot Time KPI Colors
+
+| Total Boot Time | Color | Notes |
+|-----------------|-------|-------|
+| ≤ 500ms | `#1a5c1a` green | Typical OEM fast-boot requirement |
+| 500ms – 1s | `#806600` amber | Acceptable for non-safety-critical ECUs |
+| > 1s | `#7b0000` red | Usually exceeds OEM gate requirement |
