@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slide Deck — Visual Explainer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Pairing: Bricolage Grotesque + Fragment Mono — editorial, distinctive -->
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700&family=Fragment+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f5f5f0;
+      --surface: #ffffff;
+      --surface-raised: #fafaf8;
+      --border: #e0ddd8;
+      --border-strong: #b0aca6;
+      --text: #1a1a1a;
+      --text-dim: #6b6b6b;
+      --text-inverse: #ffffff;
+      --accent: #005a9e;
+      --accent-2: #c05a2e;
+    }
+
+    /* ─── Slide Shell ─── */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* Scroll snap container */
+    .deck {
+      height: 100dvh;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+    }
+
+    /* Each slide */
+    .slide {
+      height: 100dvh;
+      scroll-snap-align: start;
+      display: flex;
+      flex-direction: column;
+      padding: 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ─── Slide Counter ─── */
+    .slide-counter {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-family: 'Fragment Mono', monospace;
+      z-index: 100;
+      background: var(--surface);
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+    }
+
+    /* ─── Slide Types ─── */
+
+    /* 1. Title slide */
+    .slide-title {
+      background: var(--accent);
+      color: var(--text-inverse);
+      justify-content: center;
+    }
+
+    .slide-title .eyebrow {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      opacity: 0.7;
+      font-family: 'Fragment Mono', monospace;
+      margin-bottom: 1rem;
+    }
+
+    .slide-title h1 {
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      font-weight: 700;
+      line-height: 1.1;
+      max-width: 20ch;
+    }
+
+    .slide-title .subtitle {
+      margin-top: 1.5rem;
+      font-size: 1.25rem;
+      opacity: 0.8;
+      max-width: 40ch;
+    }
+
+    .slide-title .accent-bar {
+      width: 4rem;
+      height: 4px;
+      background: var(--accent-2);
+      margin-top: 2rem;
+    }
+
+    /* 2. Content slide — two column */
+    .slide-two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .slide-two-col h2 {
+      font-size: clamp(1.5rem, 3vw, 2.25rem);
+      font-weight: 700;
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+
+    .slide-two-col p {
+      font-size: 1rem;
+      color: var(--text-dim);
+      line-height: 1.7;
+    }
+
+    .slide-visual {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 2rem;
+      min-height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-dim);
+      font-family: 'Fragment Mono', monospace;
+      font-size: 0.875rem;
+    }
+
+    /* 3. Full-width content slide */
+    .slide-full {
+      background: var(--surface);
+    }
+
+    .slide-full .slide-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .slide-full .slide-header h2 {
+      font-size: 1.75rem;
+      font-weight: 700;
+    }
+
+    .slide-full .slide-body {
+      flex: 1;
+      overflow: auto;
+    }
+
+    /* 4. Metrics slide */
+    .slide-metrics h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      flex: 1;
+    }
+
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .metric-value {
+      display: block;
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .metric-label {
+      display: block;
+      font-size: 0.875rem;
+      color: var(--text-dim);
+      margin-top: 0.75rem;
+    }
+
+    /* 5. Summary / CTA slide */
+    .slide-summary {
+      background: var(--text);
+      color: var(--text-inverse);
+      justify-content: center;
+    }
+
+    .slide-summary h2 {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .slide-summary ol {
+      list-style: none;
+      counter-reset: cta-counter;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .slide-summary li {
+      counter-increment: cta-counter;
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+      font-size: 1.125rem;
+    }
+
+    .slide-summary li::before {
+      content: counter(cta-counter, decimal-leading-zero);
+      font-family: 'Fragment Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent-2);
+      flex-shrink: 0;
+      padding-top: 0.125rem;
+    }
+
+    .slide-footer {
+      position: absolute;
+      bottom: 1.5rem;
+      left: 4rem;
+      font-size: 0.6875rem;
+      font-family: 'Fragment Mono', monospace;
+      opacity: 0.4;
+    }
+
+    /* ─── Keyboard hint ─── */
+    .keyboard-hint {
+      position: fixed;
+      top: 1.5rem;
+      left: 1.5rem;
+      font-size: 0.6875rem;
+      color: var(--text-dim);
+      font-family: 'Fragment Mono', monospace;
+    }
+
+    .key {
+      display: inline-block;
+      padding: 0.0625rem 0.375rem;
+      border: 1px solid var(--border-strong);
+      border-radius: 3px;
+      font-size: 0.625rem;
+    }
+
+    /* ─── Print ─── */
+    @media print {
+      .deck { overflow: visible; }
+      .slide { page-break-after: always; height: 100vh; }
+      .slide-counter, .keyboard-hint { display: none; }
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 768px) {
+      .slide { padding: 2rem; }
+      .slide-two-col { grid-template-columns: 1fr; gap: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="deck" id="deck">
+
+    <!-- Slide 1: Title -->
+    <section class="slide slide-title">
+      <p class="eyebrow">Visual Explainer · 2025</p>
+      <h1>Presentation Title</h1>
+      <p class="subtitle">A single sentence that frames the entire deck.</p>
+      <div class="accent-bar"></div>
+      <div class="slide-footer">Slide 1 / 4</div>
+    </section>
+
+    <!-- Slide 2: Two-column content -->
+    <section class="slide slide-two-col">
+      <div>
+        <h2>Key Insight</h2>
+        <p>Supporting explanation in two to three sentences. Keep it direct and evidence-based.</p>
+      </div>
+      <div class="slide-visual">
+        [Insert diagram or chart here]
+      </div>
+      <div class="slide-footer">Slide 2 / 4</div>
+    </section>
+
+    <!-- Slide 3: Metrics -->
+    <section class="slide slide-metrics">
+      <h2>By the Numbers</h2>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <span class="metric-value">98%</span>
+          <span class="metric-label">Test coverage</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-value">4</span>
+          <span class="metric-label">ASIL-D components</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-value">0</span>
+          <span class="metric-label">Mandatory MISRA violations</span>
+        </div>
+      </div>
+      <div class="slide-footer">Slide 3 / 4</div>
+    </section>
+
+    <!-- Slide 4: Summary / Next steps -->
+    <section class="slide slide-summary">
+      <h2>Next Steps</h2>
+      <ol>
+        <li>Review FMEA matrix with safety team before design freeze</li>
+        <li>Complete SWE.3 detailed design for motor control SWC</li>
+        <li>Run MISRA checks on all modified modules</li>
+      </ol>
+      <div class="slide-footer" style="color: rgba(255,255,255,0.3)">Slide 4 / 4 · Generated by visual-explainer</div>
+    </section>
+
+  </div>
+
+  <!-- Fixed UI -->
+  <div class="slide-counter" id="counter">1 / 4</div>
+  <div class="keyboard-hint">
+    <span class="key">↑</span><span class="key">↓</span> navigate &nbsp; <span class="key">P</span> print
+  </div>
+
+  <script>
+    const deck = document.getElementById('deck');
+    const counter = document.getElementById('counter');
+    const slides = document.querySelectorAll('.slide');
+    const total = slides.length;
+
+    function updateCounter() {
+      const idx = Math.round(deck.scrollTop / window.innerHeight);
+      counter.textContent = `${Math.min(idx + 1, total)} / ${total}`;
+    }
+
+    deck.addEventListener('scroll', updateCounter, { passive: true });
+
+    document.addEventListener('keydown', e => {
+      const current = Math.round(deck.scrollTop / window.innerHeight);
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+        slides[Math.min(current + 1, total - 1)]?.scrollIntoView({ behavior: 'smooth' });
+      }
+      if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+        slides[Math.max(current - 1, 0)]?.scrollIntoView({ behavior: 'smooth' });
+      }
+      if (e.key === 'p' || e.key === 'P') window.print();
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AUTOSAR RTE Task Schedule — Visual Explainer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* Blueprint aesthetic — always dark navy, CPU scheduler timing */
+    :root {
+      --bg: #0a1628;
+      --surface: #0d1f3c;
+      --surface-raised: #102448;
+      --border: #1e3a5f;
+      --border-strong: #2e5a8f;
+      --text: #c8d8e8;
+      --text-dim: #7090b0;
+      --accent: #4da6ff;
+      --accent-2: #00d4aa;
+      --shadow: rgba(0,0,0,0.6);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 2rem;
+      min-height: 100vh;
+    }
+
+    /* ─── ASIL badges ─── */
+    .ve-badge {
+      display: inline-block;
+      border-radius: 999px;
+      border: 1px solid currentColor;
+      font-size: 0.625rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.0625rem 0.375rem;
+    }
+    .ve-badge.asil-d { background: #7b0000; color: #fff; border-color: #ff2222; }
+    .ve-badge.asil-c { background: #b34700; color: #fff; border-color: #ff6600; }
+    .ve-badge.asil-b { background: #806600; color: #fff; border-color: #ffcc00; }
+    .ve-badge.asil-a { background: #1a5c1a; color: #fff; border-color: #33cc33; }
+    .ve-badge.qm     { background: #1a3a5c; color: #fff; border-color: #3399ff; }
+
+    /* ─── Header ─── */
+    .rte-header {
+      max-width: 1400px;
+      margin: 0 auto 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .rte-header h1 {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.375rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .rte-header h1 span { color: var(--accent); }
+
+    .rte-meta {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-align: right;
+      line-height: 1.7;
+    }
+
+    .rte-chips {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 0.25rem;
+      justify-content: flex-end;
+    }
+
+    .rte-chip {
+      display: inline-block;
+      padding: 0.125rem 0.625rem;
+      border-radius: 999px;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      font-family: 'IBM Plex Mono', monospace;
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--text-dim);
+    }
+
+    .cpu-load-chip { border: 1px solid transparent; }
+    .cpu-load-chip.ok   { background: rgba(26,92,26,0.25);  color: #66cc66; border-color: #33cc33; }
+    .cpu-load-chip.warn { background: rgba(128,102,0,0.25); color: #ffcc00; border-color: #ffcc00; }
+    .cpu-load-chip.crit { background: rgba(123,0,0,0.25);   color: #ff6666; border-color: #ff2222; }
+
+    /* ─── CPU Load Summary Bar ─── */
+    .rte-load-bar {
+      max-width: 1400px;
+      margin: 0 auto 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.875rem 1.25rem;
+    }
+
+    .rte-load-bar-title {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      margin-bottom: 0.625rem;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .load-track-wrapper {
+      display: grid;
+      grid-template-columns: 80px 1fr 80px;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .load-track-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .load-track {
+      height: 22px;
+      background: var(--surface-raised);
+      border-radius: 3px;
+      display: flex;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .load-segment {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.5rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: rgba(255,255,255,0.8);
+      overflow: hidden;
+      transition: opacity 0.15s;
+      cursor: default;
+      min-width: 0;
+    }
+
+    .load-segment:hover { opacity: 0.75; }
+
+    .load-total-pct {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .load-legend {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 0.625rem;
+    }
+
+    .load-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.6875rem;
+      color: var(--text-dim);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .load-swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    /* ─── Gantt Diagram ─── */
+    .rte-diagram-wrap {
+      max-width: 1400px;
+      margin: 0 auto 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .rte-diagram-header {
+      padding: 0.5rem 0.875rem;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+      font-family: 'IBM Plex Mono', monospace;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .rte-axis-row {
+      display: grid;
+      grid-template-columns: 210px 1fr;
+      border-bottom: 1px solid var(--border-strong);
+    }
+
+    .rte-axis-spacer {
+      background: var(--surface-raised);
+      border-right: 1px solid var(--border);
+      height: 26px;
+    }
+
+    .rte-axis-ticks {
+      position: relative;
+      height: 26px;
+    }
+
+    .rte-axis-tick {
+      position: absolute;
+      top: 4px;
+      font-size: 0.5625rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--text-dim);
+      transform: translateX(-50%);
+    }
+
+    .rte-axis-tick::after {
+      content: '';
+      display: block;
+      width: 1px;
+      height: 5px;
+      background: var(--border-strong);
+      margin: 3px auto 0;
+    }
+
+    /* Task row */
+    .rte-row {
+      display: grid;
+      grid-template-columns: 210px 1fr;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .rte-row:last-child { border-bottom: none; }
+
+    .rte-row-label {
+      padding: 0.5rem 0.875rem;
+      border-right: 1px solid var(--border);
+      background: var(--surface-raised);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0.125rem;
+      min-height: 56px;
+    }
+
+    .rte-row-name {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .rte-row-meta {
+      font-size: 0.5625rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--text-dim);
+      margin-top: 0.125rem;
+    }
+
+    .rte-row-badges {
+      display: flex;
+      gap: 0.25rem;
+      margin-top: 0.25rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .rte-prio-badge {
+      display: inline-block;
+      padding: 0.0625rem 0.3125rem;
+      border-radius: 3px;
+      font-size: 0.5rem;
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      color: var(--text-dim);
+    }
+
+    /* Track */
+    .rte-row-track {
+      position: relative;
+      height: 56px;
+      background: var(--surface);
+      overflow: hidden;
+    }
+
+    /* Vertical grid lines */
+    .rte-gridline {
+      position: absolute;
+      top: 0;
+      width: 1px;
+      height: 100%;
+      background: var(--border);
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    /* Activation block */
+    .rte-block {
+      position: absolute;
+      top: 8px;
+      height: 36px;
+      border-radius: 3px;
+      overflow: hidden;
+      cursor: default;
+      transition: opacity 0.15s;
+    }
+
+    .rte-block:hover { opacity: 0.8; }
+
+    /* WCET fill (solid) */
+    .rte-block-wcet {
+      position: absolute;
+      top: 0; left: 0;
+      height: 100%;
+      border-radius: 3px 0 0 3px;
+    }
+
+    /* Slack fill (faded same color) */
+    .rte-block-slack {
+      position: absolute;
+      top: 0; right: 0;
+      height: 100%;
+      border-radius: 0 3px 3px 0;
+      opacity: 0.28;
+    }
+
+    /* Runnable label inside block */
+    .rte-block-label {
+      position: absolute;
+      top: 50%;
+      left: 0.25rem;
+      right: 0.25rem;
+      transform: translateY(-50%);
+      font-size: 0.4375rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: rgba(255,255,255,0.9);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* WCET deadline tick */
+    .rte-wcet-tick {
+      position: absolute;
+      top: 6px;
+      width: 1px;
+      height: 42px;
+      background: #ff4444;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .rte-wcet-tick::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -2px;
+      width: 5px;
+      height: 2px;
+      background: #ff4444;
+    }
+
+    /* Priority inversion risk stripe */
+    .rte-prio-warn {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      background: repeating-linear-gradient(
+        45deg,
+        rgba(255,200,0,0.07),
+        rgba(255,200,0,0.07) 4px,
+        transparent 4px,
+        transparent 8px
+      );
+      border-left: 1px dashed rgba(255,200,0,0.35);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ─── Runnable Catalog ─── */
+    .rte-catalog {
+      max-width: 1400px;
+      margin: 0 auto 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .rte-section-header {
+      padding: 0.75rem 1.25rem;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+      font-family: 'IBM Plex Mono', monospace;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .rte-section-header:hover { background: var(--surface-raised); }
+
+    .rte-toggle-icon {
+      font-size: 0.625rem;
+      color: var(--text-dim);
+      transition: transform 0.2s;
+      display: inline-block;
+    }
+
+    .rte-toggle-icon.collapsed { transform: rotate(-90deg); }
+
+    .rte-section-body {
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .rte-section-body.collapsed { max-height: 0 !important; }
+
+    /* ─── Table ─── */
+    .ve-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+    }
+
+    .ve-table th {
+      background: var(--surface-raised);
+      padding: 0.5rem 0.875rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-dim);
+      font-size: 0.5625rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border-bottom: 1px solid var(--border);
+      font-family: 'IBM Plex Mono', monospace;
+      white-space: nowrap;
+    }
+
+    .ve-table td {
+      padding: 0.4375rem 0.875rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+    }
+
+    .ve-table tr:last-child td { border-bottom: none; }
+    .ve-table tbody tr:hover td { background: var(--surface-raised); }
+
+    .row-wcet-warn td { background: rgba(128,102,0,0.12); }
+    .row-wcet-over td { background: rgba(123,0,0,0.18); }
+    .row-wcet-warn:hover td { background: rgba(128,102,0,0.22) !important; }
+    .row-wcet-over:hover td  { background: rgba(123,0,0,0.28) !important; }
+
+    .wcet-warn { color: #ffcc00; font-weight: 600; }
+    .wcet-over { color: #ff4444; font-weight: 600; }
+
+    /* ─── Legend ─── */
+    .rte-legend {
+      max-width: 1400px;
+      margin: 0 auto 2rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.875rem 1.25rem;
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      font-size: 0.6875rem;
+      color: var(--text-dim);
+      font-family: 'IBM Plex Mono', monospace;
+      align-items: center;
+    }
+
+    .legend-title {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      margin-right: 0.5rem;
+    }
+
+    .legend-swatch {
+      display: inline-block;
+      width: 12px;
+      height: 10px;
+      border-radius: 2px;
+      vertical-align: middle;
+      margin-right: 0.3125rem;
+    }
+
+    .legend-wcet-tick {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .legend-wcet-tick::before {
+      content: '';
+      display: inline-block;
+      width: 2px;
+      height: 14px;
+      background: #ff4444;
+      vertical-align: middle;
+      margin-right: 0.3125rem;
+    }
+
+    .legend-warn-stripe {
+      display: inline-block;
+      width: 16px;
+      height: 10px;
+      background: repeating-linear-gradient(
+        45deg,
+        rgba(255,200,0,0.3),
+        rgba(255,200,0,0.3) 3px,
+        transparent 3px,
+        transparent 6px
+      );
+      border: 1px dashed rgba(255,200,0,0.5);
+      vertical-align: middle;
+      margin-right: 0.3125rem;
+    }
+
+    .legend-slack-demo {
+      display: inline-flex;
+      height: 10px;
+      width: 36px;
+      border-radius: 2px;
+      overflow: hidden;
+      vertical-align: middle;
+      margin-right: 0.3125rem;
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 768px) {
+      body { padding: 1rem; }
+      .rte-axis-row,
+      .rte-row { grid-template-columns: 130px 1fr; }
+      .ve-table { font-size: 0.6875rem; }
+      .ve-table td, .ve-table th { padding: 0.375rem 0.5rem; }
+      .col-stack, .col-activation { display: none; }
+      .rte-legend { gap: 0.875rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── Header ─── -->
+  <header class="rte-header">
+    <div>
+      <h1>AUTOSAR RTE <span>Task Schedule</span></h1>
+      <div style="font-size:0.75rem;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;margin-top:0.25rem;">
+        ECU: MotorControlECU &nbsp;|&nbsp; OS Tick: 1 ms &nbsp;|&nbsp; Window: 100 ms
+      </div>
+    </div>
+    <div class="rte-meta">
+      <div>5 tasks &nbsp;|&nbsp; 11 runnables</div>
+      <div class="rte-chips">
+        <span class="rte-chip">AUTOSAR Classic OS</span>
+        <span class="rte-chip">Single Core</span>
+        <span class="cpu-load-chip" id="total-load-chip">CPU: —%</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ─── CPU Load Summary Bar ─── -->
+  <div class="rte-load-bar">
+    <div class="rte-load-bar-title">CPU Load Breakdown — Core 0</div>
+    <div class="load-track-wrapper">
+      <span class="load-track-label">Core 0</span>
+      <div class="load-track" id="load-track"></div>
+      <span class="load-total-pct" id="load-total-text">—%</span>
+    </div>
+    <div class="load-legend" id="load-legend"></div>
+  </div>
+
+  <!-- ─── Gantt Diagram ─── -->
+  <div class="rte-diagram-wrap">
+    <div class="rte-diagram-header">
+      <span>Gantt — OS Task Activations &nbsp;(0 – 100 ms)</span>
+      <span style="color:var(--text-dim)">Priority ↑ = higher preemption</span>
+    </div>
+    <div class="rte-axis-row">
+      <div class="rte-axis-spacer"></div>
+      <div class="rte-axis-ticks" id="axis-ticks"></div>
+    </div>
+    <div id="gantt-rows"></div>
+  </div>
+
+  <!-- ─── Runnable Catalog ─── -->
+  <div class="rte-catalog">
+    <div class="rte-section-header" id="catalog-toggle">
+      <span>Runnable Catalog</span>
+      <span class="rte-toggle-icon" id="catalog-icon">▼</span>
+    </div>
+    <div class="rte-section-body" id="catalog-body">
+      <table class="ve-table">
+        <thead>
+          <tr>
+            <th>Runnable</th>
+            <th>SWC</th>
+            <th>Mapped Task</th>
+            <th>Cycle</th>
+            <th>WCET (μs)</th>
+            <th>WCET / Period</th>
+            <th class="col-stack">Stack (B)</th>
+            <th>ASIL</th>
+            <th class="col-activation">Activation</th>
+          </tr>
+        </thead>
+        <tbody id="catalog-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ─── Legend ─── -->
+  <div class="rte-legend" id="legend-bar">
+    <span class="legend-title">Legend</span>
+  </div>
+
+  <script>
+    // ─── Data ────────────────────────────────────────────────────────────────
+    const tasks = [
+      { name: 'OsTask_1ms_ISR',    prio: 80, period: 1,   color: '#4d1a00', border: '#ff6600', runnables: [
+        { name: 'PWM_Update_ISR',    swc: 'MotorControl', wcet: 45,   stack: 128,  asil: 'd', activation: 'CyclicTask' },
+      ]},
+      { name: 'OsTask_10ms_ASILD',  prio: 50, period: 10,  color: '#7b0000', border: '#ff2222', runnables: [
+        { name: 'MotorCtrl_10ms',    swc: 'MotorControl', wcet: 850,  stack: 1024, asil: 'd', activation: 'CyclicTask' },
+        { name: 'SafetyMon_10ms',    swc: 'SafetyMonitor',wcet: 320,  stack: 512,  asil: 'd', activation: 'CyclicTask' },
+        { name: 'SpeedSensor_Read',  swc: 'SensorAcq',    wcet: 120,  stack: 256,  asil: 'd', activation: 'CyclicTask' },
+      ]},
+      { name: 'OsTask_10ms_ASILB',  prio: 40, period: 10,  color: '#806600', border: '#ffcc00', runnables: [
+        { name: 'HAL_SPI_Transfer',  swc: 'HAL',          wcet: 450,  stack: 512,  asil: 'b', activation: 'CyclicTask' },
+        { name: 'BattMonitor_10ms',  swc: 'BMS',          wcet: 180,  stack: 256,  asil: 'b', activation: 'CyclicTask' },
+      ]},
+      { name: 'OsTask_50ms_QM',     prio: 15, period: 50,  color: '#1a4d1a', border: '#33cc33', runnables: [
+        { name: 'UDS_Handler_50ms',  swc: 'Diagnostics',  wcet: 1200, stack: 1024, asil: 'qm', activation: 'CyclicTask' },
+        { name: 'ComM_50ms',         swc: 'ComStack',     wcet: 300,  stack: 256,  asil: 'qm', activation: 'CyclicTask' },
+      ]},
+      { name: 'OsTask_100ms_QM',    prio: 20, period: 100, color: '#1a3a5c', border: '#3399ff', runnables: [
+        { name: 'Diagnostics_100ms', swc: 'Diagnostics',  wcet: 2100, stack: 2048, asil: 'qm', activation: 'CyclicTask' },
+        { name: 'NVM_Write_100ms',   swc: 'NVM',          wcet: 800,  stack: 512,  asil: 'qm', activation: 'CyclicTask' },
+      ]},
+    ];
+
+    const WINDOW_MS    = 100;
+    const TICK_STEP_MS = 10;
+
+    // ─── Derived per-task load ────────────────────────────────────────────────
+    tasks.forEach(t => {
+      t.totalWcetUs = t.runnables.reduce((s, r) => s + r.wcet, 0);
+      t.loadPct     = (t.totalWcetUs / (t.period * 1000)) * 100;
+    });
+    const totalLoadPct = tasks.reduce((s, t) => s + t.loadPct, 0);
+
+    // ─── Total load chip ─────────────────────────────────────────────────────
+    const totalChip = document.getElementById('total-load-chip');
+    totalChip.textContent = 'CPU: ' + totalLoadPct.toFixed(1) + '%';
+    if (totalLoadPct < 60)      totalChip.classList.add('ok');
+    else if (totalLoadPct < 80) totalChip.classList.add('warn');
+    else                         totalChip.classList.add('crit');
+
+    // ─── CPU load stacked bar ─────────────────────────────────────────────────
+    const loadTrack  = document.getElementById('load-track');
+    const loadLegend = document.getElementById('load-legend');
+    const loadText   = document.getElementById('load-total-text');
+
+    tasks.forEach(t => {
+      const seg = document.createElement('div');
+      seg.className          = 'load-segment';
+      seg.style.flex         = t.loadPct + ' 0 0';
+      seg.style.background   = t.color;
+      seg.style.borderRight  = '1px solid ' + t.border;
+      seg.title = t.name + ': ' + t.loadPct.toFixed(1) + '% (' + (t.totalWcetUs / 1000).toFixed(2) + ' ms / ' + t.period + ' ms)';
+      if (t.loadPct >= 2) seg.textContent = t.loadPct.toFixed(0) + '%';
+      loadTrack.appendChild(seg);
+
+      const item = document.createElement('span');
+      item.className = 'load-legend-item';
+      item.innerHTML = '<span class="load-swatch" style="background:' + t.color + ';border:1px solid ' + t.border + '"></span>' +
+                       t.name.replace('OsTask_', '') + ': ' + t.loadPct.toFixed(1) + '%';
+      loadLegend.appendChild(item);
+    });
+
+    // Idle segment
+    const idlePct = Math.max(0, 100 - totalLoadPct);
+    const idleSeg = document.createElement('div');
+    idleSeg.className    = 'load-segment';
+    idleSeg.style.flex   = idlePct + ' 0 0';
+    idleSeg.style.background = 'rgba(255,255,255,0.03)';
+    idleSeg.title = 'Idle: ' + idlePct.toFixed(1) + '%';
+    loadTrack.appendChild(idleSeg);
+
+    const idleItem = document.createElement('span');
+    idleItem.className = 'load-legend-item';
+    idleItem.innerHTML = '<span class="load-swatch" style="background:rgba(255,255,255,0.06);border:1px solid var(--border)"></span>Idle: ' + idlePct.toFixed(1) + '%';
+    loadLegend.appendChild(idleItem);
+
+    loadText.textContent = totalLoadPct.toFixed(1) + '%';
+    if (totalLoadPct < 60)      loadText.style.color = '#66cc66';
+    else if (totalLoadPct < 80) loadText.style.color = '#ffcc00';
+    else                         loadText.style.color = '#ff4444';
+
+    // ─── Axis ticks ──────────────────────────────────────────────────────────
+    const axisTicks = document.getElementById('axis-ticks');
+    for (let ms = 0; ms <= WINDOW_MS; ms += TICK_STEP_MS) {
+      const tick = document.createElement('span');
+      tick.className  = 'rte-axis-tick';
+      tick.style.left = (ms / WINDOW_MS * 100) + '%';
+      tick.textContent = ms + 'ms';
+      axisTicks.appendChild(tick);
+    }
+
+    // ─── Gantt rows ──────────────────────────────────────────────────────────
+    const sortedTasks = [...tasks].sort((a, b) => b.prio - a.prio);
+    const ganttRows   = document.getElementById('gantt-rows');
+
+    // Detect priority inversion risk: tasks sharing same period, different priorities
+    const samePeriodGroups = {};
+    sortedTasks.forEach(t => {
+      if (!samePeriodGroups[t.period]) samePeriodGroups[t.period] = [];
+      samePeriodGroups[t.period].push(t);
+    });
+
+    sortedTasks.forEach(task => {
+      const row   = document.createElement('div');
+      row.className = 'rte-row';
+
+      // Determine representative ASIL for row badge
+      const asilRank = { 'd': 4, 'c': 3, 'b': 2, 'a': 1, 'qm': 0 };
+      const topAsil  = task.runnables.reduce((best, r) =>
+        (asilRank[r.asil] > asilRank[best] ? r.asil : best), 'qm');
+      const asilLabel = topAsil === 'qm' ? 'QM' : 'ASIL-' + topAsil.toUpperCase();
+
+      // Label cell
+      const label = document.createElement('div');
+      label.className = 'rte-row-label';
+      label.innerHTML =
+        '<span class="rte-row-name">' + task.name + '</span>' +
+        '<span class="rte-row-meta">Period: ' + task.period + ' ms &nbsp;|&nbsp; WCET sum: ' + (task.totalWcetUs / 1000).toFixed(2) + ' ms</span>' +
+        '<div class="rte-row-badges">' +
+          '<span class="rte-prio-badge">P=' + task.prio + '</span>' +
+          '<span class="ve-badge ' + topAsil + '">' + asilLabel + '</span>' +
+        '</div>';
+      row.appendChild(label);
+
+      // Track cell
+      const track = document.createElement('div');
+      track.className = 'rte-row-track';
+
+      // Vertical grid lines every TICK_STEP_MS
+      for (let ms = TICK_STEP_MS; ms < WINDOW_MS; ms += TICK_STEP_MS) {
+        const line = document.createElement('div');
+        line.className  = 'rte-gridline';
+        line.style.left = (ms / WINDOW_MS * 100) + '%';
+        track.appendChild(line);
+      }
+
+      // Priority inversion warning stripes (behind blocks)
+      const peers = samePeriodGroups[task.period];
+      if (peers && peers.length > 1) {
+        const maxPrioInGroup = Math.max(...peers.map(p => p.prio));
+        if (task.prio < maxPrioInGroup) {
+          for (let t = 0; t < WINDOW_MS; t += task.period) {
+            const warn = document.createElement('div');
+            warn.className  = 'rte-prio-warn';
+            warn.style.left  = (t / WINDOW_MS * 100) + '%';
+            warn.style.width = (task.period / WINDOW_MS * 100) + '%';
+            warn.title = 'Priority inversion risk: shares period=' + task.period + 'ms with higher-priority task';
+            track.appendChild(warn);
+          }
+        }
+      }
+
+      // Activation blocks
+      const wcetMs    = task.totalWcetUs / 1000;
+      const wcetPct   = wcetMs / WINDOW_MS * 100;
+
+      for (let t = 0; t < WINDOW_MS; t += task.period) {
+        const leftPct  = t / WINDOW_MS * 100;
+        const slackMs  = Math.max(0, Math.min(task.period, WINDOW_MS - t) - wcetMs);
+        const slackPct = slackMs / WINDOW_MS * 100;
+        const totalPct = wcetPct + slackPct;
+
+        const block = document.createElement('div');
+        block.className       = 'rte-block';
+        block.style.left      = leftPct + '%';
+        block.style.width     = Math.max(totalPct, 0.2) + '%';
+        block.style.border    = '1px solid ' + task.border;
+        block.style.background = 'transparent';
+        block.title = task.name + ' @ t=' + t + 'ms | WCET=' + wcetMs.toFixed(2) + 'ms | slack=' + slackMs.toFixed(2) + 'ms';
+
+        // WCET fill
+        const wcetFill = document.createElement('div');
+        wcetFill.className       = 'rte-block-wcet';
+        wcetFill.style.background = task.color;
+        wcetFill.style.width      = totalPct > 0 ? (wcetPct / totalPct * 100) + '%' : '100%';
+        block.appendChild(wcetFill);
+
+        // Slack fill
+        if (slackPct > 0.05) {
+          const slackFill = document.createElement('div');
+          slackFill.className        = 'rte-block-slack';
+          slackFill.style.background = task.color;
+          slackFill.style.width      = (slackPct / totalPct * 100) + '%';
+          block.appendChild(slackFill);
+        }
+
+        // Runnable name label if wide enough
+        if (wcetPct > 1.5) {
+          const lbl = document.createElement('div');
+          lbl.className   = 'rte-block-label';
+          lbl.textContent = task.runnables.map(r => r.name).join(', ');
+          block.appendChild(lbl);
+        }
+
+        track.appendChild(block);
+
+        // WCET deadline tick
+        const dtick = document.createElement('div');
+        dtick.className  = 'rte-wcet-tick';
+        dtick.style.left = (leftPct + wcetPct) + '%';
+        dtick.title      = 'WCET deadline @ ' + (t + wcetMs).toFixed(2) + 'ms';
+        track.appendChild(dtick);
+      }
+
+      row.appendChild(track);
+      ganttRows.appendChild(row);
+    });
+
+    // ─── Runnable catalog ────────────────────────────────────────────────────
+    const tbody = document.getElementById('catalog-tbody');
+    tasks.forEach(task => {
+      task.runnables.forEach(r => {
+        const utilPct = (r.wcet / (task.period * 1000)) * 100;
+        const tr = document.createElement('tr');
+        let wcetClass = '';
+        let wcetSuffix = '';
+        if (utilPct > 100) { tr.classList.add('row-wcet-over'); wcetClass = 'wcet-over'; wcetSuffix = ' ⚠'; }
+        else if (utilPct > 80) { tr.classList.add('row-wcet-warn'); wcetClass = 'wcet-warn'; wcetSuffix = ' ▲'; }
+        const asilLabel = r.asil === 'qm' ? 'QM' : 'ASIL-' + r.asil.toUpperCase();
+        tr.innerHTML =
+          '<td>' + r.name + '</td>' +
+          '<td>' + r.swc + '</td>' +
+          '<td style="color:var(--accent)">' + task.name + '</td>' +
+          '<td>' + task.period + ' ms</td>' +
+          '<td class="' + wcetClass + '">' + r.wcet + ' μs' + wcetSuffix + '</td>' +
+          '<td class="' + wcetClass + '">' + utilPct.toFixed(1) + '%</td>' +
+          '<td class="col-stack">' + r.stack + '</td>' +
+          '<td><span class="ve-badge ' + r.asil + '">' + asilLabel + '</span></td>' +
+          '<td class="col-activation">' + r.activation + '</td>';
+        tbody.appendChild(tr);
+      });
+    });
+
+    // ─── Collapsible catalog ─────────────────────────────────────────────────
+    const catalogBody   = document.getElementById('catalog-body');
+    const catalogIcon   = document.getElementById('catalog-icon');
+    const catalogToggle = document.getElementById('catalog-toggle');
+    catalogBody.style.maxHeight = catalogBody.scrollHeight + 'px';
+    catalogToggle.addEventListener('click', () => {
+      const now = catalogBody.classList.toggle('collapsed');
+      catalogIcon.classList.toggle('collapsed', now);
+      if (!now) catalogBody.style.maxHeight = catalogBody.scrollHeight + 'px';
+    });
+
+    // ─── Legend bar ──────────────────────────────────────────────────────────
+    const legendBar = document.getElementById('legend-bar');
+
+    // Task swatches
+    sortedTasks.forEach(t => {
+      const s = document.createElement('span');
+      s.innerHTML = '<span class="legend-swatch" style="background:' + t.color + ';border:1px solid ' + t.border + '"></span>' + t.name;
+      legendBar.appendChild(s);
+    });
+
+    // Separator
+    const sep = document.createElement('span');
+    sep.style.borderLeft = '1px solid var(--border)';
+    sep.style.height     = '14px';
+    sep.style.display    = 'inline-block';
+    legendBar.appendChild(sep);
+
+    // WCET tick explanation
+    const tickLegend = document.createElement('span');
+    tickLegend.className = 'legend-wcet-tick';
+    tickLegend.textContent = 'WCET deadline tick';
+    legendBar.appendChild(tickLegend);
+
+    // Priority inversion warning
+    const warnLegend = document.createElement('span');
+    warnLegend.innerHTML = '<span class="legend-warn-stripe"></span>Priority inversion risk zone';
+    legendBar.appendChild(warnLegend);
+
+    // Slack explanation
+    const slackLegend = document.createElement('span');
+    slackLegend.innerHTML =
+      '<span class="legend-slack-demo">' +
+        '<span style="flex:2;background:#7b0000"></span>' +
+        '<span style="flex:1;background:#7b0000;opacity:0.28"></span>' +
+      '</span>' +
+      'WCET (solid) + slack (faded)';
+    legendBar.appendChild(slackLegend);
+  </script>
+</body>
+</html>

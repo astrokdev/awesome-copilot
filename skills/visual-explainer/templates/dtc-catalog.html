@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DTC Catalog — Visual Explainer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ─── Blueprint theme — always dark, no toggle ─── */
+    :root {
+      --bg: #0a1628;
+      --surface: #0d1f3c;
+      --surface-raised: #102448;
+      --border: #1e3a5f;
+      --border-strong: #2e5a8f;
+      --text: #c8d8e8;
+      --text-dim: #7090b0;
+      --accent: #4da6ff;
+      --shadow: rgba(0,0,0,0.4);
+    }
+
+    /* ─── ASIL badges ─── */
+    .ve-badge { display:inline-block; border-radius:999px; border:1px solid currentColor; font-size:0.625rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; padding:0.0625rem 0.375rem; }
+    .ve-badge.asil-d { background:#7b0000; color:#fff; border-color:#ff2222; }
+    .ve-badge.asil-c { background:#b34700; color:#fff; border-color:#ff6600; }
+    .ve-badge.asil-b { background:#806600; color:#fff; border-color:#ffcc00; }
+    .ve-badge.asil-a { background:#1a5c1a; color:#fff; border-color:#33cc33; }
+    .ve-badge.qm     { background:#1a3a5c; color:#fff; border-color:#3399ff; }
+
+    /* ─── ve-table pattern ─── */
+    .ve-table { width:100%; border-collapse:collapse; font-size:0.875rem; }
+    .ve-table th { background:var(--surface-raised); border-bottom:2px solid var(--border-strong); padding:0.75rem 1rem; text-align:left; font-weight:600; color:var(--text-dim); font-size:0.6875rem; text-transform:uppercase; letter-spacing:0.08em; }
+    .ve-table td { border-bottom:1px solid var(--border); padding:0.75rem 1rem; color:var(--text); vertical-align:middle; }
+    .ve-table tr:last-child td { border-bottom:none; }
+    .ve-table tbody tr.dtc-main-row:hover td { background:var(--surface-raised); }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 2rem;
+    }
+
+    /* ─── Header ─── */
+    .dtc-header {
+      max-width: 1400px;
+      margin: 0 auto 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .dtc-header-left h1 {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.375rem;
+      font-weight: 500;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .dtc-header-left .dtc-subtitle {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-top: 0.375rem;
+    }
+
+    .dtc-header-right {
+      display: flex;
+      gap: 0.625rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .summary-pill {
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      border: 1px solid var(--border-strong);
+      background: var(--surface-raised);
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+
+    .summary-pill strong { color: var(--text); margin-right: 0.25rem; }
+    .summary-pill.pill-total    { border-color: var(--border-strong); }
+    .summary-pill.pill-active   { border-color:#ff4444; background:rgba(123,0,0,0.3); color:#ff9999; }
+    .summary-pill.pill-stored   { border-color:#3399ff; background:rgba(26,58,92,0.4); color:#88bbff; }
+    .summary-pill.pill-confirmed{ border-color:#ff6600; background:rgba(179,71,0,0.3); color:#ffaa66; }
+    .summary-pill.pill-pending  { border-color:#ffcc00; background:rgba(128,102,0,0.3); color:#ffe066; }
+
+    /* ─── Filter bar ─── */
+    .dtc-filterbar {
+      max-width: 1400px;
+      margin: 0 auto 1rem;
+      display: flex;
+      gap: 0.625rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .dtc-search {
+      flex: 1;
+      min-width: 220px;
+      padding: 0.5rem 0.875rem;
+      border-radius: 6px;
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8125rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .dtc-search::placeholder { color: var(--text-dim); }
+    .dtc-search:focus { border-color: var(--accent); }
+
+    .filter-btn {
+      padding: 0.375rem 0.875rem;
+      border-radius: 6px;
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--text-dim);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: background 0.12s, color 0.12s, border-color 0.12s;
+      white-space: nowrap;
+    }
+
+    .filter-btn:hover { background: var(--surface-raised); color: var(--text); }
+    .filter-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+
+    /* ─── Table wrapper ─── */
+    .dtc-table-wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .dtc-table-scroll { overflow-x: auto; }
+
+    .ve-table thead th {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    /* ─── Cell types ─── */
+    .dtc-code {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--accent);
+      letter-spacing: 0.02em;
+    }
+
+    .dtc-ftb {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8125rem;
+      color: var(--text-dim);
+    }
+
+    /* ─── System badges ─── */
+    .sys-badge {
+      display: inline-block;
+      border-radius: 4px;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 0.125rem 0.5rem;
+      color: #fff;
+    }
+
+    .sys-powertrain { background:#003366; border:1px solid #0055aa; }
+    .sys-body       { background:#3d1a4d; border:1px solid #6b3388; }
+    .sys-chassis    { background:#1a4d1a; border:1px solid #338833; }
+    .sys-network    { background:#4d1a00; border:1px solid #993300; }
+
+    /* ─── Severity badges ─── */
+    .sev-badge {
+      display: inline-block;
+      border-radius: 999px;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.125rem 0.5rem;
+    }
+
+    .sev-critical { background:rgba(123,0,0,0.5);  color:#ff9999; border:1px solid #ff2222; }
+    .sev-warning  { background:rgba(128,102,0,0.5); color:#ffe066; border:1px solid #ffcc00; }
+    .sev-info     { background:rgba(26,58,92,0.5);  color:#88bbff; border:1px solid #3399ff; }
+
+    /* ─── Monitor badge ─── */
+    .monitor-badge {
+      display: inline-block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.625rem;
+      color: var(--text-dim);
+      border: 1px solid var(--border-strong);
+      border-radius: 4px;
+      padding: 0.125rem 0.4rem;
+      white-space: nowrap;
+    }
+
+    /* ─── Status badges ─── */
+    .status-badge {
+      display: inline-block;
+      border-radius: 999px;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.125rem 0.5rem;
+    }
+
+    .status-active    { background:rgba(123,0,0,0.5);  color:#ff9999; border:1px solid #ff2222; }
+    .status-confirmed { background:rgba(179,71,0,0.5);  color:#ffaa66; border:1px solid #ff6600; }
+    .status-pending   { background:rgba(128,102,0,0.5); color:#ffe066; border:1px solid #ffcc00; }
+    .status-stored    { background:rgba(26,58,92,0.5);  color:#88bbff; border:1px solid #3399ff; }
+    .status-cleared   { background:rgba(26,92,26,0.5);  color:#88dd88; border:1px solid #33cc33; }
+
+    /* ─── Row expand / detail ─── */
+    .dtc-main-row { cursor: pointer; user-select: none; }
+
+    .dtc-main-row td:first-child {
+      position: relative;
+      padding-left: 2rem;
+    }
+
+    .dtc-main-row td:first-child::before {
+      content: '\25B6';
+      position: absolute;
+      left: 0.625rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.5rem;
+      color: var(--text-dim);
+      transition: transform 0.15s;
+    }
+
+    .dtc-main-row[data-expanded="true"] td:first-child::before {
+      transform: translateY(-50%) rotate(90deg);
+    }
+
+    .dtc-detail-row { display: none; }
+    .dtc-detail-row.visible { display: table-row; }
+
+    .dtc-detail-cell {
+      padding: 0 !important;
+      border-bottom: 2px solid var(--border-strong) !important;
+    }
+
+    .dtc-detail-inner {
+      padding: 1.25rem 1.5rem 1.25rem 2.5rem;
+      background: rgba(10,22,40,0.7);
+      border-top: 1px solid var(--border-strong);
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem 2.5rem;
+    }
+
+    .detail-group { display: flex; flex-direction: column; gap: 0.25rem; }
+
+    .detail-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.625rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+    }
+
+    .detail-value { font-size: 0.8125rem; color: var(--text); line-height: 1.4; }
+    .detail-value.mono { font-family: 'IBM Plex Mono', monospace; color: var(--accent); }
+    .detail-value.safety { color: #ffaa44; font-weight: 500; }
+
+    /* ─── Footer ─── */
+    .dtc-footer {
+      max-width: 1400px;
+      margin: 0.75rem auto 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .dtc-row-count {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .btn-export {
+      padding: 0.375rem 1rem;
+      border-radius: 6px;
+      border: 1px solid var(--border-strong);
+      background: var(--surface-raised);
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: border-color 0.12s, color 0.12s;
+    }
+
+    .btn-export:hover { border-color: var(--accent); color: var(--accent); }
+
+    .dtc-no-results {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-dim);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.875rem;
+    }
+
+    /* ─── Print ─── */
+    @media print {
+      body { background: #fff; color: #000; padding: 1rem; }
+      :root {
+        --bg: #fff; --surface: #fff; --surface-raised: #f4f4f4;
+        --border: #ccc; --border-strong: #999;
+        --text: #111; --text-dim: #555; --accent: #005a9e;
+      }
+      .dtc-filterbar { display: none; }
+      .btn-export { display: none; }
+      .dtc-detail-row { display: table-row !important; }
+      .dtc-main-row td:first-child::before { display: none; }
+      .dtc-table-wrap { border: 1px solid #ccc; border-radius: 0; }
+    }
+
+    @media (max-width: 900px) {
+      body { padding: 1rem; }
+      .dtc-header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── Header ─── -->
+  <header class="dtc-header">
+    <div class="dtc-header-left">
+      <h1>DTC Catalog</h1>
+      <div class="dtc-subtitle">
+        ECU: MotorControlUnit_v2&nbsp;&nbsp;|&nbsp;&nbsp;SW: 2.4.1-rc3&nbsp;&nbsp;|&nbsp;&nbsp;DEM Config: DEM_Cfg_v3.2.0
+      </div>
+    </div>
+    <div class="dtc-header-right" id="summary-pills">
+      <!-- Populated by JS -->
+    </div>
+  </header>
+
+  <!-- ─── Filter bar ─── -->
+  <div class="dtc-filterbar" id="filterbar">
+    <input
+      class="dtc-search"
+      id="dtc-search"
+      type="text"
+      placeholder="Search code, description, event name…"
+      autocomplete="off"
+      spellcheck="false"
+    >
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="powertrain">Powertrain</button>
+    <button class="filter-btn" data-filter="body">Body</button>
+    <button class="filter-btn" data-filter="chassis">Chassis</button>
+    <button class="filter-btn" data-filter="network">Network</button>
+    <button class="filter-btn" data-filter="safety">Safety-relevant</button>
+    <button class="filter-btn" data-filter="open">Open</button>
+  </div>
+
+  <!-- ─── Table ─── -->
+  <div class="dtc-table-wrap">
+    <div class="dtc-table-scroll">
+      <table class="ve-table" id="dtc-table">
+        <thead>
+          <tr>
+            <th>DTC Code</th>
+            <th>FTB</th>
+            <th>Description</th>
+            <th>System</th>
+            <th>Severity</th>
+            <th>Monitor Type</th>
+            <th>Healing Condition</th>
+            <th>ASIL</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="dtc-tbody">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+      <div class="dtc-no-results" id="no-results" style="display:none">
+        No DTCs match the current filter.
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Footer ─── -->
+  <div class="dtc-footer">
+    <span class="dtc-row-count" id="row-count">— entries</span>
+    <button class="btn-export" id="btn-export">&#x2193; Export CSV</button>
+  </div>
+
+  <script>
+    // ─── Sample data — replace with actual DEM configuration export ───
+    const dtcs = [
+      {
+        code: '0x112233', ftb: '0x87',
+        desc: 'Motor Speed Sensor \u2014 Signal out of range',
+        system: 'powertrain', severity: 'critical',
+        monitor: 'Cyclic 10ms',
+        healing: 'Signal in range for 200ms',
+        asil: 'd', status: 'active',
+        demEvent: 'MotorSpeedSensor_OutOfRange',
+        debounce: 'Counter 5/5', aging: 40,
+        enables: 'IgnOn, MotorEnabled',
+        safetyGoal: 'SG-001 No unintended acceleration'
+      },
+      {
+        code: '0x112244', ftb: '0x87',
+        desc: 'Motor Speed Sensor \u2014 Signal not plausible',
+        system: 'powertrain', severity: 'critical',
+        monitor: 'Cyclic 10ms',
+        healing: 'Cross-plausibility OK for 500ms',
+        asil: 'd', status: 'stored',
+        demEvent: 'MotorSpeedSensor_Plausibility',
+        debounce: 'Counter 3/3', aging: 40,
+        enables: 'IgnOn',
+        safetyGoal: 'SG-001'
+      },
+      {
+        code: '0x221100', ftb: '0x95',
+        desc: 'Battery Voltage \u2014 Undervoltage',
+        system: 'powertrain', severity: 'warning',
+        monitor: 'Cyclic 100ms',
+        healing: 'Voltage > 11.5\u202fV for 2\u202fs',
+        asil: 'b', status: 'confirmed',
+        demEvent: 'BattVoltage_Undervoltage',
+        debounce: 'Time 200ms/500ms', aging: 50,
+        enables: 'IgnOn',
+        safetyGoal: 'SG-003 Power supply integrity'
+      },
+      {
+        code: '0x221101', ftb: '0x96',
+        desc: 'Battery Voltage \u2014 Overvoltage',
+        system: 'powertrain', severity: 'warning',
+        monitor: 'Cyclic 100ms',
+        healing: 'Voltage < 16\u202fV for 2\u202fs',
+        asil: 'b', status: 'pending',
+        demEvent: 'BattVoltage_Overvoltage',
+        debounce: 'Time 200ms/500ms', aging: 50,
+        enables: 'IgnOn',
+        safetyGoal: 'SG-003'
+      },
+      {
+        code: '0x330010', ftb: '0x00',
+        desc: 'CAN1 Bus Off \u2014 Communication lost',
+        system: 'network', severity: 'critical',
+        monitor: 'Event',
+        healing: 'Bus error count < threshold for 1\u202fs',
+        asil: 'c', status: 'active',
+        demEvent: 'CAN1_BusOff',
+        debounce: 'Event immediate', aging: 0,
+        enables: 'IgnOn',
+        safetyGoal: 'SG-002 Communication integrity'
+      },
+      {
+        code: '0x330020', ftb: '0x00',
+        desc: 'NM_MainECU \u2014 Network Management timeout',
+        system: 'network', severity: 'warning',
+        monitor: 'Cyclic 500ms',
+        healing: 'NM message received',
+        asil: 'qm', status: 'cleared',
+        demEvent: 'NM_MainECU_Timeout',
+        debounce: 'Counter 2/2', aging: 40,
+        enables: 'NMActive',
+        safetyGoal: ''
+      },
+      {
+        code: '0x440001', ftb: '0xA1',
+        desc: 'UDS Session \u2014 Authentication failed',
+        system: 'network', severity: 'info',
+        monitor: 'Event',
+        healing: 'Successful authentication',
+        asil: 'qm', status: 'stored',
+        demEvent: 'UDS_AuthFail',
+        debounce: 'Event immediate', aging: 20,
+        enables: 'IgnOn',
+        safetyGoal: ''
+      },
+      {
+        code: '0x550100', ftb: '0x11',
+        desc: 'NVM Write \u2014 Block CRC mismatch',
+        system: 'body', severity: 'warning',
+        monitor: 'Cyclic at shutdown',
+        healing: 'Successful NVM write verification',
+        asil: 'b', status: 'confirmed',
+        demEvent: 'NVM_WriteError',
+        debounce: 'Counter 3/3', aging: 30,
+        enables: 'IgnOn',
+        safetyGoal: 'SG-004 Data integrity'
+      },
+      {
+        code: '0x660200', ftb: '0x55',
+        desc: 'Safety Monitor \u2014 Watchdog timeout',
+        system: 'body', severity: 'critical',
+        monitor: 'Cyclic 10ms',
+        healing: 'Three successful watchdog cycles',
+        asil: 'd', status: 'active',
+        demEvent: 'WDG_Timeout',
+        debounce: 'Event immediate', aging: 0,
+        enables: 'Always',
+        safetyGoal: 'SG-005 Safe state activation'
+      },
+      {
+        code: '0x770300', ftb: '0x44',
+        desc: 'Brake Pedal Sensor \u2014 Cross-check failure',
+        system: 'chassis', severity: 'critical',
+        monitor: 'Cyclic 5ms',
+        healing: 'Sensors agree for 100ms',
+        asil: 'd', status: 'pending',
+        demEvent: 'BrakePedal_Crosscheck',
+        debounce: 'Counter 5/5', aging: 40,
+        enables: 'IgnOn, VehicleSpeed > 0',
+        safetyGoal: 'SG-001'
+      },
+    ];
+
+    // ─── Badge renderers ───
+    function asilBadge(a) {
+      var label = (a === 'qm') ? 'QM' : 'ASIL-' + a.toUpperCase();
+      return '<span class="ve-badge ' + (a === 'qm' ? 'qm' : 'asil-' + a) + '">' + label + '</span>';
+    }
+
+    function sysBadge(s) {
+      return '<span class="sys-badge sys-' + s + '">' + s + '</span>';
+    }
+
+    function sevBadge(s) {
+      return '<span class="sev-badge sev-' + s + '">' + s + '</span>';
+    }
+
+    function statusBadge(s) {
+      return '<span class="status-badge status-' + s + '">' + s + '</span>';
+    }
+
+    function monBadge(m) {
+      return '<span class="monitor-badge">' + m + '</span>';
+    }
+
+    // ─── Build summary pills ───
+    function buildPills(data) {
+      var total     = data.length;
+      var active    = data.filter(function(d) { return d.status === 'active'; }).length;
+      var stored    = data.filter(function(d) { return d.status === 'stored'; }).length;
+      var confirmed = data.filter(function(d) { return d.status === 'confirmed'; }).length;
+      var pending   = data.filter(function(d) { return d.status === 'pending'; }).length;
+      document.getElementById('summary-pills').innerHTML =
+        '<span class="summary-pill pill-total"><strong>' + total + '</strong> Total</span>' +
+        '<span class="summary-pill pill-active"><strong>' + active + '</strong> Active</span>' +
+        '<span class="summary-pill pill-stored"><strong>' + stored + '</strong> Stored</span>' +
+        '<span class="summary-pill pill-confirmed"><strong>' + confirmed + '</strong> Confirmed</span>' +
+        '<span class="summary-pill pill-pending"><strong>' + pending + '</strong> Pending</span>';
+    }
+
+    // ─── Filtering state ───
+    var activeFilter = 'all';
+    var searchQuery  = '';
+
+    function getVisible() {
+      return dtcs.filter(function(d) {
+        // Filter button logic
+        if (activeFilter === 'safety') {
+          if (d.asil === 'qm') return false;
+        } else if (activeFilter === 'open') {
+          if (d.status !== 'active' && d.status !== 'pending') return false;
+        } else if (activeFilter !== 'all') {
+          if (d.system !== activeFilter) return false;
+        }
+        // Full-text search across all columns
+        if (searchQuery) {
+          var q = searchQuery.toLowerCase();
+          var hay = [d.code, d.ftb, d.desc, d.system, d.severity,
+            d.monitor, d.healing, d.asil, d.status, d.demEvent,
+            d.debounce, d.enables, d.safetyGoal].join(' ').toLowerCase();
+          if (hay.indexOf(q) === -1) return false;
+        }
+        return true;
+      });
+    }
+
+    // ─── Render table rows ───
+    function renderTable() {
+      var tbody   = document.getElementById('dtc-tbody');
+      tbody.innerHTML = '';
+      var visible = getVisible();
+
+      var count = visible.length;
+      document.getElementById('row-count').textContent =
+        count + ' of ' + dtcs.length + ' entr' + (count === 1 ? 'y' : 'ies');
+      document.getElementById('no-results').style.display = count === 0 ? '' : 'none';
+
+      visible.forEach(function(d) {
+        // ── Main data row ──
+        var mainRow = document.createElement('tr');
+        mainRow.className = 'dtc-main-row';
+        mainRow.dataset.expanded = 'false';
+        mainRow.setAttribute('tabindex', '0');
+        mainRow.setAttribute('role', 'button');
+        mainRow.setAttribute('aria-expanded', 'false');
+
+        mainRow.innerHTML =
+          '<td><span class="dtc-code">' + d.code + '</span></td>' +
+          '<td><span class="dtc-ftb">' + d.ftb + '</span></td>' +
+          '<td style="max-width:300px;line-height:1.4">' + d.desc + '</td>' +
+          '<td>' + sysBadge(d.system) + '</td>' +
+          '<td>' + sevBadge(d.severity) + '</td>' +
+          '<td>' + monBadge(d.monitor) + '</td>' +
+          '<td style="font-size:0.8125rem;color:var(--text-dim);max-width:200px;line-height:1.4">' + d.healing + '</td>' +
+          '<td>' + asilBadge(d.asil) + '</td>' +
+          '<td>' + statusBadge(d.status) + '</td>';
+
+        // ── Inline detail row ──
+        var detailRow = document.createElement('tr');
+        detailRow.className = 'dtc-detail-row';
+
+        var safetyHtml = d.safetyGoal
+          ? '<div class="detail-group">' +
+              '<span class="detail-label">Linked Safety Goal</span>' +
+              '<span class="detail-value safety">' + d.safetyGoal + '</span>' +
+            '</div>'
+          : '';
+
+        detailRow.innerHTML =
+          '<td class="dtc-detail-cell" colspan="9">' +
+            '<div class="dtc-detail-inner">' +
+              '<div class="detail-group">' +
+                '<span class="detail-label">Full Description</span>' +
+                '<span class="detail-value">' + d.desc + '</span>' +
+              '</div>' +
+              '<div class="detail-group">' +
+                '<span class="detail-label">DEM Event Name</span>' +
+                '<span class="detail-value mono">' + d.demEvent + '</span>' +
+              '</div>' +
+              '<div class="detail-group">' +
+                '<span class="detail-label">Debounce Strategy</span>' +
+                '<span class="detail-value mono">' + d.debounce + '</span>' +
+              '</div>' +
+              '<div class="detail-group">' +
+                '<span class="detail-label">Aging Threshold</span>' +
+                '<span class="detail-value mono">' + (d.aging > 0 ? d.aging + '\u202fcycles' : 'N/A \u2014 no aging') + '</span>' +
+              '</div>' +
+              '<div class="detail-group">' +
+                '<span class="detail-label">Enable Conditions</span>' +
+                '<span class="detail-value">' + d.enables + '</span>' +
+              '</div>' +
+              safetyHtml +
+            '</div>' +
+          '</td>';
+
+        // Toggle expand on click or Enter/Space
+        function toggleExpand() {
+          var expanded = mainRow.dataset.expanded === 'true';
+          mainRow.dataset.expanded = expanded ? 'false' : 'true';
+          mainRow.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+          detailRow.classList.toggle('visible', !expanded);
+        }
+
+        mainRow.addEventListener('click', toggleExpand);
+        mainRow.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpand(); }
+        });
+
+        tbody.appendChild(mainRow);
+        tbody.appendChild(detailRow);
+      });
+    }
+
+    // ─── Filter buttons ───
+    document.querySelectorAll('.filter-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        activeFilter = btn.dataset.filter;
+        renderTable();
+      });
+    });
+
+    // ─── Search ───
+    document.getElementById('dtc-search').addEventListener('input', function(e) {
+      searchQuery = e.target.value.trim();
+      renderTable();
+    });
+
+    // ─── Export CSV ───
+    document.getElementById('btn-export').addEventListener('click', function() {
+      var visible = getVisible();
+      var headers = ['DTC Code','FTB','Description','System','Severity','Monitor Type',
+        'Healing Condition','ASIL','Status','DEM Event Name','Debounce','Aging','Enable Conditions','Safety Goal'];
+      var rows = visible.map(function(d) {
+        return [
+          d.code, d.ftb,
+          '"' + d.desc.replace(/"/g, '""') + '"',
+          d.system, d.severity, d.monitor,
+          '"' + d.healing.replace(/"/g, '""') + '"',
+          d.asil.toUpperCase(), d.status,
+          d.demEvent,
+          '"' + d.debounce + '"',
+          d.aging > 0 ? d.aging + ' cycles' : 'N/A',
+          '"' + d.enables + '"',
+          '"' + d.safetyGoal + '"'
+        ].join(',');
+      });
+      var csv  = [headers.join(',')].concat(rows).join('\n');
+      var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      var url  = URL.createObjectURL(blob);
+      var a    = document.createElement('a');
+      a.href     = url;
+      a.download = 'dtc-catalog.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    // ─── Init ───
+    buildPills(dtcs);
+    renderTable();
+  </script>
+
+</body>
+</html>

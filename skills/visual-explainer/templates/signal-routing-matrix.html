@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gateway Signal Routing Matrix — Visual Explainer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* Blueprint aesthetic — always dark navy, network topology */
+    :root {
+      --bg: #0a1628;
+      --surface: #0d1f3c;
+      --surface-raised: #102448;
+      --border: #1e3a5f;
+      --border-strong: #2e5a8f;
+      --text: #c8d8e8;
+      --text-dim: #7090b0;
+      --accent: #4da6ff;
+      --accent-2: #00d4aa;
+      --shadow: rgba(0,0,0,0.6);
+      /* Network bus colors */
+      --bus-can:     #1a4d1a;
+      --bus-lin:     #4d3300;
+      --bus-eth:     #003366;
+      --bus-most:    #4d1a4d;
+      --bus-flexray: #4d2200;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 2rem;
+      min-height: 100vh;
+    }
+
+    /* ─── ASIL badges ─── */
+    .ve-badge {
+      display: inline-block;
+      border-radius: 999px;
+      border: 1px solid currentColor;
+      font-size: 0.625rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.0625rem 0.375rem;
+    }
+    .ve-badge.asil-d { background: #7b0000; color: #fff; border-color: #ff2222; }
+    .ve-badge.asil-c { background: #b34700; color: #fff; border-color: #ff6600; }
+    .ve-badge.asil-b { background: #806600; color: #fff; border-color: #ffcc00; }
+    .ve-badge.asil-a { background: #1a5c1a; color: #fff; border-color: #33cc33; }
+    .ve-badge.qm     { background: #1a3a5c; color: #fff; border-color: #3399ff; }
+
+    /* ─── Header ─── */
+    .srm-header {
+      max-width: 1400px;
+      margin: 0 auto 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .srm-header h1 {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.375rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .srm-header h1 span { color: var(--accent); }
+
+    .srm-meta {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-align: right;
+      line-height: 1.7;
+    }
+
+    .srm-chips {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 0.25rem;
+      justify-content: flex-end;
+    }
+
+    .srm-chip {
+      display: inline-block;
+      padding: 0.125rem 0.625rem;
+      border-radius: 999px;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      font-family: 'IBM Plex Mono', monospace;
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--text-dim);
+    }
+
+    .srm-chip.can { background: rgba(26,77,26,0.25); color: #66cc66; border-color: #33cc33; }
+    .srm-chip.lin { background: rgba(77,51,0,0.35);  color: #ffaa44; border-color: #ff9900; }
+    .srm-chip.eth { background: rgba(0,51,102,0.4);  color: #66aaff; border-color: #3399ff; }
+
+    /* ─── Topology Diagram ─── */
+    .topology-wrap {
+      max-width: 1400px;
+      margin: 0 auto 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .topology-header {
+      padding: 0.5rem 1.25rem;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .topology-canvas-wrap {
+      position: relative;
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    #topology-svg {
+      display: block;
+      width: 100%;
+      min-height: 340px;
+    }
+
+    /* SVG element styles */
+    .bus-line {
+      stroke-width: 3;
+      fill: none;
+    }
+
+    .bus-line-bg {
+      stroke-width: 12;
+      fill: none;
+      opacity: 0.12;
+    }
+
+    .ecu-node-rect {
+      rx: 5; ry: 5;
+      stroke-width: 1.5;
+    }
+
+    .ecu-node-text {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      fill: #c8d8e8;
+      text-anchor: middle;
+      dominant-baseline: central;
+      pointer-events: none;
+    }
+
+    .gateway-rect {
+      rx: 6; ry: 6;
+      stroke-width: 2;
+    }
+
+    .gateway-text {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      fill: #c8d8e8;
+      text-anchor: middle;
+      dominant-baseline: central;
+      pointer-events: none;
+    }
+
+    .bus-label-text {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      dominant-baseline: central;
+    }
+
+    .bus-type-badge-text {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 8px;
+      dominant-baseline: central;
+    }
+
+    .routing-arrow {
+      fill: none;
+      stroke-width: 1.5;
+      opacity: 0.55;
+      transition: opacity 0.2s, stroke-width 0.2s;
+      cursor: pointer;
+    }
+
+    .routing-arrow.active {
+      opacity: 1;
+      stroke-width: 3;
+      filter: drop-shadow(0 0 4px currentColor);
+    }
+
+    .routing-arrow-head {
+      stroke: none;
+      opacity: 0.55;
+      transition: opacity 0.2s;
+    }
+
+    .routing-arrow-head.active {
+      opacity: 1;
+    }
+
+    /* ─── Filter bar ─── */
+    .srm-filter-bar {
+      max-width: 1400px;
+      margin: 0 auto 0.75rem;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-label {
+      font-size: 0.6875rem;
+      color: var(--text-dim);
+      font-family: 'IBM Plex Mono', monospace;
+      margin-right: 0.25rem;
+    }
+
+    .filter-btn {
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--text-dim);
+      font-size: 0.6875rem;
+      font-family: 'IBM Plex Mono', monospace;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+
+    .filter-btn:hover { background: var(--surface-raised); color: var(--text); }
+    .filter-btn.active { background: var(--border-strong); color: var(--accent); border-color: var(--accent); }
+
+    .srm-search {
+      margin-left: auto;
+      padding: 0.25rem 0.75rem;
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      outline: none;
+      width: 200px;
+      transition: border-color 0.15s;
+    }
+
+    .srm-search:focus { border-color: var(--accent); }
+    .srm-search::placeholder { color: var(--text-dim); }
+
+    /* ─── Routing Table ─── */
+    .srm-table-wrap {
+      max-width: 1400px;
+      margin: 0 auto 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .srm-table-header {
+      padding: 0.75rem 1.25rem;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .ve-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+    }
+
+    .ve-table th {
+      background: var(--surface-raised);
+      padding: 0.5rem 0.875rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-dim);
+      font-size: 0.5625rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border-bottom: 1px solid var(--border);
+      font-family: 'IBM Plex Mono', monospace;
+      white-space: nowrap;
+    }
+
+    .ve-table td {
+      padding: 0.4375rem 0.875rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+    }
+
+    .ve-table tr:last-child td { border-bottom: none; }
+
+    .ve-table tbody tr {
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+
+    .ve-table tbody tr:hover td { background: var(--surface-raised); }
+
+    .ve-table tbody tr.row-active td {
+      background: rgba(77,166,255,0.1);
+    }
+
+    .ve-table tbody tr.row-hidden { display: none; }
+
+    .bus-tag {
+      display: inline-block;
+      padding: 0.0625rem 0.375rem;
+      border-radius: 3px;
+      font-size: 0.5625rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .bus-tag.can { background: rgba(26,77,26,0.4);  color: #66cc66; border: 1px solid #33cc33; }
+    .bus-tag.lin { background: rgba(77,51,0,0.5);   color: #ffaa44; border: 1px solid #ff9900; }
+    .bus-tag.eth { background: rgba(0,51,102,0.5);  color: #66aaff; border: 1px solid #3399ff; }
+
+    /* ─── SOME-IP Section ─── */
+    .srm-someip {
+      max-width: 1400px;
+      margin: 0 auto 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .srm-section-header {
+      padding: 0.75rem 1.25rem;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+      font-family: 'IBM Plex Mono', monospace;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .srm-section-header:hover { background: var(--surface-raised); }
+
+    .srm-toggle-icon {
+      font-size: 0.625rem;
+      color: var(--text-dim);
+      transition: transform 0.2s;
+      display: inline-block;
+    }
+
+    .srm-toggle-icon.collapsed { transform: rotate(-90deg); }
+
+    .srm-section-body {
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .srm-section-body.collapsed { max-height: 0 !important; }
+
+    /* ─── Legend Section ─── */
+    .srm-legend {
+      max-width: 1400px;
+      margin: 0 auto 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+
+    .legend-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.875rem 1rem;
+    }
+
+    .legend-section-title {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      margin-bottom: 0.625rem;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .legend-items {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4375rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .legend-bus-swatch {
+      width: 24px;
+      height: 4px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .legend-arrow-line {
+      width: 24px;
+      height: 2px;
+      flex-shrink: 0;
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 900px) {
+      body { padding: 1rem; }
+      .ve-table td, .ve-table th { padding: 0.375rem 0.5rem; }
+      .ve-table { font-size: 0.6875rem; }
+      .col-transform, .col-latency { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── Header ─── -->
+  <header class="srm-header">
+    <div>
+      <h1>Gateway <span>Signal Routing Matrix</span></h1>
+      <div style="font-size:0.75rem;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;margin-top:0.25rem;">
+        Vehicle: EV_Platform_A &nbsp;|&nbsp; Gateway ECU: GatewayECU &nbsp;|&nbsp; Topology v2.1
+      </div>
+    </div>
+    <div class="srm-meta">
+      <div>8 signals &nbsp;|&nbsp; 3 SOME-IP services</div>
+      <div class="srm-chips">
+        <span class="srm-chip can">2× CAN</span>
+        <span class="srm-chip lin">1× LIN</span>
+        <span class="srm-chip eth">1× Ethernet</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ─── Topology Diagram ─── -->
+  <div class="topology-wrap">
+    <div class="topology-header">Network Topology — Swimlane View</div>
+    <div class="topology-canvas-wrap">
+      <svg id="topology-svg" aria-label="Vehicle network topology diagram"></svg>
+    </div>
+  </div>
+
+  <!-- ─── Filter Bar ─── -->
+  <div class="srm-filter-bar">
+    <span class="filter-label">Filter:</span>
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="can-can">CAN→CAN</button>
+    <button class="filter-btn" data-filter="can-eth">CAN→ETH</button>
+    <button class="filter-btn" data-filter="lin-can">LIN→CAN</button>
+    <button class="filter-btn" data-filter="eth-can">ETH→CAN</button>
+    <button class="filter-btn" data-filter="safety">Safety (ASIL &gt; QM)</button>
+    <input type="search" class="srm-search" id="srm-search" placeholder="Search signals…">
+  </div>
+
+  <!-- ─── Routing Table ─── -->
+  <div class="srm-table-wrap">
+    <div class="srm-table-header">Signal Routing Table</div>
+    <table class="ve-table" id="routing-table">
+      <thead>
+        <tr>
+          <th>Signal Name</th>
+          <th>Source ECU</th>
+          <th>Src Bus</th>
+          <th>CAN ID / SID</th>
+          <th>Dir</th>
+          <th>Dst Bus</th>
+          <th>Dest ECU</th>
+          <th class="col-transform">Transform</th>
+          <th class="col-latency">Latency</th>
+          <th>ASIL</th>
+        </tr>
+      </thead>
+      <tbody id="routing-tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- ─── SOME-IP Section ─── -->
+  <div class="srm-someip">
+    <div class="srm-section-header" id="someip-toggle">
+      <span>SOME-IP Service Summary</span>
+      <span class="srm-toggle-icon collapsed" id="someip-icon">▼</span>
+    </div>
+    <div class="srm-section-body collapsed" id="someip-body">
+      <table class="ve-table">
+        <thead>
+          <tr>
+            <th>Service ID</th>
+            <th>Service Name</th>
+            <th>Method / Event</th>
+            <th>Provider ECU</th>
+            <th>Consumer ECUs</th>
+            <th>Protocol</th>
+            <th>Cycle / Trigger</th>
+          </tr>
+        </thead>
+        <tbody id="someip-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ─── Legend ─── -->
+  <div class="srm-legend">
+    <div class="legend-section">
+      <div class="legend-section-title">Bus Types</div>
+      <div class="legend-items">
+        <div class="legend-item"><span class="legend-bus-swatch" style="background:#33cc33"></span>CAN (500 kbit/s)</div>
+        <div class="legend-item"><span class="legend-bus-swatch" style="background:#ff9900"></span>LIN (19.2 kbit/s)</div>
+        <div class="legend-item"><span class="legend-bus-swatch" style="background:#3399ff"></span>Ethernet / SOME-IP (100BASE-T1)</div>
+      </div>
+    </div>
+    <div class="legend-section">
+      <div class="legend-section-title">Signal Direction</div>
+      <div class="legend-items">
+        <div class="legend-item">
+          <svg width="24" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="#4da6ff" stroke-width="2"/><polygon points="20,2 24,5 20,8" fill="#4da6ff"/></svg>
+          Routed through gateway
+        </div>
+        <div class="legend-item">
+          <svg width="24" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="#ff4444" stroke-width="2" stroke-dasharray="4,2"/><polygon points="20,2 24,5 20,8" fill="#ff4444"/></svg>
+          Safety-critical (ASIL-D)
+        </div>
+      </div>
+    </div>
+    <div class="legend-section">
+      <div class="legend-section-title">Routing Types</div>
+      <div class="legend-items">
+        <div class="legend-item" style="color:var(--text-dim)">Gateway — transparent forward</div>
+        <div class="legend-item" style="color:var(--text-dim)">Transformed — value conversion</div>
+        <div class="legend-item" style="color:var(--text-dim)">Translated — protocol conversion</div>
+        <div class="legend-item" style="color:var(--text-dim)">Bridged — multi-bus broadcast</div>
+      </div>
+    </div>
+    <div class="legend-section">
+      <div class="legend-section-title">ASIL Levels</div>
+      <div class="legend-items">
+        <div class="legend-item"><span class="ve-badge asil-d">ASIL-D</span> Highest integrity</div>
+        <div class="legend-item"><span class="ve-badge asil-c">ASIL-C</span> High integrity</div>
+        <div class="legend-item"><span class="ve-badge asil-b">ASIL-B</span> Medium integrity</div>
+        <div class="legend-item"><span class="ve-badge qm">QM</span> Quality managed</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ─── Data ────────────────────────────────────────────────────────────────
+    const buses = [
+      { id: 'CAN1', type: 'CAN', baud: '500 kbit/s', ecus: ['MotorCtrlECU', 'BMS_ECU', 'MainECU'], color: '#1a4d1a', border: '#33cc33', textColor: '#66cc66' },
+      { id: 'CAN2', type: 'CAN', baud: '500 kbit/s', ecus: ['BodyCtrlECU', 'ClimateECU', 'MainECU'], color: '#1a4d1a', border: '#33cc33', textColor: '#66cc66' },
+      { id: 'LIN1', type: 'LIN', baud: '19.2 kbit/s', ecus: ['SeatECU', 'MirrorECU', 'BodyCtrlECU'], color: '#4d3300', border: '#ff9900', textColor: '#ffaa44' },
+      { id: 'ETH0', type: 'Ethernet', baud: '100BASE-T1', ecus: ['GatewayECU', 'TCU', 'OTA_ECU'], color: '#003366', border: '#3399ff', textColor: '#66aaff' },
+    ];
+
+    const gateway = { name: 'GatewayECU', asil: 'b' };
+
+    const signals = [
+      { name: 'VehicleSpeed',      srcEcu:'MotorCtrlECU', srcBus:'CAN1', canId:'0x101',      dir:'→', dstBus:'CAN2',   dstEcu:'BodyCtrlECU',   transform:'Scale ×0.01',          latency:'10ms',  asil:'c' },
+      { name: 'VehicleSpeed',      srcEcu:'MotorCtrlECU', srcBus:'CAN1', canId:'0x101',      dir:'→', dstBus:'ETH0',   dstEcu:'TCU',           transform:'SOME-IP translate',     latency:'15ms',  asil:'c' },
+      { name: 'BatterySOC',        srcEcu:'BMS_ECU',      srcBus:'CAN1', canId:'0x201',      dir:'→', dstBus:'ETH0',   dstEcu:'OTA_ECU',       transform:'None',                  latency:'100ms', asil:'qm' },
+      { name: 'EngineRPM',         srcEcu:'MotorCtrlECU', srcBus:'CAN1', canId:'0x102',      dir:'→', dstBus:'CAN2',   dstEcu:'ClimateECU',    transform:'None',                  latency:'20ms',  asil:'qm' },
+      { name: 'SeatPosition_L',    srcEcu:'SeatECU',      srcBus:'LIN1', canId:'LIN 0x22',   dir:'→', dstBus:'CAN2',   dstEcu:'BodyCtrlECU',   transform:'Protocol conversion',   latency:'50ms',  asil:'qm' },
+      { name: 'OTA_Manifest',      srcEcu:'OTA_ECU',      srcBus:'ETH0', canId:'SID:0x8001', dir:'→', dstBus:'CAN1',   dstEcu:'MotorCtrlECU',  transform:'Segmented',             latency:'N/A',   asil:'qm' },
+      { name: 'SafeState_Request', srcEcu:'MainECU',      srcBus:'CAN1', canId:'0x7F0',      dir:'→', dstBus:'CAN2',   dstEcu:'BodyCtrlECU',   transform:'None',                  latency:'5ms',   asil:'d' },
+      { name: 'EmergencyStop',     srcEcu:'MainECU',      srcBus:'CAN1', canId:'0x7F1',      dir:'→', dstBus:'ETH0',   dstEcu:'TCU',           transform:'SOME-IP event',         latency:'5ms',   asil:'d' },
+    ];
+
+    const someipServices = [
+      { sid:'0x8001', name:'OTA_ManifestService',  method:'Get/Subscribe', provider:'OTA_ECU',    consumers:['MotorCtrlECU'],  protocol:'UDP', cycle:'Event' },
+      { sid:'0x8002', name:'VehicleState_Service', method:'Subscribe',     provider:'GatewayECU', consumers:['TCU','OTA_ECU'], protocol:'UDP', cycle:'100ms' },
+      { sid:'0x8003', name:'DiagSession_Service',  method:'Get/Set',       provider:'MainECU',    consumers:['TCU'],           protocol:'TCP', cycle:'Event' },
+    ];
+
+    // ─── SVG topology diagram ────────────────────────────────────────────────
+    const svg = document.getElementById('topology-svg');
+    const NS  = 'http://www.w3.org/2000/svg';
+
+    function svgEl(tag, attrs, parent) {
+      const el = document.createElementNS(NS, tag);
+      Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+      if (parent) parent.appendChild(el);
+      return el;
+    }
+
+    function buildTopology() {
+      const W = svg.parentElement.clientWidth || 1000;
+      const LANE_H   = 80;    // height per bus swimlane
+      const PAD_TOP  = 20;
+      const PAD_LEFT = 100;   // left margin for bus labels
+      const PAD_RIGHT = 20;
+      const BUS_CONTENT_W = W - PAD_LEFT - PAD_RIGHT;
+      const ECU_W    = 88;
+      const ECU_H    = 28;
+      const GW_W     = 90;
+      const GW_H     = buses.length * LANE_H - 16;
+      const GW_X     = W - PAD_RIGHT - GW_W - 20;
+      const GW_Y     = PAD_TOP + 8;
+      const TOTAL_H  = PAD_TOP + buses.length * LANE_H + 20;
+
+      svg.setAttribute('viewBox', '0 0 ' + W + ' ' + TOTAL_H);
+      svg.setAttribute('height', TOTAL_H);
+
+      // Clear
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+      // Defs — arrowhead markers per bus type
+      const defs = svgEl('defs', {}, svg);
+      buses.forEach(bus => {
+        const mid = svgEl('marker', {
+          id: 'arrow-' + bus.id,
+          markerWidth: '8', markerHeight: '8',
+          refX: '6', refY: '4', orient: 'auto'
+        }, defs);
+        svgEl('path', { d: 'M1,1 L1,7 L7,4 z', fill: bus.border }, mid);
+      });
+      // Safety marker (red)
+      const safetyMid = svgEl('marker', {
+        id: 'arrow-safety',
+        markerWidth: '8', markerHeight: '8',
+        refX: '6', refY: '4', orient: 'auto'
+      }, defs);
+      svgEl('path', { d: 'M1,1 L1,7 L7,4 z', fill: '#ff4444' }, safetyMid);
+
+      // Bus swimlanes
+      const busYMid = [];
+      buses.forEach((bus, i) => {
+        const laneY   = PAD_TOP + i * LANE_H;
+        const midY    = laneY + LANE_H / 2;
+        busYMid.push(midY);
+
+        // Lane background
+        svgEl('rect', {
+          x: 0, y: laneY, width: W, height: LANE_H,
+          fill: i % 2 === 0 ? 'rgba(255,255,255,0.015)' : 'transparent',
+        }, svg);
+
+        // Bus label (left)
+        const lblGroup = svgEl('g', {}, svg);
+        svgEl('text', {
+          x: 8, y: midY - 6,
+          class: 'bus-label-text',
+          fill: bus.textColor,
+        }, lblGroup).textContent = bus.id;
+        svgEl('text', {
+          x: 8, y: midY + 8,
+          class: 'bus-type-badge-text',
+          fill: bus.textColor,
+          opacity: '0.7',
+        }, lblGroup).textContent = bus.baud;
+
+        // Bus line background glow
+        svgEl('line', {
+          x1: PAD_LEFT, y1: midY,
+          x2: GW_X, y2: midY,
+          stroke: bus.border,
+          'stroke-width': 10,
+          opacity: 0.08,
+          'stroke-linecap': 'round',
+        }, svg);
+
+        // Bus line
+        svgEl('line', {
+          x1: PAD_LEFT, y1: midY,
+          x2: GW_X, y2: midY,
+          stroke: bus.border,
+          'stroke-width': 2.5,
+          'stroke-linecap': 'round',
+          opacity: 0.8,
+        }, svg);
+
+        // ECU nodes along the bus
+        const ecuCount  = bus.ecus.length;
+        const spacing   = Math.min(140, (GW_X - PAD_LEFT - 20) / (ecuCount + 1));
+        bus.ecus.forEach((ecu, j) => {
+          const cx = PAD_LEFT + spacing * (j + 1);
+          const ey = midY - ECU_H / 2 - 14;
+
+          // Connector stub to bus
+          svgEl('line', {
+            x1: cx + ECU_W / 2, y1: ey + ECU_H,
+            x2: cx + ECU_W / 2, y2: midY,
+            stroke: bus.border, 'stroke-width': 1, opacity: 0.5,
+          }, svg);
+
+          // ECU box
+          const isGateway = ecu === gateway.name;
+          svgEl('rect', {
+            x: cx, y: ey,
+            width: ECU_W, height: ECU_H,
+            fill: isGateway ? '#1a3a5c' : bus.color,
+            stroke: isGateway ? '#4da6ff' : bus.border,
+            'stroke-width': isGateway ? 2 : 1.5,
+            rx: 4, ry: 4,
+          }, svg);
+
+          svgEl('text', {
+            x: cx + ECU_W / 2, y: ey + ECU_H / 2,
+            class: 'ecu-node-text',
+            fill: isGateway ? '#4da6ff' : bus.textColor,
+          }, svg).textContent = ecu.length > 11 ? ecu.slice(0, 11) + '…' : ecu;
+        });
+      });
+
+      // Gateway ECU — center-right spanning all lanes
+      const gwGroup = svgEl('g', {}, svg);
+      svgEl('rect', {
+        x: GW_X, y: GW_Y,
+        width: GW_W, height: GW_H,
+        fill: '#0d2a4a',
+        stroke: '#4da6ff',
+        'stroke-width': 2,
+        rx: 6, ry: 6,
+      }, gwGroup);
+      svgEl('text', {
+        x: GW_X + GW_W / 2, y: GW_Y + GW_H / 2 - 8,
+        class: 'gateway-text',
+        fill: '#4da6ff',
+      }, gwGroup).textContent = 'GatewayECU';
+      svgEl('text', {
+        x: GW_X + GW_W / 2, y: GW_Y + GW_H / 2 + 8,
+        'font-family': "'IBM Plex Mono', monospace",
+        'font-size': '8',
+        fill: '#7090b0',
+        'text-anchor': 'middle',
+        'dominant-baseline': 'central',
+      }, gwGroup).textContent = 'ASIL-B';
+
+      // Connection stubs from gateway to each bus line
+      buses.forEach((bus, i) => {
+        const midY = busYMid[i];
+        svgEl('line', {
+          x1: GW_X, y1: midY,
+          x2: GW_X, y2: midY,
+          stroke: bus.border, 'stroke-width': 1.5,
+        }, svg);
+      });
+
+      // Routing arrows between buses through gateway
+      // Collect unique srcBus→dstBus pairs
+      const routePairs = {};
+      signals.forEach(s => {
+        const key = s.srcBus + '→' + s.dstBus;
+        if (!routePairs[key]) {
+          routePairs[key] = { srcBus: s.srcBus, dstBus: s.dstBus, signals: [] };
+        }
+        routePairs[key].signals.push(s.name);
+      });
+
+      Object.entries(routePairs).forEach(([key, pair], pairIdx) => {
+        const srcBusData = buses.find(b => b.id === pair.srcBus);
+        const dstBusData = buses.find(b => b.id === pair.dstBus);
+        if (!srcBusData || !dstBusData) return;
+
+        const srcIdx = buses.indexOf(srcBusData);
+        const dstIdx = buses.indexOf(dstBusData);
+        const srcY   = busYMid[srcIdx];
+        const dstY   = busYMid[dstIdx];
+
+        // Offset x slightly per pair to avoid overlap
+        const offsetX = GW_X + GW_W / 2 + (pairIdx % 3 - 1) * 10;
+
+        // Bezier: from bus line end → into gateway → out of gateway → destination bus
+        const startX = GW_X;
+        const endX   = GW_X + GW_W;
+
+        // Determine if safety-critical (any ASIL-D signal in this pair)
+        const hasSafety = signals.some(s =>
+          s.srcBus === pair.srcBus && s.dstBus === pair.dstBus && s.asil === 'd'
+        );
+
+        const strokeColor = hasSafety ? '#ff4444' : srcBusData.border;
+        const dashArray   = hasSafety ? '6,3' : 'none';
+        const markerId    = hasSafety ? 'arrow-safety' : 'arrow-' + pair.srcBus;
+
+        // Source bus → gateway left side
+        const p1 = svgEl('path', {
+          d: 'M ' + startX + ',' + srcY +
+             ' C ' + (startX + GW_W * 0.6) + ',' + srcY +
+             ' ' + offsetX + ',' + (GW_Y + GW_H * 0.3 + pairIdx * 8) +
+             ' ' + (GW_X + GW_W / 2) + ',' + (GW_Y + GW_H / 2),
+          class: 'routing-arrow',
+          stroke: strokeColor,
+          'stroke-dasharray': dashArray,
+          'data-pair': key,
+        }, svg);
+
+        // Gateway right side → destination bus
+        const p2 = svgEl('path', {
+          d: 'M ' + (GW_X + GW_W / 2) + ',' + (GW_Y + GW_H / 2) +
+             ' C ' + offsetX + ',' + (GW_Y + GW_H * 0.7 + pairIdx * 8) +
+             ' ' + (GW_X + GW_W + GW_W * 0.1) + ',' + dstY +
+             ' ' + (GW_X + GW_W) + ',' + dstY,
+          class: 'routing-arrow',
+          stroke: strokeColor,
+          'stroke-dasharray': dashArray,
+          'marker-end': 'url(#' + markerId + ')',
+          'data-pair': key,
+        }, svg);
+
+        // Store references for highlight
+        p1._pairKey = key;
+        p2._pairKey = key;
+      });
+    }
+
+    buildTopology();
+    window.addEventListener('resize', () => {
+      buildTopology();
+      syncArrowHighlights();
+    });
+
+    // ─── Helper: get bus type string ─────────────────────────────────────────
+    function busType(busId) {
+      const b = buses.find(b => b.id === busId);
+      return b ? b.type.toLowerCase() : '';
+    }
+
+    // ─── Routing table ───────────────────────────────────────────────────────
+    const tbody = document.getElementById('routing-tbody');
+    const rowElements = [];
+
+    signals.forEach((s, i) => {
+      const tr = document.createElement('tr');
+      tr.dataset.index     = i;
+      tr.dataset.srcBus    = s.srcBus.toLowerCase();
+      tr.dataset.dstBus    = s.dstBus.toLowerCase();
+      tr.dataset.asil      = s.asil;
+      tr.dataset.pairKey   = s.srcBus + '→' + s.dstBus;
+      tr.dataset.sigName   = s.name.toLowerCase();
+
+      const srcType = busType(s.srcBus);
+      const dstType = busType(s.dstBus);
+      const asilLabel = s.asil === 'qm' ? 'QM' : 'ASIL-' + s.asil.toUpperCase();
+
+      tr.innerHTML =
+        '<td style="color:var(--accent)">' + s.name + '</td>' +
+        '<td>' + s.srcEcu + '</td>' +
+        '<td><span class="bus-tag ' + srcType + '">' + s.srcBus + '</span></td>' +
+        '<td style="color:var(--text-dim)">' + s.canId + '</td>' +
+        '<td style="color:var(--accent-2)">' + s.dir + '</td>' +
+        '<td><span class="bus-tag ' + dstType + '">' + s.dstBus + '</span></td>' +
+        '<td>' + s.dstEcu + '</td>' +
+        '<td class="col-transform" style="color:var(--text-dim)">' + s.transform + '</td>' +
+        '<td class="col-latency">' + s.latency + '</td>' +
+        '<td><span class="ve-badge ' + s.asil + '">' + asilLabel + '</span></td>';
+
+      tr.addEventListener('click', () => handleRowClick(tr, s));
+      tbody.appendChild(tr);
+      rowElements.push(tr);
+    });
+
+    // ─── Row click → highlight arrow ─────────────────────────────────────────
+    let activeRow    = null;
+    let activePairKey = null;
+
+    function handleRowClick(tr, s) {
+      const pairKey = s.srcBus + '→' + s.dstBus;
+
+      // Toggle off if already active
+      if (activeRow === tr) {
+        tr.classList.remove('row-active');
+        activeRow    = null;
+        activePairKey = null;
+        syncArrowHighlights();
+        return;
+      }
+
+      if (activeRow) activeRow.classList.remove('row-active');
+      tr.classList.add('row-active');
+      activeRow     = tr;
+      activePairKey = pairKey;
+      syncArrowHighlights();
+    }
+
+    function syncArrowHighlights() {
+      document.querySelectorAll('.routing-arrow').forEach(el => {
+        if (activePairKey && el.dataset.pair === activePairKey) {
+          el.classList.add('active');
+        } else {
+          el.classList.remove('active');
+        }
+      });
+    }
+
+    // ─── Filter buttons ──────────────────────────────────────────────────────
+    let currentFilter = 'all';
+    let currentSearch = '';
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        applyFilters();
+      });
+    });
+
+    document.getElementById('srm-search').addEventListener('input', e => {
+      currentSearch = e.target.value.toLowerCase();
+      applyFilters();
+    });
+
+    function applyFilters() {
+      rowElements.forEach(tr => {
+        const srcBus = tr.dataset.srcBus;
+        const dstBus = tr.dataset.dstBus;
+        const asil   = tr.dataset.asil;
+        const sigName = tr.dataset.sigName;
+
+        let passFilter = true;
+        if (currentFilter === 'can-can') passFilter = srcBus.startsWith('can') && dstBus.startsWith('can');
+        else if (currentFilter === 'can-eth') passFilter = srcBus.startsWith('can') && dstBus.startsWith('eth');
+        else if (currentFilter === 'lin-can') passFilter = srcBus.startsWith('lin') && dstBus.startsWith('can');
+        else if (currentFilter === 'eth-can') passFilter = srcBus.startsWith('eth') && dstBus.startsWith('can');
+        else if (currentFilter === 'safety')  passFilter = (asil !== 'qm');
+
+        let passSearch = true;
+        if (currentSearch) passSearch = sigName.includes(currentSearch);
+
+        tr.classList.toggle('row-hidden', !(passFilter && passSearch));
+      });
+    }
+
+    // ─── SOME-IP table ───────────────────────────────────────────────────────
+    const someipTbody = document.getElementById('someip-tbody');
+    someipServices.forEach(svc => {
+      const tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td style="color:var(--accent)">' + svc.sid + '</td>' +
+        '<td>' + svc.name + '</td>' +
+        '<td style="color:var(--text-dim)">' + svc.method + '</td>' +
+        '<td>' + svc.provider + '</td>' +
+        '<td>' + svc.consumers.join(', ') + '</td>' +
+        '<td>' + svc.protocol + '</td>' +
+        '<td>' + svc.cycle + '</td>';
+      someipTbody.appendChild(tr);
+    });
+
+    // ─── SOME-IP collapsible ─────────────────────────────────────────────────
+    const someipBody   = document.getElementById('someip-body');
+    const someipIcon   = document.getElementById('someip-icon');
+    const someipToggle = document.getElementById('someip-toggle');
+
+    // Start collapsed — set explicit max-height for expand transition
+    someipBody.style.maxHeight = '0px';
+
+    someipToggle.addEventListener('click', () => {
+      const isCollapsed = someipBody.classList.toggle('collapsed');
+      someipIcon.classList.toggle('collapsed', isCollapsed);
+      if (!isCollapsed) {
+        someipBody.style.maxHeight = someipBody.scrollHeight + 'px';
+      } else {
+        someipBody.style.maxHeight = '0px';
+      }
+    });
+  </script>
+</body>
+</html>

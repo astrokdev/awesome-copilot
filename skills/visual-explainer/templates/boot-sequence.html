@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECU Boot Sequence — Visual Explainer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ── Always blueprint dark theme ── */
+    :root {
+      --bg: #0a1628;
+      --surface: #0d1f3c;
+      --surface-raised: #102448;
+      --border: #1e3a5f;
+      --border-strong: #2e5a8f;
+      --text: #c8d8e8;
+      --text-dim: #7090b0;
+      --accent: #4da6ff;
+      --accent-2: #00d4aa;
+
+      /* Phase colors */
+      --phase-hw:    #4d1a00;
+      --phase-bl:    #003366;
+      --phase-os:    #1a4d1a;
+      --phase-bsw:   #3d1a4d;
+      --phase-app:   #806600;
+      --phase-run:   #1a5c1a;
+      --phase-error: #7b0000;
+
+      /* Phase borders */
+      --phase-hw-b:    #ff6600;
+      --phase-bl-b:    #3399ff;
+      --phase-os-b:    #33cc33;
+      --phase-bsw-b:   #9966ff;
+      --phase-app-b:   #ffcc00;
+      --phase-run-b:   #44ff44;
+      --phase-error-b: #ff2222;
+
+      --wdg-color: #ff6600;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 2rem;
+      min-height: 100vh;
+    }
+
+    /* ── ASIL badges ── */
+    .ve-badge {
+      display: inline-block;
+      border-radius: 999px;
+      border: 1px solid currentColor;
+      font-size: 0.625rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.0625rem 0.375rem;
+    }
+    .ve-badge.asil-d { background: #7b0000; color: #fff; border-color: #ff2222; }
+    .ve-badge.asil-c { background: #b34700; color: #fff; border-color: #ff6600; }
+    .ve-badge.asil-b { background: #806600; color: #fff; border-color: #ffcc00; }
+    .ve-badge.asil-a { background: #1a5c1a; color: #fff; border-color: #33cc33; }
+    .ve-badge.qm     { background: #1a3a5c; color: #fff; border-color: #3399ff; }
+
+    /* ── ve-table ── */
+    .ve-table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
+    .ve-table th {
+      background: var(--surface-raised);
+      border-bottom: 2px solid var(--border-strong);
+      padding: 0.6875rem 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-dim);
+      font-size: 0.625rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+    .ve-table td {
+      border-bottom: 1px solid var(--border);
+      padding: 0.6875rem 1rem;
+      color: var(--text);
+      vertical-align: middle;
+    }
+    .ve-table tr:last-child td { border-bottom: none; }
+    .ve-table tbody tr:hover td { background: var(--surface-raised); cursor: pointer; }
+    .ve-table td.mono { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; }
+
+    /* ── Page layout ── */
+    .page-wrapper { max-width: 1400px; margin: 0 auto; }
+
+    /* ── Header ── */
+    .boot-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .boot-eyebrow {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      margin-bottom: 0.375rem;
+    }
+    .boot-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: clamp(1.125rem, 2.5vw, 1.625rem);
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+    .boot-meta {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6875rem;
+      color: var(--text-dim);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+    }
+    .boot-meta-item { display: flex; flex-direction: column; gap: 0.125rem; }
+    .boot-meta-label { font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.7; }
+    .boot-time-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      padding: 0.375rem 0.875rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--accent-2);
+    }
+    .boot-time-badge-label {
+      font-size: 0.5625rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+    }
+
+    /* ── Section heading ── */
+    .section-heading {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      margin-bottom: 0.875rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+    }
+    .section-heading::before {
+      content: '';
+      display: inline-block;
+      width: 3px;
+      height: 1em;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    /* ── Timeline container ── */
+    .timeline-outer {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem 1.25rem 1.25rem;
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .timeline-inner {
+      min-width: 800px;
+    }
+
+    /* ── Time axis ── */
+    .time-axis {
+      position: relative;
+      height: 32px;
+      margin-bottom: 0;
+      margin-left: 130px;
+    }
+    .time-axis-line {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--border-strong);
+    }
+    .time-tick {
+      position: absolute;
+      bottom: 0;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .time-tick-line {
+      width: 1px;
+      height: 6px;
+      background: var(--border-strong);
+    }
+    .time-tick-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.5625rem;
+      color: var(--text-dim);
+      white-space: nowrap;
+      position: absolute;
+      bottom: 8px;
+    }
+
+    /* ── Swim lane row ── */
+    .lane-row {
+      display: flex;
+      align-items: stretch;
+      min-height: 40px;
+      border-bottom: 1px solid var(--border);
+    }
+    .lane-row:last-child { border-bottom: none; }
+    .lane-label {
+      width: 130px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      padding-right: 0.875rem;
+      font-size: 0.625rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+    .lane-track {
+      flex: 1;
+      position: relative;
+      min-height: 40px;
+    }
+
+    /* ── Phase block ── */
+    .phase-block {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 28px;
+      border-radius: 4px;
+      border-width: 1px;
+      border-style: solid;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: filter 0.15s, opacity 0.15s;
+      overflow: hidden;
+      user-select: none;
+    }
+    .phase-block:hover { filter: brightness(1.25); z-index: 10; }
+    .phase-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.5625rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      padding: 0 6px;
+      pointer-events: none;
+    }
+
+    /* ── Watchdog band ── */
+    .wdg-band {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      border-radius: 3px;
+      pointer-events: none;
+    }
+
+    /* ── Event tick marker ── */
+    .event-tick {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: var(--accent-2);
+      opacity: 0.7;
+    }
+    .event-tick-dot {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-2);
+      z-index: 2;
+    }
+    .event-tick-label {
+      position: absolute;
+      top: -1.5rem;
+      left: 50%;
+      transform: translateX(-50%) rotate(-45deg);
+      transform-origin: bottom center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.5rem;
+      color: var(--accent-2);
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    /* Voltage lane taller for rotated labels */
+    .lane-row.lane-voltage .lane-track { min-height: 56px; }
+    .lane-row.lane-voltage .event-tick { top: 28px; }
+
+    /* CAN / safety use accent colors */
+    .lane-can .event-tick      { background: #4da6ff; opacity: 0.8; }
+    .lane-can .event-tick-dot  { background: #4da6ff; }
+    .lane-can .event-tick-label { color: #4da6ff; }
+    .lane-safety .event-tick      { background: var(--accent-2); opacity: 0.8; }
+    .lane-safety .event-tick-dot  { background: var(--accent-2); }
+    .lane-safety .event-tick-label { color: var(--accent-2); }
+
+    /* ── Detail panel (right sidebar) ── */
+    .detail-panel-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(2px);
+    }
+    .detail-panel-overlay.open { display: block; }
+    .detail-panel {
+      position: fixed;
+      top: 0;
+      right: -480px;
+      width: 440px;
+      max-width: 95vw;
+      height: 100vh;
+      background: var(--surface);
+      border-left: 1px solid var(--border-strong);
+      box-shadow: -8px 0 32px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      z-index: 101;
+      transition: right 0.25s cubic-bezier(0.4,0,0.2,1);
+      overflow: hidden;
+    }
+    .detail-panel.open { right: 0; }
+    .detail-panel-head {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      flex-shrink: 0;
+    }
+    .detail-panel-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .detail-panel-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.125rem;
+      color: var(--text-dim);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    .detail-panel-close:hover { background: var(--surface-raised); color: var(--text); }
+    .detail-panel-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .dp-field { display: flex; flex-direction: column; gap: 0.25rem; }
+    .dp-key {
+      font-size: 0.5625rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+    }
+    .dp-val { font-size: 0.8125rem; color: var(--text); }
+    .dp-val.mono { font-family: 'IBM Plex Mono', monospace; }
+    .dp-sep { height: 1px; background: var(--border); }
+
+    .dp-timing-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.75rem;
+    }
+    .dp-timing-val {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: var(--accent);
+    }
+    .dp-timing-sub { font-size: 0.5625rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; }
+
+    .dp-actions-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+    }
+    .dp-actions-list li {
+      font-size: 0.8125rem;
+      color: var(--text);
+      padding-left: 1rem;
+      position: relative;
+    }
+    .dp-actions-list li::before {
+      content: '›';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .dp-fail-box {
+      padding: 0.625rem 0.875rem;
+      background: rgba(123,0,0,0.15);
+      border: 1px solid rgba(255,34,34,0.25);
+      border-radius: 6px;
+      font-size: 0.8125rem;
+      color: #ffaaaa;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    /* ── Error paths section ── */
+    .error-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+    .error-section-head {
+      padding: 0.875rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
+    }
+    .error-section-head:hover { background: var(--surface-raised); }
+    .error-section-head-title {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+    }
+    .error-chevron {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      transition: transform 0.2s;
+    }
+    .error-section.open .error-chevron { transform: rotate(180deg); }
+    .error-section-body {
+      display: none;
+      padding: 1.25rem;
+    }
+    .error-section.open .error-section-body { display: block; }
+
+    .error-timeline-outer {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .error-timeline-inner { min-width: 700px; }
+
+    .error-path-row {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      min-height: 36px;
+      margin-bottom: 0.5rem;
+    }
+    .error-path-label {
+      width: 130px;
+      flex-shrink: 0;
+      font-size: 0.5625rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-dim);
+      padding-right: 0.875rem;
+    }
+    .error-path-track {
+      flex: 1;
+      position: relative;
+      height: 36px;
+    }
+
+    .error-block {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 24px;
+      border-radius: 4px;
+      border: 1px solid;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.5rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      color: #fff;
+    }
+    .error-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.625rem;
+      color: #ff4444;
+    }
+    .error-consequence {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 24px;
+      right: 0;
+      background: rgba(123,0,0,0.25);
+      border: 1px solid rgba(255,34,34,0.4);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.5rem;
+      font-weight: 600;
+      color: #ff8888;
+      white-space: nowrap;
+    }
+
+    /* ── Summary table section ── */
+    .summary-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    .summary-section-head {
+      padding: 0.875rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+    }
+    .summary-section-title {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .phase-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    .wdg-badge {
+      display: inline-block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.5625rem;
+      padding: 0.0625rem 0.3125rem;
+      border-radius: 3px;
+      background: rgba(255,102,0,0.15);
+      border: 1px solid rgba(255,102,0,0.35);
+      color: #ff8844;
+    }
+
+    /* ── Print ── */
+    @media print {
+      .detail-panel, .detail-panel-overlay { display: none !important; }
+      body { background: white; color: black; padding: 1rem; }
+      .timeline-outer { border: 1px solid #ccc; }
+      .error-section-body { display: block !important; }
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- ─── Header ─── -->
+  <header class="boot-header">
+    <div>
+      <div class="boot-eyebrow">AUTOSAR Startup Analysis</div>
+      <div class="boot-title">ECU Boot Sequence</div>
+      <div class="boot-meta">
+        <div class="boot-meta-item">
+          <span class="boot-meta-label">ECU</span>
+          <span>MotorControlUnit_A</span>
+        </div>
+        <div class="boot-meta-item">
+          <span class="boot-meta-label">MCU</span>
+          <span>TC397 (TriCore)</span>
+        </div>
+        <div class="boot-meta-item">
+          <span class="boot-meta-label">AUTOSAR</span>
+          <span>R21-11</span>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.5rem;padding-top:0.25rem;">
+      <div class="boot-time-badge">
+        <div>
+          <div class="boot-time-badge-label">Total Boot Time</div>
+          <div>&le; 850 ms</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ─── Main timeline ─── -->
+  <div class="section-heading">Boot Timeline</div>
+  <div class="timeline-outer">
+    <div class="timeline-inner" id="timeline-inner">
+      <!-- Time axis injected by JS -->
+      <div id="time-axis" class="time-axis"></div>
+      <!-- Lane rows injected by JS -->
+      <div id="lane-rows"></div>
+    </div>
+  </div>
+
+  <!-- ─── Error paths ─── -->
+  <div class="error-section" id="error-section">
+    <div class="error-section-head" onclick="toggleErrors()">
+      <div class="error-section-head-title">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#ff4444" stroke-width="2" stroke-linecap="round"><path d="M8 2L1 14h14L8 2z"/><line x1="8" y1="7" x2="8" y2="10"/><circle cx="8" cy="12.5" r="0.5" fill="#ff4444"/></svg>
+        Alternative Error Paths
+      </div>
+      <span class="error-chevron">▼</span>
+    </div>
+    <div class="error-section-body">
+      <div class="error-timeline-outer">
+        <div class="error-timeline-inner" id="error-timeline-inner"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Summary table ─── -->
+  <div class="summary-section">
+    <div class="summary-section-head">
+      <div class="summary-section-title">Phase Summary</div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="ve-table" id="summary-table">
+        <thead>
+          <tr>
+            <th>Phase</th>
+            <th>Component</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Duration</th>
+            <th>Watchdog Window</th>
+            <th>ASIL</th>
+          </tr>
+        </thead>
+        <tbody id="summary-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /page-wrapper -->
+
+<!-- ─── Detail side panel ─── -->
+<div class="detail-panel-overlay" id="dp-overlay" onclick="closeDetailPanel()"></div>
+<div class="detail-panel" id="detail-panel">
+  <div class="detail-panel-head">
+    <div>
+      <div class="detail-panel-title" id="dp-title">Phase Detail</div>
+    </div>
+    <button class="detail-panel-close" onclick="closeDetailPanel()" aria-label="Close">✕</button>
+  </div>
+  <div class="detail-panel-body" id="dp-body"></div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   DATA
+═══════════════════════════════════════ */
+const totalBootMs = 850;
+
+const phases = [
+  {
+    id: 'hw-init',  name: 'HW Init',        start: 0,   end: 50,
+    bg: '#4d1a00',  border: '#ff6600',       textColor: '#ffcc99',
+    component: 'StartupCode',   asil: 'd',
+    actions: [
+      'MCU clock init (PLL lock)',
+      'RAM ECC initialization',
+      'Flash memory configuration',
+      'Core voltage stabilization'
+    ],
+    failCondition: 'PLL lock timeout > 20ms → HW reset'
+  },
+  {
+    id: 'bl-check', name: 'BL Validation',  start: 50,  end: 200,
+    bg: '#003366',  border: '#3399ff',       textColor: '#99ccff',
+    component: 'Bootloader (UDS)',  asil: 'b',
+    actions: [
+      'Check BL reprogramming request flag',
+      'Verify application CRC-32',
+      'Check SW version compatibility',
+      'Tester Present check (50ms window)'
+    ],
+    failCondition: 'App CRC fail → stay in BL mode (reprogramming required)'
+  },
+  {
+    id: 'os-start', name: 'OS Startup',     start: 200, end: 280,
+    bg: '#1a4d1a',  border: '#33cc33',       textColor: '#99ee99',
+    component: 'AUTOSAR OS',   asil: 'd',
+    actions: [
+      'OS stack initialization',
+      'Task activation — OsTask_1ms_ISR',
+      'OS alarm configuration',
+      'Counter initialization'
+    ],
+    failCondition: 'Stack overflow in OS init → MCU reset'
+  },
+  {
+    id: 'bsw-init', name: 'BSW Init',       start: 280, end: 550,
+    bg: '#3d1a4d',  border: '#9966ff',       textColor: '#cc99ff',
+    component: 'EcuM + BswM',   asil: 'd',
+    actions: [
+      'EcuM_Init()',
+      'Det_Init(), Dem_Init()',
+      'CanIf_Init(), CanSM_Init()',
+      'ComM_Init(), NmOsek_Init()',
+      'WdgM_Init() — watchdog window opens'
+    ],
+    failCondition: 'ComM init failure → communication degraded mode'
+  },
+  {
+    id: 'app-init', name: 'App Init',       start: 550, end: 780,
+    bg: '#806600',  border: '#ffcc00',       textColor: '#ffee88',
+    component: 'RTE + SWCs',    asil: 'd',
+    actions: [
+      'RTE_Start()',
+      'MotorCtrl SWC init runnable',
+      'SafetyMonitor_Init — safety functions active',
+      'Sensor plausibility checks',
+      'NVM read complete'
+    ],
+    failCondition: 'Sensor out of range at init → safe state immediately'
+  },
+  {
+    id: 'run-mode', name: 'Run Mode',       start: 780, end: 850,
+    bg: '#1a5c1a',  border: '#44ff44',       textColor: '#99ff99',
+    component: 'Application',   asil: 'd',
+    actions: [
+      'BswM requests RUN mode',
+      'All cyclic runnables active',
+      'CAN NM active → network awake',
+      'First diagnostic available (UDS)'
+    ],
+    failCondition: 'N/A — normal operation'
+  },
+];
+
+const voltageEvents = [
+  { name: 'VDD_Core',   t: 5,  symbol: '↑' },
+  { name: 'VDD_IO',     t: 12, symbol: '↑' },
+  { name: 'PLL Lock',   t: 18, symbol: '◆' },
+  { name: 'Flash RDY',  t: 22, symbol: '◆' },
+];
+
+const wdgWindows = [
+  { name: 'WDG Init',   open: 0,   close: 280, opacity: 0.18, color: '#ff6600' },
+  { name: 'WDG BSW',    open: 280, close: 550, opacity: 0.22, color: '#ff8833' },
+  { name: 'WDG Oper.',  open: 550, close: 850, opacity: 0.26, color: '#ffaa44' },
+];
+
+const canEvents = [
+  { name: 'CanIf_Init',        t: 320, color: '#4da6ff' },
+  { name: 'CanSM_NetworkMode', t: 400, color: '#4da6ff' },
+  { name: 'First NM Tx',       t: 480, color: '#4da6ff' },
+  { name: 'ComM Full Com',     t: 520, color: '#4da6ff' },
+];
+
+const safetyEvents = [
+  { name: 'Dem_Init',            t: 310, color: '#00d4aa' },
+  { name: 'WdgM_Init',           t: 495, color: '#00d4aa' },
+  { name: 'SafetyMon active',    t: 680, color: '#00d4aa' },
+  { name: 'ASIL-D ready',        t: 750, color: '#00d4aa' },
+];
+
+const errorPaths = [
+  {
+    trigger: 'App CRC mismatch',
+    from: 120, fromLabel: '~120ms',
+    consequence: 'Stay in bootloader — reprogramming required',
+    bg: '#003366', border: '#3399ff'
+  },
+  {
+    trigger: 'Sensor OOR at init',
+    from: 650, fromLabel: '~650ms',
+    consequence: 'Immediate safe state — motor disabled',
+    bg: '#7b0000', border: '#ff2222'
+  },
+  {
+    trigger: 'WDG timeout (init)',
+    from: 400, fromLabel: '~400ms',
+    consequence: 'HW reset triggered → retry boot sequence',
+    bg: '#4d2200', border: '#ff6600'
+  },
+];
+
+/* ═══════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════ */
+function pct(ms) {
+  return ((ms / totalBootMs) * 100).toFixed(4) + '%';
+}
+function durationPct(start, end) {
+  return (((end - start) / totalBootMs) * 100).toFixed(4) + '%';
+}
+function asilBadge(lvl) {
+  const labels = { d: 'ASIL-D', c: 'ASIL-C', b: 'ASIL-B', a: 'ASIL-A', qm: 'QM' };
+  return `<span class="ve-badge asil-${lvl}">${labels[lvl] || lvl.toUpperCase()}</span>`;
+}
+
+/* ═══════════════════════════════════════
+   TIME AXIS
+═══════════════════════════════════════ */
+function buildTimeAxis() {
+  const axis = document.getElementById('time-axis');
+  const line = document.createElement('div');
+  line.className = 'time-axis-line';
+  axis.appendChild(line);
+
+  const step = 50;
+  for (let t = 0; t <= totalBootMs; t += step) {
+    const tick = document.createElement('div');
+    tick.className = 'time-tick';
+    tick.style.left = pct(t);
+    tick.innerHTML = `
+      <div class="time-tick-label">${t}ms</div>
+      <div class="time-tick-line"></div>
+    `;
+    axis.appendChild(tick);
+  }
+}
+
+/* ═══════════════════════════════════════
+   SWIM LANES
+═══════════════════════════════════════ */
+function buildLanes() {
+  const container = document.getElementById('lane-rows');
+
+  /* ── Row 1: Power / Voltage ── */
+  const voltRow = makeLaneRow('Power / Voltage', 'lane-voltage');
+  voltageEvents.forEach(ev => {
+    const tick = makeEventTick(ev.t, ev.name, '#66ddff');
+    voltRow.track.appendChild(tick);
+  });
+  container.appendChild(voltRow.row);
+
+  /* ── Row 2: Watchdog ── */
+  const wdgRow = makeLaneRow('Watchdog', 'lane-wdg');
+  wdgRow.row.style.minHeight = '40px';
+  wdgWindows.forEach(w => {
+    const band = document.createElement('div');
+    band.className = 'wdg-band';
+    band.style.left  = pct(w.open);
+    band.style.width = durationPct(w.open, w.close);
+    band.style.background = w.color;
+    band.style.opacity = w.opacity;
+    band.title = `${w.name}: ${w.open}ms – ${w.close}ms`;
+    wdgRow.track.appendChild(band);
+
+    /* Close tick */
+    const closeTick = document.createElement('div');
+    closeTick.className = 'event-tick';
+    closeTick.style.left = pct(w.close);
+    closeTick.style.background = w.color;
+    closeTick.style.opacity = '0.6';
+    wdgRow.track.appendChild(closeTick);
+  });
+  /* Watchdog label text */
+  const wdgLabel = document.createElement('div');
+  wdgLabel.style.cssText = `
+    position:absolute; top:50%; transform:translateY(-50%);
+    left:${pct(wdgWindows[0].open)}; font-family:'IBM Plex Mono',monospace;
+    font-size:0.5rem; color:#ff8833; pointer-events:none; padding-left:4px;
+  `;
+  wdgLabel.textContent = 'WDG open windows';
+  wdgRow.track.appendChild(wdgLabel);
+  container.appendChild(wdgRow.row);
+
+  /* ── Row 3: Boot Phases ── */
+  const phasesRow = makeLaneRow('Boot Phases', 'lane-phases');
+  phasesRow.row.style.minHeight = '52px';
+  phases.forEach(ph => {
+    const block = document.createElement('div');
+    block.className = 'phase-block';
+    block.style.left        = pct(ph.start);
+    block.style.width       = durationPct(ph.start, ph.end);
+    block.style.background  = ph.bg;
+    block.style.borderColor = ph.border;
+    block.setAttribute('role', 'button');
+    block.setAttribute('tabindex', '0');
+    block.setAttribute('aria-label', `${ph.name}: ${ph.start}ms to ${ph.end}ms`);
+    block.innerHTML = `<span class="phase-label" style="color:${ph.textColor}">${ph.name}</span>`;
+    block.addEventListener('click', () => openDetailPanel(ph));
+    block.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') openDetailPanel(ph); });
+    phasesRow.track.appendChild(block);
+  });
+  container.appendChild(phasesRow.row);
+
+  /* ── Row 4: CAN Stack ── */
+  const canRow = makeLaneRow('CAN Stack', 'lane-can');
+  canEvents.forEach(ev => {
+    canRow.track.appendChild(makeEventTick(ev.t, ev.name, '#4da6ff'));
+  });
+  container.appendChild(canRow.row);
+
+  /* ── Row 5: Safety Init ── */
+  const safetyRow = makeLaneRow('Safety Init', 'lane-safety');
+  safetyEvents.forEach(ev => {
+    safetyRow.track.appendChild(makeEventTick(ev.t, ev.name, '#00d4aa'));
+  });
+  container.appendChild(safetyRow.row);
+}
+
+function makeLaneRow(label, extraClass) {
+  const row = document.createElement('div');
+  row.className = 'lane-row' + (extraClass ? ' ' + extraClass : '');
+
+  const lbl = document.createElement('div');
+  lbl.className = 'lane-label';
+  lbl.textContent = label;
+
+  const track = document.createElement('div');
+  track.className = 'lane-track';
+
+  row.appendChild(lbl);
+  row.appendChild(track);
+  return { row, track };
+}
+
+function makeEventTick(t, name, color) {
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = `position:absolute; top:0; bottom:0; left:${pct(t)}; width:1px; z-index:2;`;
+
+  const line = document.createElement('div');
+  line.style.cssText = `position:absolute; top:0; bottom:0; left:0; width:1px; background:${color}; opacity:0.7;`;
+
+  const dot = document.createElement('div');
+  dot.style.cssText = `
+    position:absolute; top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    width:6px; height:6px; border-radius:50%;
+    background:${color}; z-index:3;
+  `;
+
+  const lbl = document.createElement('div');
+  lbl.style.cssText = `
+    position:absolute; bottom:calc(100% + 4px); left:50%;
+    font-family:'IBM Plex Mono',monospace; font-size:0.5rem;
+    color:${color}; white-space:nowrap; pointer-events:none; z-index:4;
+    transform:translateX(-50%) rotate(-40deg); transform-origin:bottom center;
+  `;
+  lbl.textContent = name;
+
+  wrapper.appendChild(line);
+  wrapper.appendChild(dot);
+  wrapper.appendChild(lbl);
+  wrapper.title = `${name} @ ${t}ms`;
+  return wrapper;
+}
+
+/* ═══════════════════════════════════════
+   ERROR PATHS TIMELINE
+═══════════════════════════════════════ */
+function buildErrorTimeline() {
+  const container = document.getElementById('error-timeline-inner');
+
+  /* Mini time axis */
+  const axisWrap = document.createElement('div');
+  axisWrap.style.cssText = 'display:flex; margin-left:130px; position:relative; height:28px; margin-bottom:4px;';
+  const axisLine = document.createElement('div');
+  axisLine.style.cssText = 'position:absolute; bottom:0; left:0; right:0; height:1px; background:var(--border);';
+  axisWrap.appendChild(axisLine);
+  [0, 200, 400, 600, 800, totalBootMs].forEach(t => {
+    const tick = document.createElement('div');
+    tick.style.cssText = `position:absolute; bottom:0; left:${pct(t)}; transform:translateX(-50%);`;
+    tick.innerHTML = `
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:0.5rem;color:var(--text-dim);
+                  position:absolute;bottom:6px;transform:translateX(-50%)">${t}</div>
+      <div style="width:1px;height:5px;background:var(--border)"></div>
+    `;
+    axisWrap.appendChild(tick);
+  });
+  container.appendChild(axisWrap);
+
+  errorPaths.forEach(ep => {
+    const row = document.createElement('div');
+    row.className = 'error-path-row';
+
+    const lbl = document.createElement('div');
+    lbl.className = 'error-path-label';
+    lbl.textContent = ep.trigger;
+
+    const track = document.createElement('div');
+    track.className = 'error-path-track';
+
+    /* Normal flow ghost bar (full width, very dim) */
+    const ghost = document.createElement('div');
+    ghost.style.cssText = `
+      position:absolute; top:50%; transform:translateY(-50%);
+      left:0; right:0; height:4px;
+      background:var(--border); border-radius:2px;
+    `;
+    track.appendChild(ghost);
+
+    /* Trigger block */
+    const trigW = Math.min(35, ((totalBootMs - ep.from) / totalBootMs) * 60);
+    const trigBlock = document.createElement('div');
+    trigBlock.className = 'error-block';
+    trigBlock.style.cssText = `
+      left:${pct(ep.from)}; width:${trigW}%;
+      background:${ep.bg}; border-color:${ep.border};
+    `;
+    trigBlock.textContent = ep.fromLabel;
+    track.appendChild(trigBlock);
+
+    /* Arrow */
+    const arrow = document.createElement('div');
+    arrow.className = 'error-arrow';
+    arrow.style.left = `calc(${pct(ep.from)} + ${trigW}% + 2px)`;
+    arrow.textContent = '→';
+    track.appendChild(arrow);
+
+    /* Consequence block */
+    const consBlock = document.createElement('div');
+    consBlock.className = 'error-consequence';
+    consBlock.style.cssText = `
+      left:calc(${pct(ep.from)} + ${trigW}% + 22px);
+      right:0;
+    `;
+    consBlock.textContent = ep.consequence;
+    consBlock.title = ep.consequence;
+    track.appendChild(consBlock);
+
+    row.appendChild(lbl);
+    row.appendChild(track);
+    container.appendChild(row);
+  });
+}
+
+/* ═══════════════════════════════════════
+   SUMMARY TABLE
+═══════════════════════════════════════ */
+function buildSummaryTable() {
+  const tbody = document.getElementById('summary-tbody');
+  phases.forEach(ph => {
+    const dur = ph.end - ph.start;
+    const wdg = wdgWindows.find(w => w.open <= ph.start && w.close >= ph.end);
+    const tr = document.createElement('tr');
+    tr.style.cursor = 'pointer';
+    tr.innerHTML = `
+      <td>
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <span class="phase-dot" style="background:${ph.bg};border:1px solid ${ph.border};"></span>
+          ${ph.name}
+        </div>
+      </td>
+      <td class="mono">${ph.component}</td>
+      <td class="mono">${ph.start} ms</td>
+      <td class="mono">${ph.end} ms</td>
+      <td class="mono">${dur} ms</td>
+      <td>${wdg ? `<span class="wdg-badge">${wdg.name}</span>` : '<span style="color:var(--text-dim);font-size:0.75rem">—</span>'}</td>
+      <td>${asilBadge(ph.asil)}</td>
+    `;
+    tr.addEventListener('click', () => openDetailPanel(ph));
+    tbody.appendChild(tr);
+  });
+}
+
+/* ═══════════════════════════════════════
+   DETAIL PANEL
+═══════════════════════════════════════ */
+function openDetailPanel(ph) {
+  const dur = ph.end - ph.start;
+  document.getElementById('dp-title').textContent = ph.name;
+
+  document.getElementById('dp-body').innerHTML = `
+    <div class="dp-timing-row">
+      <div>
+        <div class="dp-timing-val">${ph.start}<span style="font-size:0.75rem">ms</span></div>
+        <div class="dp-timing-sub">Start</div>
+      </div>
+      <div>
+        <div class="dp-timing-val">${ph.end}<span style="font-size:0.75rem">ms</span></div>
+        <div class="dp-timing-sub">End</div>
+      </div>
+      <div>
+        <div class="dp-timing-val">${dur}<span style="font-size:0.75rem">ms</span></div>
+        <div class="dp-timing-sub">Duration</div>
+      </div>
+    </div>
+
+    <div class="dp-sep"></div>
+
+    <div class="dp-field">
+      <span class="dp-key">AUTOSAR Component</span>
+      <span class="dp-val mono">${ph.component}</span>
+    </div>
+    <div class="dp-field">
+      <span class="dp-key">ASIL Level</span>
+      <span class="dp-val">${asilBadge(ph.asil)}</span>
+    </div>
+
+    <div class="dp-sep"></div>
+
+    <div class="dp-field">
+      <span class="dp-key">Key Actions</span>
+      <ul class="dp-actions-list">
+        ${ph.actions.map(a => `<li>${a}</li>`).join('')}
+      </ul>
+    </div>
+
+    <div class="dp-sep"></div>
+
+    <div class="dp-field">
+      <span class="dp-key">Failure Condition / Error Path</span>
+      <div class="dp-fail-box">${ph.failCondition}</div>
+    </div>
+  `;
+
+  document.getElementById('dp-overlay').classList.add('open');
+  document.getElementById('detail-panel').classList.add('open');
+}
+
+function closeDetailPanel() {
+  document.getElementById('dp-overlay').classList.remove('open');
+  document.getElementById('detail-panel').classList.remove('open');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeDetailPanel();
+});
+
+/* ═══════════════════════════════════════
+   ERROR SECTION TOGGLE
+═══════════════════════════════════════ */
+function toggleErrors() {
+  document.getElementById('error-section').classList.toggle('open');
+}
+
+/* ═══════════════════════════════════════
+   INIT
+═══════════════════════════════════════ */
+buildTimeAxis();
+buildLanes();
+buildErrorTimeline();
+buildSummaryTable();
+</script>
+</body>
+</html>

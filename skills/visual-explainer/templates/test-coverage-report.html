@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unit Test Coverage Report — Visual Explainer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ─── Corporate-dark theme — always dark ─── */
+    :root {
+      --bg: #0f0f0f;
+      --surface: #1c1c1c;
+      --surface-raised: #242424;
+      --border: #2e2e2e;
+      --border-strong: #444444;
+      --text: #e8e8e8;
+      --text-dim: #888888;
+      --accent: #4da6ff;
+      --shadow: rgba(0,0,0,0.4);
+
+      /* Coverage traffic-light */
+      --cov-green: #22c55e;
+      --cov-amber: #f59e0b;
+      --cov-red:   #ef4444;
+      --cov-na:    #555555;
+    }
+
+    /* ─── ASIL badges ─── */
+    .ve-badge { display:inline-block; border-radius:999px; border:1px solid currentColor; font-size:0.625rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; padding:0.0625rem 0.375rem; }
+    .ve-badge.asil-d { background:#7b0000; color:#fff; border-color:#ff2222; }
+    .ve-badge.asil-c { background:#b34700; color:#fff; border-color:#ff6600; }
+    .ve-badge.asil-b { background:#806600; color:#fff; border-color:#ffcc00; }
+    .ve-badge.asil-a { background:#1a5c1a; color:#fff; border-color:#33cc33; }
+    .ve-badge.qm     { background:#1a3a5c; color:#fff; border-color:#3399ff; }
+
+    /* ─── ve-table pattern ─── */
+    .ve-table { width:100%; border-collapse:collapse; font-size:0.875rem; }
+    .ve-table th { background:var(--surface-raised); border-bottom:2px solid var(--border-strong); padding:0.75rem 1rem; text-align:left; font-weight:600; color:var(--text-dim); font-size:0.6875rem; text-transform:uppercase; letter-spacing:0.08em; }
+    .ve-table td { border-bottom:1px solid var(--border); padding:0.75rem 1rem; color:var(--text); vertical-align:middle; }
+    .ve-table tr:last-child td { border-bottom:none; }
+    .ve-table tbody tr.mod-main-row:hover td { background:var(--surface-raised); }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 2rem;
+    }
+
+    /* ─── Header ─── */
+    .tcr-header {
+      max-width: 1300px;
+      margin: 0 auto 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .tcr-header-left h1 {
+      font-size: 1.375rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .tcr-header-left .tcr-subtitle {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-top: 0.375rem;
+    }
+
+    /* Overall pass/fail badge */
+    .overall-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.375rem 1rem;
+      border-radius: 8px;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .overall-badge.pass { background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid #22c55e; }
+    .overall-badge.fail { background:rgba(239,68,68,0.15);  color:#ef4444; border:1px solid #ef4444; }
+    .overall-badge.warn { background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid #f59e0b; }
+
+    /* ─── ISO 26262 requirement banner ─── */
+    .iso-banner {
+      max-width: 1300px;
+      margin: 0 auto 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+    }
+
+    .iso-banner-title {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      margin-bottom: 0.875rem;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .iso-banner-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .iso-req-card {
+      background: var(--surface-raised);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+    }
+
+    .iso-req-card.highest-asil {
+      border-color: var(--border-strong);
+      background: rgba(77,166,255,0.06);
+    }
+
+    .iso-req-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .iso-req-text {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      line-height: 1.4;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .iso-req-status {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      margin-top: 0.125rem;
+    }
+
+    .iso-req-status.met     { color: var(--cov-green); }
+    .iso-req-status.not-met { color: var(--cov-red); }
+    .iso-req-status.partial { color: var(--cov-amber); }
+
+    /* ─── Summary scorecard ─── */
+    .tcr-scorecard {
+      max-width: 1300px;
+      margin: 0 auto 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .score-tile {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .score-tile-label {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .score-tile-value {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 2.25rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .score-tile-value.green { color: var(--cov-green); }
+    .score-tile-value.amber { color: var(--cov-amber); }
+    .score-tile-value.red   { color: var(--cov-red); }
+    .score-tile-value.blue  { color: var(--accent); }
+
+    .score-tile-bar-track {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .score-tile-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.6s ease;
+    }
+
+    .adequacy-badge {
+      display: inline-block;
+      font-size: 0.625rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.125rem 0.5rem;
+      border-radius: 999px;
+    }
+
+    .adequacy-badge.adequate   { background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid #22c55e; }
+    .adequacy-badge.insuff     { background:rgba(239,68,68,0.15);  color:#ef4444; border:1px solid #ef4444; }
+    .adequacy-badge.na         { background:rgba(85,85,85,0.3);    color:#888;    border:1px solid #555; }
+
+    /* ─── Module table wrapper ─── */
+    .tcr-table-wrap {
+      max-width: 1300px;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .tcr-section-title {
+      max-width: 1300px;
+      margin: 0 auto 0.75rem;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    /* ─── Coverage bar cells ─── */
+    .cov-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      min-width: 110px;
+    }
+
+    .cov-bar-track {
+      flex: 1;
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .cov-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+    }
+
+    .cov-bar-fill.green { background: var(--cov-green); }
+    .cov-bar-fill.amber { background: var(--cov-amber); }
+    .cov-bar-fill.red   { background: var(--cov-red); }
+
+    .cov-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      min-width: 44px;
+      text-align: right;
+    }
+
+    .cov-num.green { color: var(--cov-green); }
+    .cov-num.amber { color: var(--cov-amber); }
+    .cov-num.red   { color: var(--cov-red); }
+    .cov-num.na    { color: var(--cov-na); }
+
+    .cov-na-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--cov-na);
+    }
+
+    /* ─── Module expand / file detail rows ─── */
+    .mod-main-row { cursor: pointer; user-select: none; }
+
+    .mod-main-row td:first-child {
+      position: relative;
+      padding-left: 2rem;
+    }
+
+    .mod-main-row td:first-child::before {
+      content: '\25B6';
+      position: absolute;
+      left: 0.625rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.5rem;
+      color: var(--text-dim);
+      transition: transform 0.15s;
+    }
+
+    .mod-main-row[data-expanded="true"] td:first-child::before {
+      transform: translateY(-50%) rotate(90deg);
+    }
+
+    .mod-file-row { display: none; }
+    .mod-file-row.visible { display: table-row; }
+
+    .mod-file-row td {
+      background: rgba(36,36,36,0.7);
+      border-bottom: 1px solid var(--border) !important;
+    }
+
+    .mod-file-row td:first-child { padding-left: 2.5rem; }
+
+    .file-name {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8125rem;
+      color: var(--text-dim);
+    }
+
+    .uncovered-count {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8125rem;
+    }
+
+    .uncovered-count.zero { color: var(--cov-green); }
+    .uncovered-count.nonzero { color: var(--cov-amber); }
+    .uncovered-count.many { color: var(--cov-red); }
+
+    /* ─── Tests passed ─── */
+    .tests-val {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8125rem;
+    }
+
+    /* ─── Footer ─── */
+    .tcr-footer {
+      max-width: 1300px;
+      margin: 1rem auto 0;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    /* ─── Print ─── */
+    @media print {
+      body { background: #fff; color: #000; padding: 1rem; }
+      :root {
+        --bg: #fff; --surface: #fff; --surface-raised: #f4f4f4;
+        --border: #ccc; --border-strong: #999;
+        --text: #111; --text-dim: #555; --accent: #005a9e;
+        --cov-green: #166534; --cov-amber: #92400e; --cov-red: #991b1b; --cov-na: #6b7280;
+      }
+      .mod-file-row { display: table-row !important; }
+      .mod-main-row td:first-child::before { display: none; }
+      .tcr-table-wrap { border: 1px solid #ccc; border-radius: 0; }
+    }
+
+    @media (max-width: 900px) {
+      body { padding: 1rem; }
+      .tcr-header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── Header ─── -->
+  <header class="tcr-header">
+    <div class="tcr-header-left">
+      <h1>Unit Test Coverage Report</h1>
+      <div class="tcr-subtitle">
+        Project: MotorControlUnit_v2&nbsp;&nbsp;|&nbsp;&nbsp;Run date: 2026-03-15 08:42 UTC&nbsp;&nbsp;|&nbsp;&nbsp;Tool: Ceedling + gcov 12.3.0
+      </div>
+    </div>
+    <div id="overall-badge"><!-- Populated by JS --></div>
+  </header>
+
+  <!-- ─── ISO 26262 requirement banner ─── -->
+  <div class="iso-banner">
+    <div class="iso-banner-title">ISO 26262-6 Coverage Requirements (Table 10) &mdash; Highest project ASIL: D</div>
+    <div class="iso-banner-grid" id="iso-grid">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+
+  <!-- ─── Summary scorecard ─── -->
+  <div class="tcr-scorecard" id="scorecard">
+    <!-- Populated by JS -->
+  </div>
+
+  <!-- ─── Module breakdown ─── -->
+  <div class="tcr-section-title">Module Breakdown</div>
+  <div class="tcr-table-wrap">
+    <table class="ve-table" id="mod-table">
+      <thead>
+        <tr>
+          <th>Module</th>
+          <th>Files</th>
+          <th>Statement %</th>
+          <th>Branch %</th>
+          <th>MC/DC %</th>
+          <th>Tests</th>
+          <th>Adequacy</th>
+        </tr>
+      </thead>
+      <tbody id="mod-tbody">
+        <!-- Populated by JS -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ─── Footer ─── -->
+  <div class="tcr-footer">
+    <span>Generated: <span id="gen-time"></span></span>
+    <span>Ceedling 0.31.1 &nbsp;|&nbsp; gcov (GCC) 12.3.0 &nbsp;|&nbsp; gcovr 6.0</span>
+  </div>
+
+  <script>
+    // ─── ISO 26262 ASIL coverage thresholds (Part 6, Table 10) ───
+    var thresholds = {
+      'd':  { stmt: 100, branch: 100, mcdc: 100 },
+      'c':  { stmt: 100, branch: 100, mcdc: 100 },
+      'b':  { stmt: 100, branch: 100, mcdc: null },
+      'a':  { stmt: 100, branch: 100, mcdc: null },
+      'qm': { stmt: 80,  branch: 70,  mcdc: null },
+    };
+
+    // ─── Sample data — replace with actual gcovr JSON output ───
+    var modules = [
+      { name: 'MotorControl', asil: 'd', files: [
+        { name: 'motor_ctrl.c',   asil: 'd', stmt: 98.2, branch: 95.1, mcdc: 91.4, uncovered: 4,  tests: 47 },
+        { name: 'motor_pid.c',    asil: 'd', stmt: 100,  branch: 100,  mcdc: 98.3, uncovered: 0,  tests: 23 },
+        { name: 'motor_limits.c', asil: 'b', stmt: 100,  branch: 97.8, mcdc: null, uncovered: 0,  tests: 18 },
+      ]},
+      { name: 'SafetyMonitor', asil: 'd', files: [
+        { name: 'safety_mon.c',  asil: 'd', stmt: 100, branch: 100, mcdc: 100, uncovered: 0, tests: 31 },
+        { name: 'wdg_handler.c', asil: 'd', stmt: 100, branch: 100, mcdc: 100, uncovered: 0, tests: 12 },
+      ]},
+      { name: 'HAL', asil: 'b', files: [
+        { name: 'hal_spi.c', asil: 'b', stmt: 94.3, branch: 88.7, mcdc: null, uncovered: 12, tests: 28 },
+        { name: 'hal_can.c', asil: 'b', stmt: 96.1, branch: 91.2, mcdc: null, uncovered: 8,  tests: 35 },
+        { name: 'hal_pwm.c', asil: 'a', stmt: 100,  branch: 100,  mcdc: null, uncovered: 0,  tests: 14 },
+      ]},
+      { name: 'Diagnostics', asil: 'qm', files: [
+        { name: 'uds_handler.c', asil: 'qm', stmt: 85.2, branch: 72.1, mcdc: null, uncovered: 22, tests: 19 },
+        { name: 'dtc_manager.c', asil: 'qm', stmt: 78.4, branch: 68.9, mcdc: null, uncovered: 31, tests: 15 },
+        { name: 'dem_events.c',  asil: 'qm', stmt: 91.0, branch: 80.3, mcdc: null, uncovered: 11, tests: 22 },
+      ]},
+    ];
+
+    // ─── Helpers ───
+    function asilBadge(a) {
+      var label = (a === 'qm') ? 'QM' : 'ASIL-' + a.toUpperCase();
+      return '<span class="ve-badge ' + (a === 'qm' ? 'qm' : 'asil-' + a) + '">' + label + '</span>';
+    }
+
+    function pct(v) {
+      return v !== null && v !== undefined ? v.toFixed(1) + '%' : null;
+    }
+
+    // Classify coverage value against threshold
+    // returns 'green' | 'amber' | 'red'
+    function covClass(val, threshold) {
+      if (threshold === null || val === null) return 'na';
+      if (val >= threshold) return 'green';
+      if (val >= threshold * 0.8) return 'amber';
+      return 'red';
+    }
+
+    // Render a coverage bar + number
+    function covCell(val, threshold) {
+      if (val === null || val === undefined || threshold === null) {
+        return '<span class="cov-na-label">N/A</span>';
+      }
+      var cls  = covClass(val, threshold);
+      var fill = Math.min(100, val);
+      return '<div class="cov-cell">' +
+        '<div class="cov-bar-track"><div class="cov-bar-fill ' + cls + '" style="width:' + fill + '%"></div></div>' +
+        '<span class="cov-num ' + cls + '">' + val.toFixed(1) + '%</span>' +
+      '</div>';
+    }
+
+    // Check whether a file meets all of its ASIL requirements
+    function fileAdequate(f) {
+      var t = thresholds[f.asil];
+      if (!t) return 'na';
+      var stmtOk   = f.stmt   >= t.stmt;
+      var branchOk = f.branch >= t.branch;
+      var mcdcOk   = (t.mcdc === null) ? true : (f.mcdc !== null && f.mcdc >= t.mcdc);
+      if (stmtOk && branchOk && mcdcOk) return 'adequate';
+      return 'insuff';
+    }
+
+    function adequacyBadge(status) {
+      if (status === 'adequate') return '<span class="adequacy-badge adequate">\u2713 Adequate</span>';
+      if (status === 'insuff')   return '<span class="adequacy-badge insuff">\u26a0 Insufficient</span>';
+      return '<span class="adequacy-badge na">\u2014 N/A</span>';
+    }
+
+    // Compute module-level coverage (weighted by file count, simple average)
+    function modStats(mod) {
+      var files = mod.files;
+      var n = files.length;
+      var stmt   = files.reduce(function(s,f) { return s + f.stmt; }, 0) / n;
+      var branch = files.reduce(function(s,f) { return s + f.branch; }, 0) / n;
+      var mcdcFiles = files.filter(function(f) { return f.mcdc !== null; });
+      var mcdc   = mcdcFiles.length > 0
+        ? mcdcFiles.reduce(function(s,f) { return s + f.mcdc; }, 0) / mcdcFiles.length
+        : null;
+      var tests  = files.reduce(function(s,f) { return s + f.tests; }, 0);
+      var adequate = files.every(function(f) { return fileAdequate(f) === 'adequate'; })
+        ? 'adequate'
+        : files.some(function(f) { return fileAdequate(f) === 'insuff'; })
+          ? 'insuff' : 'na';
+      return { stmt: stmt, branch: branch, mcdc: mcdc, tests: tests, adequate: adequate };
+    }
+
+    // ─── ISO banner ───
+    var isoData = [
+      { asil: 'a', label: 'ASIL-A', reqs: 'Statement + Branch', mcdc: false },
+      { asil: 'b', label: 'ASIL-B', reqs: 'Statement + Branch', mcdc: false },
+      { asil: 'c', label: 'ASIL-C', reqs: 'Statement + Branch + MC/DC', mcdc: true },
+      { asil: 'd', label: 'ASIL-D', reqs: 'MC/DC mandatory (100%)', mcdc: true },
+    ];
+
+    // Determine project-wide status for each level from actual data
+    function projectMeetsAsil(asilLevel) {
+      var t = thresholds[asilLevel];
+      return modules.every(function(mod) {
+        return mod.files.filter(function(f) {
+          // Only check files at this ASIL level or higher
+          var order = ['qm','a','b','c','d'];
+          return order.indexOf(f.asil) >= order.indexOf(asilLevel);
+        }).every(function(f) {
+          var stmtOk   = f.stmt >= t.stmt;
+          var branchOk = f.branch >= t.branch;
+          var mcdcOk   = (t.mcdc === null) ? true : (f.mcdc !== null && f.mcdc >= t.mcdc);
+          return stmtOk && branchOk && mcdcOk;
+        });
+      });
+    }
+
+    var isoGrid = document.getElementById('iso-grid');
+    isoData.forEach(function(row) {
+      var met = projectMeetsAsil(row.asil);
+      var statusText = met ? 'Thresholds met' : 'Below threshold';
+      var statusCls  = met ? 'met' : 'not-met';
+      var isHighest  = row.asil === 'd';
+      isoGrid.innerHTML +=
+        '<div class="iso-req-card' + (isHighest ? ' highest-asil' : '') + '">' +
+          '<div class="iso-req-header">' + asilBadge(row.asil) +
+            (isHighest ? '<span style="font-size:0.6875rem;color:var(--accent);margin-left:0.25rem">&#9650; Project max</span>' : '') +
+          '</div>' +
+          '<div class="iso-req-text">' + row.reqs + '</div>' +
+          '<div class="iso-req-status ' + statusCls + '">' +
+            (met ? '&#10003; ' : '&#10007; ') + statusText +
+          '</div>' +
+        '</div>';
+    });
+
+    // ─── Summary scorecard ───
+    var allFiles = modules.reduce(function(acc, m) { return acc.concat(m.files); }, []);
+    var totalTests = allFiles.reduce(function(s,f) { return s + f.tests; }, 0);
+    var totalFiles = allFiles.length;
+
+    // Weighted average (each file equal weight for simplicity)
+    var overallStmt   = allFiles.reduce(function(s,f) { return s + f.stmt; }, 0) / totalFiles;
+    var overallBranch = allFiles.reduce(function(s,f) { return s + f.branch; }, 0) / totalFiles;
+    var mcdcFiles     = allFiles.filter(function(f) { return f.mcdc !== null; });
+    var overallMcdc   = mcdcFiles.length > 0
+      ? mcdcFiles.reduce(function(s,f) { return s + f.mcdc; }, 0) / mcdcFiles.length
+      : null;
+
+    var projectAdequate = allFiles.every(function(f) { return fileAdequate(f) === 'adequate'; });
+    var projectInsuff   = allFiles.some(function(f) { return fileAdequate(f) === 'insuff'; });
+    var overallStatus   = projectAdequate ? 'pass' : (projectInsuff ? 'fail' : 'warn');
+
+    // Overall badge
+    var overallBadgeEl = document.getElementById('overall-badge');
+    var overallLabels = { pass: '&#10003; All ASIL Requirements Met', fail: '&#10007; Coverage Insufficient', warn: '&#9888; Partial Coverage' };
+    overallBadgeEl.innerHTML =
+      '<span class="overall-badge ' + overallStatus + '">' + overallLabels[overallStatus] + '</span>';
+
+    var scorecard = document.getElementById('scorecard');
+
+    function makeTile(label, val, pctVal, threshold, isTests) {
+      var cls, barPct;
+      if (isTests) {
+        cls    = 'blue';
+        barPct = 100;
+      } else {
+        cls    = threshold !== null
+          ? covClass(val, threshold)
+          : (val >= 80 ? 'green' : val >= 60 ? 'amber' : 'red');
+        barPct = Math.min(100, val);
+      }
+      var dispVal = isTests ? val : val.toFixed(1) + '%';
+      var adq = isTests ? '' :
+        (threshold !== null && val >= threshold
+          ? '<span class="adequacy-badge adequate">Adequate</span>'
+          : threshold !== null
+            ? '<span class="adequacy-badge insuff">Insufficient</span>'
+            : '<span class="adequacy-badge na">N/A</span>');
+      return '<div class="score-tile">' +
+        '<div class="score-tile-label">' + label + '</div>' +
+        '<div class="score-tile-value ' + cls + '">' + dispVal + '</div>' +
+        '<div class="score-tile-bar-track"><div class="score-tile-bar-fill" style="width:' + barPct + '%;background:var(--cov-' + cls + ', var(--accent))"></div></div>' +
+        adq +
+      '</div>';
+    }
+
+    scorecard.innerHTML =
+      makeTile('Statement Coverage', overallStmt,   overallStmt,   100, false) +
+      makeTile('Branch Coverage',    overallBranch, overallBranch, 100, false) +
+      (overallMcdc !== null
+        ? makeTile('MC/DC Coverage', overallMcdc, overallMcdc, 100, false)
+        : '<div class="score-tile">' +
+            '<div class="score-tile-label">MC/DC Coverage</div>' +
+            '<div class="score-tile-value" style="color:var(--cov-na);font-size:1.5rem">N/A for<br>max ASIL-B</div>' +
+          '</div>') +
+      '<div class="score-tile">' +
+        '<div class="score-tile-label">Tests Passed / Total</div>' +
+        '<div class="score-tile-value blue">' + totalTests + '</div>' +
+        '<div class="score-tile-bar-track"><div class="score-tile-bar-fill" style="width:100%;background:var(--accent)"></div></div>' +
+        '<span class="adequacy-badge adequate">All Passing</span>' +
+      '</div>';
+
+    // ─── Module table ───
+    var tbody = document.getElementById('mod-tbody');
+
+    modules.forEach(function(mod) {
+      var s   = modStats(mod);
+      var t   = thresholds[mod.asil];
+
+      var modRow = document.createElement('tr');
+      modRow.className = 'mod-main-row';
+      modRow.dataset.expanded = 'false';
+      modRow.setAttribute('tabindex', '0');
+      modRow.setAttribute('role', 'button');
+      modRow.setAttribute('aria-expanded', 'false');
+
+      var mcdcHtml = (t.mcdc !== null)
+        ? covCell(s.mcdc, t.mcdc)
+        : '<span class="cov-na-label">N/A</span>';
+
+      modRow.innerHTML =
+        '<td><span style="font-weight:600">' + mod.name + '</span>&nbsp;&nbsp;' + asilBadge(mod.asil) + '</td>' +
+        '<td><span style="font-family:\'IBM Plex Mono\',monospace;font-size:0.8125rem;color:var(--text-dim)">' + mod.files.length + '</span></td>' +
+        '<td>' + covCell(s.stmt,   t.stmt) + '</td>' +
+        '<td>' + covCell(s.branch, t.branch) + '</td>' +
+        '<td>' + mcdcHtml + '</td>' +
+        '<td><span class="tests-val">' + s.tests + '</span></td>' +
+        '<td>' + adequacyBadge(s.adequate) + '</td>';
+
+      // File detail rows
+      var fileRows = mod.files.map(function(f) {
+        var ft  = thresholds[f.asil];
+        var adq = fileAdequate(f);
+
+        var uncCls = f.uncovered === 0 ? 'zero' : f.uncovered > 15 ? 'many' : 'nonzero';
+        var fmcdcHtml = (ft.mcdc !== null && f.mcdc !== null)
+          ? covCell(f.mcdc, ft.mcdc)
+          : '<span class="cov-na-label">N/A</span>';
+
+        var fileRow = document.createElement('tr');
+        fileRow.className = 'mod-file-row';
+
+        fileRow.innerHTML =
+          '<td><span class="file-name">' + f.name + '</span></td>' +
+          '<td>' + asilBadge(f.asil) + '</td>' +
+          '<td>' + covCell(f.stmt,   ft.stmt) + '</td>' +
+          '<td>' + covCell(f.branch, ft.branch) + '</td>' +
+          '<td>' + fmcdcHtml + '</td>' +
+          '<td><span class="uncovered-count ' + uncCls + '">' + f.uncovered + ' uncov.</span></td>' +
+          '<td>' + adequacyBadge(adq) + '</td>';
+
+        return fileRow;
+      });
+
+      function toggleExpand() {
+        var expanded = modRow.dataset.expanded === 'true';
+        modRow.dataset.expanded = expanded ? 'false' : 'true';
+        modRow.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+        fileRows.forEach(function(fr) {
+          fr.classList.toggle('visible', !expanded);
+        });
+      }
+
+      modRow.addEventListener('click', toggleExpand);
+      modRow.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpand(); }
+      });
+
+      tbody.appendChild(modRow);
+      fileRows.forEach(function(fr) { tbody.appendChild(fr); });
+    });
+
+    // ─── Footer timestamp ───
+    document.getElementById('gen-time').textContent =
+      new Date().toUTCString().replace(' GMT', ' UTC');
+  </script>
+
+</body>
+</html>

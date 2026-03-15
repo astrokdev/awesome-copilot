@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Table — Visual Explainer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f5f5f0;
+      --surface: #ffffff;
+      --surface-raised: #fafaf8;
+      --border: #e0ddd8;
+      --border-strong: #b0aca6;
+      --text: #1a1a1a;
+      --text-dim: #6b6b6b;
+      --accent: #005a9e;
+      --accent-2: #c05a2e;
+      --code-bg: #f0ede8;
+      --shadow: rgba(0,0,0,0.08);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f0f0f;
+        --surface: #1c1c1c;
+        --surface-raised: #242424;
+        --border: #2e2e2e;
+        --border-strong: #444444;
+        --text: #e8e8e8;
+        --text-dim: #888888;
+        --accent: #4da6ff;
+        --accent-2: #e07a4e;
+        --code-bg: #242424;
+        --shadow: rgba(0,0,0,0.4);
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 2rem;
+    }
+
+    /* ─── Header ─── */
+    .dt-header {
+      max-width: 1200px;
+      margin: 0 auto 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .dt-title-group h1 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .dt-title-group p {
+      font-size: 0.875rem;
+      color: var(--text-dim);
+      margin-top: 0.25rem;
+    }
+
+    /* ─── Filter / Search Bar ─── */
+    .dt-controls {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .dt-search {
+      padding: 0.5rem 0.875rem;
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8125rem;
+      min-width: 220px;
+      outline: none;
+    }
+
+    .dt-search:focus { border-color: var(--accent); }
+
+    .dt-filter-btn {
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--text-dim);
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 0.8125rem;
+      cursor: pointer;
+    }
+
+    .dt-filter-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    /* ─── Table Container ─── */
+    .dt-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px var(--shadow);
+    }
+
+    /* ─── Table ─── */
+    .ve-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    .ve-table thead {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .ve-table th {
+      background: var(--surface-raised);
+      border-bottom: 2px solid var(--border-strong);
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-dim);
+      font-size: 0.6875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .ve-table th:hover { color: var(--text); }
+
+    .ve-table th .sort-icon {
+      display: inline-block;
+      margin-left: 0.25rem;
+      opacity: 0.4;
+      font-size: 0.625rem;
+    }
+
+    .ve-table th.sorted .sort-icon { opacity: 1; color: var(--accent); }
+
+    .ve-table td {
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1rem;
+      color: var(--text);
+      vertical-align: middle;
+    }
+
+    .ve-table tr:last-child td { border-bottom: none; }
+
+    .ve-table tbody tr:hover td {
+      background: var(--surface-raised);
+    }
+
+    /* Mono values (addresses, IDs, codes) */
+    .ve-mono {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8125rem;
+      color: var(--text-dim);
+    }
+
+    /* Status badges */
+    .ve-badge-status {
+      display: inline-block;
+      padding: 0.125rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .ve-badge-status.pass   { background: rgba(26,92,26,0.15); color: #1a5c1a; border: 1px solid #33cc33; }
+    .ve-badge-status.fail   { background: rgba(123,0,0,0.15); color: #cc2222; border: 1px solid #ff2222; }
+    .ve-badge-status.warn   { background: rgba(128,102,0,0.15); color: #806600; border: 1px solid #ffcc00; }
+    .ve-badge-status.info   { background: rgba(26,58,92,0.15); color: #005a9e; border: 1px solid #3399ff; }
+
+    @media (prefers-color-scheme: dark) {
+      .ve-badge-status.pass { background: rgba(26,92,26,0.3); color: #66ff66; }
+      .ve-badge-status.fail { background: rgba(123,0,0,0.3); color: #ff6666; }
+      .ve-badge-status.warn { background: rgba(128,102,0,0.3); color: #ffcc00; }
+      .ve-badge-status.info { background: rgba(26,58,92,0.3); color: #4da6ff; }
+    }
+
+    /* ─── Footer / Summary ─── */
+    .dt-footer {
+      max-width: 1200px;
+      margin: 1rem auto 0;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 768px) {
+      body { padding: 1rem; }
+      .dt-header { flex-direction: column; align-items: flex-start; }
+      .ve-table { font-size: 0.8125rem; }
+      .ve-table th, .ve-table td { padding: 0.5rem 0.625rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dt-header">
+    <div class="dt-title-group">
+      <h1>Data Overview</h1>
+      <p>Sortable, filterable table — click column headers to sort.</p>
+    </div>
+    <div class="dt-controls">
+      <input class="dt-search" type="text" placeholder="Filter rows…" id="dt-search-input">
+      <button class="dt-filter-btn active" data-filter="all">All</button>
+      <button class="dt-filter-btn" data-filter="pass">Pass</button>
+      <button class="dt-filter-btn" data-filter="fail">Fail</button>
+    </div>
+  </div>
+
+  <div class="dt-container">
+    <table class="ve-table" id="data-table">
+      <thead>
+        <tr>
+          <th data-col="id">ID <span class="sort-icon">↕</span></th>
+          <th data-col="name">Name <span class="sort-icon">↕</span></th>
+          <th data-col="value">Value <span class="sort-icon">↕</span></th>
+          <th data-col="status">Status <span class="sort-icon">↕</span></th>
+          <th data-col="note">Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Example rows — replace with generated content -->
+        <tr data-status="pass">
+          <td class="ve-mono">001</td>
+          <td>Motor Speed Sensor</td>
+          <td class="ve-mono">1450 rpm</td>
+          <td><span class="ve-badge-status pass">Pass</span></td>
+          <td>Within nominal range</td>
+        </tr>
+        <tr data-status="warn">
+          <td class="ve-mono">002</td>
+          <td>Battery Voltage</td>
+          <td class="ve-mono">11.8 V</td>
+          <td><span class="ve-badge-status warn">Warning</span></td>
+          <td>Below 12V threshold</td>
+        </tr>
+        <tr data-status="fail">
+          <td class="ve-mono">003</td>
+          <td>CAN Bus Timeout</td>
+          <td class="ve-mono">—</td>
+          <td><span class="ve-badge-status fail">Fail</span></td>
+          <td>Node 0x12 not responding</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="dt-footer">
+    <span id="dt-row-count">3 rows</span>
+    <span>Generated by visual-explainer</span>
+  </div>
+
+  <script>
+    // Sort
+    document.querySelectorAll('th[data-col]').forEach(th => {
+      th.addEventListener('click', () => {
+        const col = th.dataset.col;
+        const tbody = document.querySelector('#data-table tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        const idx = Array.from(th.parentElement.children).indexOf(th);
+        const asc = th.classList.toggle('sorted') && !th.dataset.asc;
+        th.dataset.asc = asc;
+        rows.sort((a, b) => {
+          const av = a.cells[idx]?.textContent.trim() ?? '';
+          const bv = b.cells[idx]?.textContent.trim() ?? '';
+          return asc ? av.localeCompare(bv) : bv.localeCompare(av);
+        });
+        rows.forEach(r => tbody.appendChild(r));
+      });
+    });
+
+    // Filter buttons
+    document.querySelectorAll('.dt-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.dt-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filter = btn.dataset.filter;
+        document.querySelectorAll('#data-table tbody tr').forEach(row => {
+          row.hidden = filter !== 'all' && row.dataset.status !== filter;
+        });
+        updateCount();
+      });
+    });
+
+    // Search
+    document.getElementById('dt-search-input').addEventListener('input', e => {
+      const q = e.target.value.toLowerCase();
+      document.querySelectorAll('#data-table tbody tr').forEach(row => {
+        row.hidden = !row.textContent.toLowerCase().includes(q);
+      });
+      updateCount();
+    });
+
+    function updateCount() {
+      const visible = document.querySelectorAll('#data-table tbody tr:not([hidden])').length;
+      document.getElementById('dt-row-count').textContent = `${visible} rows`;
+    }
+  </script>
+
+</body>
+</html>

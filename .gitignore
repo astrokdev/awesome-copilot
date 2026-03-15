@@ -24,3 +24,10 @@ website/public/llms.txt
 *.sln
 obj/
 bin/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

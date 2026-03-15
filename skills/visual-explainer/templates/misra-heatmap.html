@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MISRA Violation Heatmap — Visual Explainer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --surface: #1c1c1c;
+      --surface-raised: #242424;
+      --border: #2e2e2e;
+      --border-strong: #444444;
+      --text: #e8e8e8;
+      --text-dim: #888888;
+      --accent: #4da6ff;
+    }
+
+    /* MISRA severity colors */
+    .sev-mandatory { background: #7b0000; color: #fff; }
+    .sev-required  { background: #806600; color: #fff; }
+    .sev-advisory  { background: #1a5c1a; color: #fff; }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 2rem;
+    }
+
+    /* ─── Header ─── */
+    .hm-header {
+      max-width: 1400px;
+      margin: 0 auto 2rem;
+    }
+
+    .hm-header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ─── Summary Scorecard ─── */
+    .hm-scorecard {
+      max-width: 1400px;
+      margin: 0 auto 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+    }
+
+    .scorecard-item {
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .scorecard-count {
+      font-size: 2.5rem;
+      font-weight: 700;
+      font-family: 'IBM Plex Mono', monospace;
+      line-height: 1;
+    }
+
+    .scorecard-label {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-top: 0.375rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .scorecard-item.mandatory .scorecard-count { color: #ff6666; }
+    .scorecard-item.required  .scorecard-count { color: #ffcc00; }
+    .scorecard-item.advisory  .scorecard-count { color: #66cc66; }
+    .scorecard-item.total     .scorecard-count { color: var(--accent); }
+
+    /* ─── Layout: heatmap + sidebar ─── */
+    .hm-layout {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 1.5rem;
+    }
+
+    /* ─── Heatmap Grid ─── */
+    .hm-grid {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.375rem;
+      align-content: flex-start;
+    }
+
+    .hm-cell {
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.5625rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: rgba(255,255,255,0.7);
+      transition: transform 0.1s, outline 0.1s;
+      position: relative;
+    }
+
+    .hm-cell:hover { transform: scale(1.15); outline: 2px solid var(--accent); z-index: 10; }
+    .hm-cell:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; z-index: 10; }
+
+    /* Detail panel — <dialog> */
+    .hm-cell-detail {
+      background: var(--surface-raised);
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      padding: 1rem;
+      min-width: 260px;
+      color: var(--text);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+      font-size: 0.8125rem;
+    }
+    .hm-cell-detail::backdrop { background: transparent; }
+
+    /* ─── Color Scale Legend ─── */
+    .hm-color-scale {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      font-size: 0.6875rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--text-dim);
+    }
+
+    .hm-scale-bar {
+      flex: 1;
+      height: 8px;
+      border-radius: 4px;
+      background: linear-gradient(to right, #1a5c1a, #806600, #7b0000);
+    }
+
+    /* ─── Sidebar: Top Violations ─── */
+    .hm-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .sidebar-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+
+    .sidebar-title {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      margin-bottom: 0.75rem;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .rule-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8125rem;
+    }
+
+    .rule-item:last-child { border-bottom: none; }
+
+    .rule-id {
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .rule-desc {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin: 0 0.75rem;
+      flex: 1;
+    }
+
+    .rule-count {
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600;
+      font-size: 0.875rem;
+      flex-shrink: 0;
+    }
+
+    .rule-count.mandatory { color: #ff6666; }
+    .rule-count.required  { color: #ffcc00; }
+
+    /* ─── Filter Controls ─── */
+    .hm-filters {
+      max-width: 1400px;
+      margin: 0 auto 1rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 0.375rem 0.875rem;
+      border-radius: 6px;
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--text-dim);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+
+    .filter-btn.active {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 900px) {
+      .hm-layout { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="hm-header">
+    <h1>MISRA Violation Heatmap</h1>
+    <p style="color:var(--text-dim);font-size:0.875rem">Cell size = file line count &nbsp;·&nbsp; Color intensity = weighted violation score &nbsp;·&nbsp; Click cell for details</p>
+  </header>
+
+  <!-- Summary Scorecard -->
+  <div class="hm-scorecard">
+    <div class="scorecard-item mandatory">
+      <div class="scorecard-count" id="cnt-mandatory">0</div>
+      <div class="scorecard-label">Mandatory</div>
+    </div>
+    <div class="scorecard-item required">
+      <div class="scorecard-count" id="cnt-required">0</div>
+      <div class="scorecard-label">Required</div>
+    </div>
+    <div class="scorecard-item advisory">
+      <div class="scorecard-count" id="cnt-advisory">0</div>
+      <div class="scorecard-label">Advisory</div>
+    </div>
+    <div class="scorecard-item total">
+      <div class="scorecard-count" id="cnt-total">0</div>
+      <div class="scorecard-label">Total</div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="hm-filters">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="mandatory">Mandatory only</button>
+    <button class="filter-btn" data-filter="required">Required only</button>
+    <button class="filter-btn" data-filter="advisory">Advisory only</button>
+  </div>
+
+  <!-- Main layout -->
+  <div class="hm-layout">
+
+    <!-- Heatmap -->
+    <div>
+      <div class="hm-grid" id="hm-grid">
+        <!-- Cells generated by JS -->
+      </div>
+
+      <!-- Color scale -->
+      <div class="hm-color-scale" style="max-width:100%;margin-top:1rem">
+        <span>Clean (0)</span>
+        <div class="hm-scale-bar"></div>
+        <span>Critical</span>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="hm-sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-title">Top Violations</div>
+        <!-- Populated by JS from data below -->
+        <div id="top-rules"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Detail panel -->
+  <dialog class="hm-cell-detail" id="cell-detail" aria-modal="true" aria-labelledby="cell-detail-title">
+    <strong id="cell-detail-title" style="display:block;margin-bottom:0.5rem;font-family:monospace;color:var(--accent)"></strong>
+    <div id="cell-detail-body"></div>
+  </dialog>
+
+  <script>
+    // ─── Sample data — replace with actual MISRA checker output ───
+    const files = [
+      { path: 'src/motor_control.c', lines: 420, mandatory: 2, required: 8, advisory: 12 },
+      { path: 'src/safety_monitor.c', lines: 310, mandatory: 0, required: 3, advisory: 5 },
+      { path: 'src/hal/spi.c',       lines: 180, mandatory: 1, required: 5, advisory: 9 },
+      { path: 'src/hal/can.c',       lines: 260, mandatory: 0, required: 2, advisory: 4 },
+      { path: 'src/diagnostics.c',   lines: 150, mandatory: 0, required: 0, advisory: 2 },
+      { path: 'src/nvm.c',           lines: 200, mandatory: 3, required: 7, advisory: 11 },
+      { path: 'src/comm/uds.c',      lines: 350, mandatory: 0, required: 1, advisory: 3 },
+      { path: 'src/config.c',        lines: 80,  mandatory: 0, required: 0, advisory: 0 },
+    ];
+
+    const topRules = [
+      { id: 'Rule 14.4', desc: 'Boolean expressions', count: 18, cat: 'required' },
+      { id: 'Rule 11.3', desc: 'Cast from integer to pointer', count: 12, cat: 'mandatory' },
+      { id: 'Rule 15.5', desc: 'Single point of exit', count: 9, cat: 'advisory' },
+      { id: 'Dir 4.7',  desc: 'Unchecked return values', count: 8, cat: 'required' },
+      { id: 'Rule 10.4', desc: 'Arithmetic operand types', count: 7, cat: 'required' },
+    ];
+
+    // ─── Compute totals ───
+    let totM = 0, totR = 0, totA = 0;
+    files.forEach(f => { totM += f.mandatory; totR += f.required; totA += f.advisory; });
+    document.getElementById('cnt-mandatory').textContent = totM;
+    document.getElementById('cnt-required').textContent  = totR;
+    document.getElementById('cnt-advisory').textContent  = totA;
+    document.getElementById('cnt-total').textContent     = totM + totR + totA;
+
+    // ─── Color ramp: score 0 = green, 100 = red ───
+    const maxLines = Math.max(...files.map(f => f.lines));
+    const maxScore = Math.max(...files.map(f => f.mandatory * 3 + f.required * 2 + f.advisory));
+
+    function scoreToColor(score) {
+      const norm = maxScore > 0 ? score / maxScore : 0;
+      if (norm === 0) return '#1a5c1a'; // clean green
+      if (norm < 0.4) return `hsl(${120 - norm * 200}, 70%, 25%)`;
+      return `hsl(${120 - norm * 120}, 80%, 22%)`;
+    }
+
+    // ─── Render heatmap cells ───
+    const grid = document.getElementById('hm-grid');
+    files.forEach(file => {
+      const score = file.mandatory * 3 + file.required * 2 + file.advisory;
+      const size = Math.max(40, Math.min(120, (file.lines / maxLines) * 120));
+      const cell = document.createElement('div');
+      cell.className = 'hm-cell';
+      cell.style.width = size + 'px';
+      cell.style.height = size + 'px';
+      cell.style.background = scoreToColor(score);
+      if (score === 0) { cell.style.opacity = '0.6'; }
+      cell.title = `${file.path}\nMandatory: ${file.mandatory} | Required: ${file.required} | Advisory: ${file.advisory}`;
+      // Show score badge + truncated filename
+      const filename = file.path.split('/').pop();
+      cell.innerHTML = `<span style="display:flex;flex-direction:column;align-items:center;gap:2px;pointer-events:none">
+        <span style="font-size:0.6875rem;font-weight:700">${score || '✓'}</span>
+        <span style="font-size:0.5rem;opacity:0.75;word-break:break-all;text-align:center;line-height:1.2;max-width:90%">${filename}</span>
+      </span>`;
+      // Store severity categories for filtering
+      cell.dataset.hasMandatory = file.mandatory > 0 ? '1' : '0';
+      cell.dataset.hasRequired  = file.required  > 0 ? '1' : '0';
+      cell.dataset.hasAdvisory  = file.advisory  > 0 ? '1' : '0';
+      cell.setAttribute('role', 'button');
+      cell.setAttribute('tabindex', '0');
+      cell.setAttribute('aria-label', `${file.path}: score ${score}`);
+
+      const handleActivate = () => {
+        const detail = document.getElementById('cell-detail');
+        document.getElementById('cell-detail-title').textContent = file.path;
+        document.getElementById('cell-detail-body').innerHTML = `
+          <table style="margin-top:0.5rem;font-size:0.75rem;width:100%">
+            <tr><td style="color:#ff6666">Mandatory</td><td style="text-align:right;font-family:monospace">${file.mandatory}</td></tr>
+            <tr><td style="color:#ffcc00">Required</td><td style="text-align:right;font-family:monospace">${file.required}</td></tr>
+            <tr><td style="color:#66cc66">Advisory</td><td style="text-align:right;font-family:monospace">${file.advisory}</td></tr>
+            <tr><td style="color:var(--text-dim)">Lines</td><td style="text-align:right;font-family:monospace">${file.lines}</td></tr>
+          </table>
+          <button onclick="document.getElementById('cell-detail').close()" style="margin-top:0.75rem;background:var(--surface);border:1px solid var(--border-strong);color:var(--text);padding:0.25rem 0.75rem;border-radius:4px;cursor:pointer;font-size:0.75rem">Close</button>
+        `;
+        detail.showModal();
+      };
+
+      cell.addEventListener('click', handleActivate);
+      cell.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') handleActivate(); });
+
+      grid.appendChild(cell);
+    });
+
+    document.getElementById('cell-detail').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) e.currentTarget.close();
+    });
+
+    // ─── Filter buttons — show/hide cells by severity ───
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filter = btn.dataset.filter;
+        document.querySelectorAll('.hm-cell').forEach(cell => {
+          let show = true;
+          if (filter === 'mandatory') show = cell.dataset.hasMandatory === '1';
+          else if (filter === 'required')  show = cell.dataset.hasRequired  === '1';
+          else if (filter === 'advisory')  show = cell.dataset.hasAdvisory  === '1';
+          cell.style.display = show ? '' : 'none';
+        });
+      });
+    });
+
+    // ─── Top Rules sidebar ───
+    const rulesEl = document.getElementById('top-rules');
+    topRules.forEach(r => {
+      rulesEl.innerHTML += `
+        <div class="rule-item">
+          <span class="rule-id">${r.id}</span>
+          <span class="rule-desc">${r.desc}</span>
+          <span class="rule-count ${r.cat}">${r.count}</span>
+        </div>
+      `;
+    });
+  </script>
+
+</body>
+</html>

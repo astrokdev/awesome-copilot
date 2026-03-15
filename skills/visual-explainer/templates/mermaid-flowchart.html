@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagram — Visual Explainer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <!-- Mermaid.js — see references/libraries.md for exact CDN URL -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --bg: #f5f5f0;
+      --surface: #ffffff;
+      --surface-raised: #fafaf8;
+      --border: #e0ddd8;
+      --border-strong: #b0aca6;
+      --text: #1a1a1a;
+      --text-dim: #6b6b6b;
+      --accent: #005a9e;
+      --accent-2: #c05a2e;
+      --code-bg: #f0ede8;
+      --shadow: rgba(0,0,0,0.08);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f0f0f;
+        --surface: #1c1c1c;
+        --surface-raised: #242424;
+        --border: #2e2e2e;
+        --border-strong: #444444;
+        --text: #e8e8e8;
+        --text-dim: #888888;
+        --accent: #4da6ff;
+        --accent-2: #e07a4e;
+        --shadow: rgba(0,0,0,0.4);
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    /* ─── Header ─── */
+    .diagram-header {
+      max-width: 900px;
+      margin: 0 auto 2rem;
+    }
+
+    .diagram-eyebrow {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      font-family: 'IBM Plex Mono', monospace;
+      margin-bottom: 0.5rem;
+    }
+
+    .diagram-title {
+      font-size: clamp(1.25rem, 2.5vw, 2rem);
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .diagram-desc {
+      font-size: 0.9375rem;
+      color: var(--text-dim);
+      margin-top: 0.5rem;
+      max-width: 60ch;
+    }
+
+    /* ─── Mermaid Container (ALWAYS wrap — never bare) ─── */
+    .ve-mermaid-container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 2rem;
+      overflow: auto;
+      position: relative;
+      box-shadow: 0 2px 12px var(--shadow);
+    }
+
+    .ve-mermaid-container svg {
+      display: block;
+      margin: 0 auto;
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* ─── Controls ─── */
+    .ve-mermaid-controls {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      display: flex;
+      gap: 0.375rem;
+    }
+
+    .ve-mermaid-btn {
+      background: var(--surface-raised);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.25rem 0.625rem;
+      font-size: 0.6875rem;
+      font-family: 'IBM Plex Mono', monospace;
+      cursor: pointer;
+      color: var(--text-dim);
+      transition: all 0.15s;
+    }
+
+    .ve-mermaid-btn:hover {
+      border-color: var(--border-strong);
+      color: var(--text);
+    }
+
+    /* ─── Legend / Annotations ─── */
+    .diagram-legend {
+      max-width: 900px;
+      margin: 1.5rem auto 0;
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .diagram-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+      color: var(--text-dim);
+    }
+
+    .legend-dot {
+      width: 0.75rem;
+      height: 0.75rem;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 768px) {
+      body { padding: 1rem; }
+      .ve-mermaid-container { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="diagram-header">
+    <p class="diagram-eyebrow">Flowchart</p>
+    <h1 class="diagram-title">Process Flow Diagram</h1>
+    <p class="diagram-desc">Visual representation of the process steps, decision points, and control flow.</p>
+  </header>
+
+  <!-- ALWAYS wrap Mermaid in .ve-mermaid-container — never render bare -->
+  <div class="ve-mermaid-container">
+    <div class="ve-mermaid-controls">
+      <button class="ve-mermaid-btn" onclick="zoomIn()">＋</button>
+      <button class="ve-mermaid-btn" onclick="zoomOut()">－</button>
+      <button class="ve-mermaid-btn" onclick="resetZoom()">Reset</button>
+    </div>
+
+    <!-- Replace the diagram definition below with actual content -->
+    <div class="mermaid">
+graph TD
+    A([Start]) --> B{Input Valid?}
+    B -- Yes --> C[Process Input]
+    B -- No --> D[Return Error]
+    C --> E[Apply Business Logic]
+    E --> F{Result OK?}
+    F -- Yes --> G[Write Output]
+    F -- No --> H[Log Failure]
+    G --> I([End])
+    D --> I
+    H --> I
+
+    classDef default fill:#f5f5f0,stroke:#b0aca6,color:#1a1a1a
+    classDef decision fill:#005a9e,stroke:#004880,color:#fff
+    classDef terminal fill:#1a1a1a,stroke:#1a1a1a,color:#fff,rx:20,ry:20
+    classDef error fill:#7b0000,stroke:#ff2222,color:#fff
+    class B,F decision
+    class A,I terminal
+    class D,H error
+    </div>
+  </div>
+
+  <div class="diagram-legend">
+    <div class="diagram-legend-item">
+      <div class="legend-dot" style="background:#005a9e"></div>
+      <span>Decision point</span>
+    </div>
+    <div class="diagram-legend-item">
+      <div class="legend-dot" style="background:#1a1a1a"></div>
+      <span>Start / End</span>
+    </div>
+    <div class="diagram-legend-item">
+      <div class="legend-dot" style="background:#7b0000"></div>
+      <span>Error / Failure path</span>
+    </div>
+  </div>
+
+  <script>
+    let scale = 1;
+
+    if (typeof mermaid !== 'undefined') {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: 'base',
+        themeVariables: prefersDark ? {
+          primaryColor: '#1c1c1c',
+          primaryTextColor: '#e8e8e8',
+          primaryBorderColor: '#444444',
+          lineColor: '#888888',
+          secondaryColor: '#242424',
+          background: '#0f0f0f',
+          mainBkg: '#1c1c1c',
+          nodeBorder: '#444444',
+          clusterBkg: '#242424',
+          titleColor: '#e8e8e8',
+          edgeLabelBackground: '#1c1c1c',
+          fontFamily: 'IBM Plex Sans, sans-serif',
+        } : {
+          primaryColor: '#f5f5f0',
+          primaryTextColor: '#1a1a1a',
+          primaryBorderColor: '#b0aca6',
+          lineColor: '#b0aca6',
+          secondaryColor: '#fafaf8',
+          background: '#ffffff',
+          mainBkg: '#f5f5f0',
+          nodeBorder: '#b0aca6',
+          clusterBkg: '#fafaf8',
+          titleColor: '#1a1a1a',
+          edgeLabelBackground: '#ffffff',
+          fontFamily: 'IBM Plex Sans, sans-serif',
+        }
+      });
+    } else {
+      // Mermaid CDN unavailable — show raw syntax with a warning banner
+      document.addEventListener('DOMContentLoaded', () => {
+        const container = document.querySelector('.ve-mermaid-container');
+        if (container) {
+          const warning = document.createElement('div');
+          warning.style.cssText = 'padding:0.75rem 1rem;background:#7b0000;color:#fff;font-size:0.8125rem;border-radius:4px;margin-bottom:0.75rem';
+          warning.textContent = '⚠ Mermaid.js could not load (CDN unreachable). Connect to the internet to render this diagram.';
+          container.insertAdjacentElement('beforebegin', warning);
+          container.style.fontFamily = 'monospace';
+          container.style.whiteSpace = 'pre';
+          container.style.padding = '1rem';
+          container.style.background = 'var(--surface)';
+          container.style.border = '1px solid var(--border)';
+          container.style.borderRadius = '4px';
+          container.style.fontSize = '0.8125rem';
+          container.style.color = 'var(--text-dim)';
+        }
+      });
+    }
+
+    function getSvg() { return document.querySelector('.ve-mermaid-container svg'); }
+    function zoomIn()  { scale = Math.min(scale + 0.2, 3); applyZoom(); }
+    function zoomOut() { scale = Math.max(scale - 0.2, 0.3); applyZoom(); }
+    function resetZoom() { scale = 1; applyZoom(); }
+    function applyZoom() {
+      const svg = getSvg();
+      if (svg) svg.style.transform = `scale(${scale})`;
+    }
+  </script>
+
+</body>
+</html>

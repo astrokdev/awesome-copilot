@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Architecture — Visual Explainer</title>
+  <!-- Font: DM Sans + Fira Code (vary per output — see references/libraries.md) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ═══════════════════════════════════════════
+       THEME — load tokens from themes.md before generating
+       Replace these values with the active theme
+    ═══════════════════════════════════════════ */
+    :root {
+      --bg: #f5f5f0;
+      --surface: #ffffff;
+      --surface-raised: #fafaf8;
+      --border: #e0ddd8;
+      --border-strong: #b0aca6;
+      --text: #1a1a1a;
+      --text-dim: #6b6b6b;
+      --text-inverse: #ffffff;
+      --accent: #005a9e;
+      --accent-2: #c05a2e;
+      --code-bg: #f0ede8;
+      --shadow: rgba(0,0,0,0.08);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f0f0f;
+        --surface: #1c1c1c;
+        --surface-raised: #242424;
+        --border: #2e2e2e;
+        --border-strong: #444444;
+        --text: #e8e8e8;
+        --text-dim: #888888;
+        --text-inverse: #0f0f0f;
+        --accent: #4da6ff;
+        --accent-2: #e07a4e;
+        --code-bg: #242424;
+        --shadow: rgba(0,0,0,0.4);
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem;
+    }
+
+    /* ─── Header ─── */
+    .arch-header {
+      max-width: 1200px;
+      margin: 0 auto 3rem;
+    }
+
+    .arch-eyebrow {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .arch-title {
+      font-size: clamp(1.5rem, 3vw, 2.5rem);
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .arch-subtitle {
+      font-size: 1rem;
+      color: var(--text-dim);
+      margin-top: 0.5rem;
+    }
+
+    /* ─── Card Grid ─── */
+    .ve-card-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      position: relative;
+    }
+
+    /* SVG connector overlay */
+    .ve-connector-svg {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .ve-connector-line {
+      stroke: var(--border-strong);
+      stroke-width: 1.5;
+      stroke-dasharray: 4 3;
+      fill: none;
+    }
+
+    /* ─── Individual Card ─── */
+    .ve-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      position: relative;
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .ve-card:hover {
+      box-shadow: 0 4px 20px var(--shadow);
+      border-color: var(--border-strong);
+    }
+
+    .ve-card-type {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      margin-bottom: 0.375rem;
+    }
+
+    .ve-card-name {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.75rem;
+    }
+
+    .ve-card-desc {
+      font-size: 0.875rem;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    .ve-card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.375rem;
+      margin-top: 1rem;
+    }
+
+    .ve-tag {
+      font-size: 0.6875rem;
+      font-weight: 500;
+      padding: 0.1875rem 0.5rem;
+      border-radius: 999px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: 'Fira Code', monospace;
+    }
+
+    /* ASIL badge */
+    .ve-badge {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      font-size: 0.625rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.125rem 0.5rem;
+      border-radius: 999px;
+      border: 1px solid currentColor;
+    }
+    .ve-badge.asil-d { background: #7b0000; color: #fff; border-color: #ff2222; }
+    .ve-badge.asil-c { background: #b34700; color: #fff; border-color: #ff6600; }
+    .ve-badge.asil-b { background: #806600; color: #fff; border-color: #ffcc00; }
+    .ve-badge.asil-a { background: #1a5c1a; color: #fff; border-color: #33cc33; }
+    .ve-badge.qm     { background: #1a3a5c; color: #fff; border-color: #3399ff; }
+
+    /* ─── Legend ─── */
+    .arch-legend {
+      max-width: 1200px;
+      margin: 3rem auto 0;
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .arch-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+      color: var(--text-dim);
+    }
+
+    .arch-legend-line {
+      width: 2rem;
+      height: 2px;
+      background: var(--border-strong);
+      border-top: 2px dashed var(--border-strong);
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 768px) {
+      body { padding: 1rem; }
+      .ve-card-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="arch-header">
+    <p class="arch-eyebrow">System Architecture</p>
+    <h1 class="arch-title">Component Overview</h1>
+    <p class="arch-subtitle">Visual map of system modules, responsibilities, and dependencies.</p>
+  </header>
+
+  <div class="ve-card-grid" id="card-grid">
+    <!-- SVG connector layer — draw lines between cards using JS or manually -->
+    <svg class="ve-connector-svg" aria-hidden="true">
+      <!-- Example: <line class="ve-connector-line" x1="..." y1="..." x2="..." y2="..."> -->
+    </svg>
+
+    <!-- Example Card 1 — HAL is depended on by card-app -->
+    <div class="ve-card" id="card-hal" data-connects="card-app">
+      <span class="ve-badge asil-b">ASIL-B</span>
+      <p class="ve-card-type">Layer</p>
+      <h2 class="ve-card-name">Hardware Abstraction Layer</h2>
+      <p class="ve-card-desc">Provides hardware-independent interfaces for all peripherals. Isolates application logic from MCU specifics.</p>
+      <div class="ve-card-tags">
+        <span class="ve-tag">MCAL</span>
+        <span class="ve-tag">ECU Abstraction</span>
+        <span class="ve-tag">SPI</span>
+        <span class="ve-tag">CAN</span>
+      </div>
+    </div>
+
+    <!-- Example Card 2 -->
+    <div class="ve-card" id="card-app">
+      <span class="ve-badge asil-d">ASIL-D</span>
+      <p class="ve-card-type">Application</p>
+      <h2 class="ve-card-name">Motor Control Application</h2>
+      <p class="ve-card-desc">Implements torque and speed control algorithms. Depends on HAL for sensor data and actuator commands.</p>
+      <div class="ve-card-tags">
+        <span class="ve-tag">FOC</span>
+        <span class="ve-tag">PID</span>
+        <span class="ve-tag">Safety Monitor</span>
+      </div>
+    </div>
+
+    <!-- Example Card 3 — Diagnostics depends on HAL -->
+    <div class="ve-card" id="card-diag" data-connects="card-hal">
+      <span class="ve-badge qm">QM</span>
+      <p class="ve-card-type">Service</p>
+      <h2 class="ve-card-name">Diagnostics (UDS)</h2>
+      <p class="ve-card-desc">Handles diagnostic communication over CAN. Provides DTC storage, readout, and ECU reset services.</p>
+      <div class="ve-card-tags">
+        <span class="ve-tag">ISO 14229</span>
+        <span class="ve-tag">DEM</span>
+        <span class="ve-tag">DCM</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="arch-legend">
+    <div class="arch-legend-item">
+      <div class="arch-legend-line"></div>
+      <span>Dependency / Data flow</span>
+    </div>
+    <div class="arch-legend-item">
+      <span class="ve-badge asil-d" style="position:static">ASIL-D</span>
+      <span>Safety integrity level</span>
+    </div>
+  </div>
+
+  <script>
+    // Auto-draw dashed connector lines between cards using SVG overlay
+    // Reads data-connects="card-id-1,card-id-2" on each .ve-card to draw lines
+    function drawConnectors() {
+      const grid = document.getElementById('card-grid');
+      const svg = grid.querySelector('.ve-connector-svg');
+      if (!svg) return;
+
+      // Clear existing lines
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+      // Collect all connection pairs from data attributes
+      const pairs = [];
+      grid.querySelectorAll('.ve-card[data-connects]').forEach(card => {
+        const targets = card.dataset.connects.split(',').map(s => s.trim()).filter(Boolean);
+        targets.forEach(targetId => {
+          const target = document.getElementById(targetId);
+          if (target) pairs.push([card, target]);
+        });
+      });
+
+      const gridRect = grid.getBoundingClientRect();
+
+      pairs.forEach(([from, to]) => {
+        const fRect = from.getBoundingClientRect();
+        const tRect = to.getBoundingClientRect();
+
+        // Connect centre-bottom of source to centre-top of target (or right→left if same row)
+        const fx = fRect.left + fRect.width / 2 - gridRect.left;
+        const fy = fRect.top  + fRect.height / 2 - gridRect.top;
+        const tx = tRect.left + tRect.width / 2 - gridRect.left;
+        const ty = tRect.top  + tRect.height / 2 - gridRect.top;
+
+        // Mid-point elbow
+        const mx = (fx + tx) / 2;
+        const my = (fy + ty) / 2;
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('class', 've-connector-line');
+        path.setAttribute('d', `M ${fx} ${fy} C ${fx} ${my}, ${tx} ${my}, ${tx} ${ty}`);
+
+        // Arrowhead marker
+        const markerId = `arrow-${Math.random().toString(36).slice(2)}`;
+        const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+        defs.innerHTML = `
+          <marker id="${markerId}" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="var(--border-strong)" />
+          </marker>`;
+        svg.appendChild(defs);
+        path.setAttribute('marker-end', `url(#${markerId})`);
+        svg.appendChild(path);
+      });
+    }
+
+    // Run after fonts/layout settle
+    if (document.readyState === 'complete') {
+      drawConnectors();
+    } else {
+      window.addEventListener('load', drawConnectors);
+    }
+  </script>
+</body>
+</html>

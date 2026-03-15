@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FMEA / TARA Risk Matrix — Visual Explainer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --surface: #1c1c1c;
+      --surface-raised: #242424;
+      --border: #2e2e2e;
+      --border-strong: #444;
+      --text: #e8e8e8;
+      --text-dim: #888;
+      --accent: #4da6ff;
+    }
+
+    /* ASIL badges — shared .ve-badge pattern */
+    .ve-badge { display: inline-block; border-radius: 999px; border: 1px solid currentColor; font-size: 0.625rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.0625rem 0.375rem; }
+    .ve-badge.asil-d, .asil-d { background: #7b0000; color: #fff; border-color: #ff2222; }
+    .ve-badge.asil-c, .asil-c { background: #b34700; color: #fff; border-color: #ff6600; }
+    .ve-badge.asil-b, .asil-b { background: #806600; color: #fff; border-color: #ffcc00; }
+    .ve-badge.asil-a, .asil-a { background: #1a5c1a; color: #fff; border-color: #33cc33; }
+    .ve-badge.qm,     .qm     { background: #1a3a5c; color: #fff; border-color: #3399ff; }
+    .ve-badge.decomposed, .decomposed { background: #3d1a5c; color: #fff; border-color: #9966ff; }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 2rem;
+    }
+
+    /* ─── Header ─── */
+    .fmea-header {
+      max-width: 1200px;
+      margin: 0 auto 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .fmea-header h1 { font-size: 1.5rem; font-weight: 700; }
+    .fmea-header p  { font-size: 0.875rem; color: var(--text-dim); margin-top: 0.25rem; }
+
+    /* Mode toggle */
+    .mode-badge {
+      padding: 0.25rem 0.875rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      font-family: 'Fira Code', monospace;
+      border: 1px solid var(--border-strong);
+      background: var(--surface-raised);
+    }
+
+    /* ─── Summary Bar ─── */
+    .fmea-summary {
+      max-width: 1200px;
+      margin: 0 auto 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.75rem;
+    }
+
+    .summary-pill {
+      padding: 0.75rem;
+      border-radius: 8px;
+      border: 1px solid;
+      text-align: center;
+    }
+
+    .summary-count {
+      font-size: 1.75rem;
+      font-weight: 700;
+      font-family: 'Fira Code', monospace;
+      display: block;
+    }
+
+    .summary-label {
+      font-size: 0.625rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      display: block;
+      margin-top: 0.125rem;
+    }
+
+    /* ─── Risk Matrix Grid ─── */
+    .fmea-matrix-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    /* Axis labels */
+    .matrix-layout {
+      display: grid;
+      grid-template-columns: 40px 1fr;
+      grid-template-rows: 40px 1fr;
+    }
+
+    .matrix-corner { /* empty */ }
+
+    .matrix-x-label {
+      grid-column: 2;
+      grid-row: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .matrix-y-label {
+      grid-column: 1;
+      grid-row: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border-right: 1px solid var(--border);
+    }
+
+    .matrix-grid {
+      grid-column: 2;
+      grid-row: 2;
+      display: grid;
+      /* Columns = Controllability C1/C2/C3, rows = Severity S1/S2/S3 */
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+    }
+
+    .matrix-cell {
+      border: 1px solid var(--border);
+      min-height: 120px;
+      padding: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      position: relative;
+    }
+
+    .matrix-cell-label {
+      font-size: 0.5625rem;
+      font-family: 'Fira Code', monospace;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 0.25rem;
+    }
+
+    /* Item chips in cells */
+    .fmea-chip {
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.6875rem;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      transition: background 0.15s;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .fmea-chip:hover { background: rgba(255,255,255,0.15); }
+    .fmea-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+    /* ─── Item Detail Panel ─── */
+    .fmea-detail {
+      background: var(--surface-raised);
+      border: 1px solid var(--border-strong);
+      border-radius: 10px;
+      padding: 1.25rem;
+      min-width: 320px;
+      max-width: 400px;
+      color: var(--text);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    }
+    .fmea-detail::backdrop { background: rgba(0,0,0,0.4); }
+
+    .fmea-detail-close {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .fmea-detail h3 {
+      font-size: 0.9375rem;
+      margin-bottom: 0.75rem;
+      padding-right: 1.5rem;
+    }
+
+    .fmea-detail-table {
+      width: 100%;
+      font-size: 0.8125rem;
+      border-collapse: collapse;
+    }
+
+    .fmea-detail-table td {
+      padding: 0.375rem 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .fmea-detail-table td:first-child {
+      color: var(--text-dim);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      width: 40%;
+    }
+
+    .fmea-detail-table tr:last-child td { border-bottom: none; }
+
+    /* ─── ASIL Derivation Reference ─── */
+    .fmea-ref {
+      max-width: 1200px;
+      margin: 1.5rem auto 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+
+    .fmea-ref-title {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      margin-bottom: 0.75rem;
+      font-family: 'Fira Code', monospace;
+    }
+
+    /* ─── Filter Controls ─── */
+    .fmea-filters {
+      max-width: 1200px;
+      margin: 0 auto 1rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-btn {
+      padding: 0.375rem 0.875rem;
+      border-radius: 6px;
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--text-dim);
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-family: 'Fira Code', monospace;
+    }
+
+    .filter-btn.active {
+      background: var(--accent);
+      color: #0f0f0f;
+      border-color: var(--accent);
+    }
+
+    /* Export button */
+    .export-btn {
+      margin-left: auto;
+      padding: 0.375rem 0.875rem;
+      border-radius: 6px;
+      border: 1px solid var(--border-strong);
+      background: var(--surface-raised);
+      color: var(--text-dim);
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-family: 'Fira Code', monospace;
+    }
+
+    .export-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 768px) {
+      body { padding: 1rem; }
+      .fmea-summary { grid-template-columns: repeat(3, 1fr); }
+      .matrix-cell { min-height: 80px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="fmea-header">
+    <div>
+      <h1>FMEA Risk Matrix</h1>
+      <p>ISO 26262 — Severity × Controllability (at max Exposure E4). Click items for full FMEA entry.</p>
+    </div>
+    <span class="mode-badge">FMEA Mode — ISO 26262</span>
+  </header>
+
+  <!-- Summary -->
+  <div class="fmea-summary" id="summary">
+    <div class="summary-pill asil-d"><span class="summary-count" id="cnt-d">0</span><span class="summary-label">ASIL-D</span></div>
+    <div class="summary-pill asil-c"><span class="summary-count" id="cnt-c">0</span><span class="summary-label">ASIL-C</span></div>
+    <div class="summary-pill asil-b"><span class="summary-count" id="cnt-b">0</span><span class="summary-label">ASIL-B</span></div>
+    <div class="summary-pill asil-a"><span class="summary-count" id="cnt-a">0</span><span class="summary-label">ASIL-A</span></div>
+    <div class="summary-pill qm">   <span class="summary-count" id="cnt-q">0</span><span class="summary-label">QM</span></div>
+  </div>
+
+  <!-- Filters -->
+  <div class="fmea-filters">
+    <button class="filter-btn active" data-asil="all">All</button>
+    <button class="filter-btn" data-asil="d">ASIL-D</button>
+    <button class="filter-btn" data-asil="c">ASIL-C</button>
+    <button class="filter-btn" data-asil="b">ASIL-B</button>
+    <button class="filter-btn" data-asil="a">ASIL-A</button>
+    <button class="filter-btn" data-asil="qm">QM</button>
+    <button class="export-btn" id="export-btn">⬇ Export CSV</button>
+  </div>
+
+  <!-- Risk Matrix -->
+  <div class="fmea-matrix-wrapper">
+    <div class="matrix-layout">
+      <div class="matrix-corner"></div>
+      <div class="matrix-x-label">Controllability →&nbsp; C1 (easy) &nbsp; C2 (normal) &nbsp; C3 (difficult)</div>
+      <div class="matrix-y-label">↑ Severity (S3 = fatality)</div>
+
+      <div class="matrix-grid" id="matrix-grid">
+        <!-- 9 cells: S3/C1, S3/C2, S3/C3, S2/C1, S2/C2, S2/C3, S1/C1, S1/C2, S1/C3 -->
+        <!-- Populated by JS below -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ASIL Derivation Reference -->
+  <div class="fmea-ref">
+    <div class="fmea-ref-title">ASIL Derivation (ISO 26262 Table 4 — E4)</div>
+    <table style="font-size:0.75rem;border-collapse:collapse;width:100%">
+      <thead>
+        <tr>
+          <th style="padding:0.25rem 0.5rem;text-align:left;color:var(--text-dim)">Severity</th>
+          <th style="padding:0.25rem 0.5rem;text-align:center;color:var(--text-dim)">C1</th>
+          <th style="padding:0.25rem 0.5rem;text-align:center;color:var(--text-dim)">C2</th>
+          <th style="padding:0.25rem 0.5rem;text-align:center;color:var(--text-dim)">C3</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:0.25rem 0.5rem;color:var(--text-dim)">S3 (Fatalities)</td>
+          <td style="padding:0.25rem 0.5rem;text-align:center"><span style="padding:0.1rem 0.5rem;border-radius:999px;font-size:0.625rem;background:#1a5c1a;color:#fff;border:1px solid #33cc33">ASIL-B</span></td>
+          <td style="padding:0.25rem 0.5rem;text-align:center"><span style="padding:0.1rem 0.5rem;border-radius:999px;font-size:0.625rem;background:#b34700;color:#fff;border:1px solid #ff6600">ASIL-C</span></td>
+          <td style="padding:0.25rem 0.5rem;text-align:center"><span style="padding:0.1rem 0.5rem;border-radius:999px;font-size:0.625rem;background:#7b0000;color:#fff;border:1px solid #ff2222">ASIL-D</span></td>
+        </tr>
+        <tr>
+          <td style="padding:0.25rem 0.5rem;color:var(--text-dim)">S2 (Severe injuries)</td>
+          <td style="padding:0.25rem 0.5rem;text-align:center"><span style="padding:0.1rem 0.5rem;border-radius:999px;font-size:0.625rem;background:#1a3a5c;color:#fff;border:1px solid #3399ff">QM</span></td>
+          <td style="padding:0.25rem 0.5rem;text-align:center"><span style="padding:0.1rem 0.5rem;border-radius:999px;font-size:0.625rem;background:#806600;color:#fff;border:1px solid #ffcc00">ASIL-B</span></td>
+          <td style="padding:0.25rem 0.5rem;text-align:center"><span style="padding:0.1rem 0.5rem;border-radius:999px;font-size:0.625rem;background:#b34700;color:#fff;border:1px solid #ff6600">ASIL-C</span></td>
+        </tr>
+        <tr>
+          <td style="padding:0.25rem 0.5rem;color:var(--text-dim)">S1 (Light injuries)</td>
+          <td style="padding:0.25rem 0.5rem;text-align:center"><span style="padding:0.1rem 0.5rem;border-radius:999px;font-size:0.625rem;background:#1a3a5c;color:#fff;border:1px solid #3399ff">QM</span></td>
+          <td style="padding:0.25rem 0.5rem;text-align:center"><span style="padding:0.1rem 0.5rem;border-radius:999px;font-size:0.625rem;background:#1a3a5c;color:#fff;border:1px solid #3399ff">QM</span></td>
+          <td style="padding:0.25rem 0.5rem;text-align:center"><span style="padding:0.1rem 0.5rem;border-radius:999px;font-size:0.625rem;background:#806600;color:#fff;border:1px solid #ffcc00">ASIL-A</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Detail panel -->
+  <dialog class="fmea-detail" id="fmea-detail" aria-labelledby="detail-title" aria-modal="true">
+    <button class="fmea-detail-close" onclick="document.getElementById('fmea-detail').close()">✕</button>
+    <h3 id="detail-title"></h3>
+    <table class="fmea-detail-table" id="detail-table"></table>
+  </dialog>
+
+  <script>
+    // ─── Sample FMEA data — replace with actual items ───
+    const items = [
+      { id: 'F-001', mode: 'Unintended motor start', effect: 'Vehicle acceleration', s: 3, c: 3, asil: 'd', component: 'MotorCtrl', controls: 'Redundant enable signal, hardware interlock', status: 'Open' },
+      { id: 'F-002', mode: 'Speed sensor failure', effect: 'Loss of speed control', s: 3, c: 2, asil: 'c', component: 'SpeedSensor', controls: 'Plausibility check vs. redundant sensor', status: 'Mitigated' },
+      { id: 'F-003', mode: 'CAN timeout — MotorSpeed', effect: 'Stale control data', s: 2, c: 3, asil: 'c', component: 'CAN Stack', controls: 'Timeout detection + safe state transition', status: 'Mitigated' },
+      { id: 'F-004', mode: 'Battery overvoltage', effect: 'Component damage', s: 2, c: 2, asil: 'b', component: 'BMS', controls: 'HW voltage clamp, SW monitoring', status: 'Mitigated' },
+      { id: 'F-005', mode: 'Diagnostic frame loss', effect: 'Delayed fault detection', s: 1, c: 3, asil: 'a', component: 'UDS', controls: 'Periodic heartbeat monitoring', status: 'Open' },
+      { id: 'F-006', mode: 'NVM write failure', effect: 'Lost calibration data', s: 1, c: 1, asil: 'qm', component: 'NVM', controls: 'Write verification + backup copy', status: 'Mitigated' },
+    ];
+
+    // ASIL color map
+    const asilColors = { d: '#7b0000', c: '#b34700', b: '#806600', a: '#1a5c1a', qm: '#1a3a5c' };
+    const ASIL_CELL_OPACITY = '33'; // 20% hex opacity for matrix cell backgrounds
+
+    // Matrix cell definitions [row=severity desc, col=controllability asc]
+    // Layout: row 0 = S3, row 1 = S2, row 2 = S1 | col 0 = C1, col 1 = C2, col 2 = C3
+    const cellDefs = [
+      { s: 3, c: 1, asil: 'b' }, { s: 3, c: 2, asil: 'c' }, { s: 3, c: 3, asil: 'd' },
+      { s: 2, c: 1, asil: 'qm'},  { s: 2, c: 2, asil: 'b' }, { s: 2, c: 3, asil: 'c' },
+      { s: 1, c: 1, asil: 'qm'},  { s: 1, c: 2, asil: 'qm'}, { s: 1, c: 3, asil: 'a' },
+    ];
+
+    // Render matrix
+    const grid = document.getElementById('matrix-grid');
+    cellDefs.forEach(def => {
+      const cell = document.createElement('div');
+      cell.className = 'matrix-cell';
+      cell.style.background = asilColors[def.asil] + ASIL_CELL_OPACITY;
+      cell.style.borderColor = asilColors[def.asil] + '66';
+
+      const label = document.createElement('div');
+      label.className = 'matrix-cell-label';
+      label.textContent = `S${def.s} / C${def.c} → ASIL-${def.asil.toUpperCase()}`;
+      cell.appendChild(label);
+
+      // Add matching items as chips
+      items.filter(it => it.s === def.s && it.c === def.c).forEach(item => {
+        const chip = document.createElement('div');
+        chip.className = 'fmea-chip';
+        chip.dataset.asil = item.asil;
+        chip.textContent = `${item.id}: ${item.mode.substring(0, 30)}…`;
+        chip.setAttribute('role', 'button');
+        chip.setAttribute('tabindex', '0');
+        chip.addEventListener('click', (e) => showDetail(item, e));
+        chip.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') showDetail(item, e); });
+        cell.appendChild(chip);
+      });
+
+      grid.appendChild(cell);
+    });
+
+    // Summary counts
+    ['d','c','b','a','qm'].forEach(asil => {
+      const count = items.filter(i => i.asil === asil).length;
+      const key = asil === 'qm' ? 'q' : asil;
+      document.getElementById('cnt-' + key).textContent = count;
+    });
+
+    // Show detail
+    function showDetail(item, e) {
+      const panel = document.getElementById('fmea-detail');
+      document.getElementById('detail-title').textContent = `${item.id} — ${item.mode}`;
+      document.getElementById('detail-table').innerHTML = `
+        <tr><td>Effect</td><td>${item.effect}</td></tr>
+        <tr><td>Component</td><td>${item.component}</td></tr>
+        <tr><td>Severity</td><td>S${item.s}</td></tr>
+        <tr><td>Controllability</td><td>C${item.c}</td></tr>
+        <tr><td>ASIL</td><td><span class="ve-badge asil-${item.asil}">ASIL-${item.asil.toUpperCase()}</span></td></tr>
+        <tr><td>Controls</td><td>${item.controls}</td></tr>
+        <tr><td>Status</td><td>${item.status}</td></tr>
+      `;
+      panel.showModal();
+      e.stopPropagation();
+    }
+
+    document.getElementById('fmea-detail').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) e.currentTarget.close();
+    });
+
+    // Filter
+    document.querySelectorAll('.filter-btn[data-asil]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn[data-asil]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const f = btn.dataset.asil;
+        document.querySelectorAll('.fmea-chip').forEach(chip => {
+          chip.style.display = (f === 'all' || chip.dataset.asil === f) ? '' : 'none';
+        });
+      });
+    });
+
+    // Export CSV
+    document.getElementById('export-btn').addEventListener('click', () => {
+      const header = 'ID,Failure Mode,Effect,S,C,ASIL,Component,Controls,Status';
+      const rows = items.map(i => `${i.id},"${i.mode}","${i.effect}",${i.s},${i.c},ASIL-${i.asil.toUpperCase()},"${i.component}","${i.controls}",${i.status}`);
+      const csv = [header, ...rows].join('\n');
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+      a.download = 'fmea-export.csv';
+      a.click();
+    });
+  </script>
+
+</body>
+</html>

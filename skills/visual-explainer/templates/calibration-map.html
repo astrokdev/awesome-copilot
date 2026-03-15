@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calibration Parameter Map — Visual Explainer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ── Design tokens (light) ── */
+    :root {
+      --bg: #f5f5f0;
+      --surface: #ffffff;
+      --surface-raised: #fafaf8;
+      --border: #e0ddd8;
+      --border-strong: #b0aca6;
+      --text: #1a1a1a;
+      --text-dim: #6b6b6b;
+      --accent: #005a9e;
+      --accent-2: #c05a2e;
+      --shadow: rgba(0,0,0,0.08);
+    }
+
+    /* ── Dark mode override ── */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f0f0f;
+        --surface: #1c1c1c;
+        --surface-raised: #242424;
+        --border: #2e2e2e;
+        --border-strong: #444444;
+        --text: #e8e8e8;
+        --text-dim: #888888;
+        --accent: #4da6ff;
+        --accent-2: #e07a4e;
+        --shadow: rgba(0,0,0,0.4);
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 2rem;
+      min-height: 100vh;
+    }
+
+    /* ── ASIL badges (shared pattern) ── */
+    .ve-badge {
+      display: inline-block;
+      border-radius: 999px;
+      border: 1px solid currentColor;
+      font-size: 0.625rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.0625rem 0.375rem;
+    }
+    .ve-badge.asil-d { background: #7b0000; color: #fff; border-color: #ff2222; }
+    .ve-badge.asil-c { background: #b34700; color: #fff; border-color: #ff6600; }
+    .ve-badge.asil-b { background: #806600; color: #fff; border-color: #ffcc00; }
+    .ve-badge.asil-a { background: #1a5c1a; color: #fff; border-color: #33cc33; }
+    .ve-badge.qm     { background: #1a3a5c; color: #fff; border-color: #3399ff; }
+
+    /* ── ve-table (shared pattern) ── */
+    .ve-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    .ve-table th {
+      background: var(--surface-raised);
+      border-bottom: 2px solid var(--border-strong);
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-dim);
+      font-size: 0.6875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .ve-table td {
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1rem;
+      color: var(--text);
+      vertical-align: middle;
+    }
+    .ve-table tr:last-child td { border-bottom: none; }
+    .ve-table tbody tr:hover td { background: var(--surface-raised); }
+
+    /* ── Memory section badges ── */
+    .section-badge {
+      display: inline-block;
+      border-radius: 4px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.5625rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.125rem 0.5rem;
+    }
+    .section-badge.flash { background: #002952; color: #70aaff; border: 1px solid #1a4d99; }
+    .section-badge.ram   { background: #0d2e0d; color: #66dd66; border: 1px solid #1a5c1a; }
+    .section-badge.nvm   { background: #2a0d36; color: #cc88ff; border: 1px solid #551a7a; }
+    @media (prefers-color-scheme: dark) {
+      .section-badge.flash { background: #001529; color: #5599ff; border-color: #0d2952; }
+      .section-badge.ram   { background: #071a07; color: #55cc55; border-color: #0d3d0d; }
+      .section-badge.nvm   { background: #150720; color: #bb77ee; border-color: #330d4d; }
+    }
+
+    /* ── Parameter type badges ── */
+    .type-badge {
+      display: inline-block;
+      border-radius: 3px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.5625rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0.0625rem 0.3125rem;
+    }
+    .type-badge.map    { background: rgba(0,90,158,0.12); color: var(--accent); border: 1px solid rgba(0,90,158,0.3); }
+    .type-badge.curve  { background: rgba(192,90,46,0.12); color: var(--accent-2); border: 1px solid rgba(192,90,46,0.3); }
+    .type-badge.scalar { background: rgba(26,92,26,0.1); color: #1f7a1f; border: 1px solid rgba(26,92,26,0.25); }
+    .type-badge.array  { background: rgba(77,26,100,0.12); color: #8844bb; border: 1px solid rgba(77,26,100,0.25); }
+    .type-badge.switch { background: rgba(128,100,0,0.12); color: #7a6000; border: 1px solid rgba(128,100,0,0.25); }
+    @media (prefers-color-scheme: dark) {
+      .type-badge.scalar { color: #55cc55; border-color: rgba(85,204,85,0.3); }
+      .type-badge.array  { color: #bb88ee; border-color: rgba(187,136,238,0.3); }
+      .type-badge.switch { color: #ccaa33; border-color: rgba(204,170,51,0.3); }
+    }
+
+    /* ── Page layout ── */
+    .page-wrapper { max-width: 1440px; margin: 0 auto; }
+
+    /* ── Header ── */
+    .cal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 2px solid var(--border);
+    }
+    .cal-eyebrow {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      margin-bottom: 0.375rem;
+    }
+    .cal-title {
+      font-size: clamp(1.25rem, 2.5vw, 1.875rem);
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.5rem;
+    }
+    .cal-meta {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6875rem;
+      color: var(--text-dim);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+    .cal-meta-item { display: flex; flex-direction: column; gap: 0.125rem; }
+    .cal-meta-label { font-size: 0.5625rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); opacity: 0.7; }
+    .cal-meta-value { color: var(--text-dim); }
+
+    /* ── Stats row ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .stat-tile {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      box-shadow: 0 1px 4px var(--shadow);
+    }
+    .stat-tile-label {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      margin-bottom: 0.375rem;
+    }
+    .stat-tile-value {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 2rem;
+      font-weight: 500;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .stat-tile-sub {
+      font-size: 0.6875rem;
+      color: var(--text-dim);
+      margin-top: 0.25rem;
+    }
+
+    /* ── Filter / search bar ── */
+    .filter-bar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.875rem 1rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem;
+      box-shadow: 0 1px 3px var(--shadow);
+    }
+    .filter-search {
+      flex: 1 1 200px;
+      min-width: 160px;
+      background: var(--bg);
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      padding: 0.4375rem 0.75rem;
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8125rem;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .filter-search:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(0,90,158,0.15);
+    }
+    .filter-search::placeholder { color: var(--text-dim); }
+    .filter-sep {
+      width: 1px;
+      height: 1.75rem;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+    .filter-group { display: flex; flex-wrap: wrap; gap: 0.375rem; }
+    .filter-btn {
+      background: transparent;
+      border: 1px solid var(--border-strong);
+      border-radius: 999px;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: 'IBM Plex Sans', sans-serif;
+      letter-spacing: 0.02em;
+    }
+    .filter-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,90,158,0.05); }
+    .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .filter-select {
+      background: var(--bg);
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      padding: 0.3125rem 0.625rem;
+      color: var(--text-dim);
+      font-size: 0.75rem;
+      font-family: 'IBM Plex Sans', sans-serif;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .filter-select:focus { border-color: var(--accent); }
+
+    /* ── Legend bar ── */
+    .legend-bar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.6875rem 1rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem 1.25rem;
+    }
+    .legend-label {
+      font-size: 0.625rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+    .variant-dot-legend {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent-2);
+      flex-shrink: 0;
+    }
+
+    /* ── Card grid ── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    /* ── Group card ── */
+    .group-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 1px 4px var(--shadow);
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .group-card:hover {
+      border-color: var(--border-strong);
+      box-shadow: 0 4px 14px var(--shadow);
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 1rem 1.125rem 0.75rem;
+      gap: 0.75rem;
+    }
+    .card-head-left { flex: 1; min-width: 0; }
+    .card-name {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.4375rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .card-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.6875rem;
+      margin-top: 0.1875rem;
+    }
+    .card-addr {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.5625rem;
+      color: var(--text-dim);
+    }
+    .card-count { font-size: 0.6875rem; color: var(--text-dim); }
+
+    /* ── Compact param table inside card ── */
+    .card-table-wrap {
+      border-top: 1px solid var(--border);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .card-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+    }
+    .card-table th {
+      padding: 0.375rem 0.75rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-dim);
+      font-size: 0.5625rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      background: var(--surface-raised);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .card-table td {
+      padding: 0.4375rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+    .card-table tr:last-child td { border-bottom: none; }
+    .card-table tbody tr { cursor: pointer; transition: background 0.1s; }
+    .card-table tbody tr:hover td { background: var(--surface-raised); }
+
+    .param-name {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6875rem;
+      color: var(--text);
+      font-weight: 500;
+    }
+    .param-mono {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6875rem;
+      color: var(--text-dim);
+    }
+    .variant-dot {
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent-2);
+      vertical-align: middle;
+      margin-left: 3px;
+    }
+
+    /* ── Show more / less toggle ── */
+    .card-footer {
+      padding: 0.5rem 0.875rem;
+      border-top: 1px solid var(--border);
+      background: var(--surface-raised);
+    }
+    .show-more-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent);
+      font-family: 'IBM Plex Sans', sans-serif;
+      padding: 0.125rem 0.25rem;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .show-more-btn:hover { background: rgba(0,90,158,0.08); }
+
+    /* ── Export button ── */
+    .export-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-family: 'IBM Plex Sans', sans-serif;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+    .export-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,90,158,0.05); }
+
+    /* ── No results ── */
+    .no-results {
+      grid-column: 1 / -1;
+      padding: 3rem;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.875rem;
+      background: var(--surface);
+      border: 1px dashed var(--border-strong);
+      border-radius: 10px;
+    }
+
+    /* ── Detail dialog ── */
+    dialog {
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: 12px;
+      padding: 0;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+      max-width: 560px;
+      width: 90vw;
+      color: var(--text);
+    }
+    dialog::backdrop {
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(2px);
+    }
+    .dialog-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      gap: 1rem;
+    }
+    .dialog-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--text);
+      word-break: break-all;
+      line-height: 1.4;
+    }
+    .dialog-subtitle {
+      font-size: 0.6875rem;
+      color: var(--text-dim);
+      margin-top: 0.25rem;
+    }
+    .dialog-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.125rem;
+      color: var(--text-dim);
+      line-height: 1;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .dialog-close:hover { background: var(--surface-raised); color: var(--text); }
+    .dialog-body {
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.875rem;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    .detail-desc {
+      padding: 0.75rem;
+      background: var(--surface-raised);
+      border-radius: 6px;
+      font-size: 0.8125rem;
+      color: var(--text);
+      border-left: 3px solid var(--accent);
+      line-height: 1.6;
+    }
+    .detail-sep { height: 1px; background: var(--border); }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+    .detail-field { display: flex; flex-direction: column; gap: 0.2rem; }
+    .detail-key {
+      font-size: 0.5625rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--text-dim);
+    }
+    .detail-val { font-size: 0.8125rem; color: var(--text); }
+    .detail-val.mono { font-family: 'IBM Plex Mono', monospace; }
+    .detail-field.full { grid-column: 1 / -1; }
+    .detail-safety-box {
+      padding: 0.625rem 0.75rem;
+      background: rgba(123,0,0,0.07);
+      border: 1px solid rgba(255,34,34,0.2);
+      border-radius: 6px;
+      font-size: 0.8125rem;
+      color: var(--text);
+    }
+    .detail-variant-box {
+      padding: 0.625rem 0.75rem;
+      background: rgba(192,90,46,0.07);
+      border: 1px solid rgba(192,90,46,0.2);
+      border-radius: 6px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    /* ── Print ── */
+    @media print {
+      .filter-bar, .export-btn, .show-more-btn, .legend-bar { display: none !important; }
+      .group-card { break-inside: avoid; page-break-inside: avoid; }
+      dialog { display: none; }
+      body { padding: 1rem; background: white; }
+      .card-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- ─── Header ─── -->
+  <header class="cal-header">
+    <div>
+      <div class="cal-eyebrow">AUTOSAR CalPrm Database</div>
+      <div class="cal-title">
+        Calibration Parameter Map
+        <span class="ve-badge asil-d">ASIL-D</span>
+      </div>
+      <div class="cal-meta">
+        <div class="cal-meta-item">
+          <span class="cal-meta-label">ECU</span>
+          <span class="cal-meta-value">MotorControlUnit_A</span>
+        </div>
+        <div class="cal-meta-item">
+          <span class="cal-meta-label">SW Version</span>
+          <span class="cal-meta-value">v3.4.1-rc2</span>
+        </div>
+        <div class="cal-meta-item">
+          <span class="cal-meta-label">CalDB</span>
+          <span class="cal-meta-value">r20240115</span>
+        </div>
+        <div class="cal-meta-item">
+          <span class="cal-meta-label">Parameters</span>
+          <span class="cal-meta-value" id="total-param-count">—</span>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:flex-start;padding-top:0.25rem;">
+      <button class="export-btn" onclick="exportCSV()">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="8,2 8,11"/><polyline points="4,7 8,11 12,7"/><line x1="2" y1="14" x2="14" y2="14"/>
+        </svg>
+        Export CSV
+      </button>
+    </div>
+  </header>
+
+  <!-- ─── Stats tiles ─── -->
+  <div class="stats-row">
+    <div class="stat-tile">
+      <div class="stat-tile-label">Total Parameters</div>
+      <div class="stat-tile-value" id="stat-total">—</div>
+      <div class="stat-tile-sub">across all groups</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-tile-label">Flash Parameters</div>
+      <div class="stat-tile-value" id="stat-flash">—</div>
+      <div class="stat-tile-sub">read-only at runtime</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-tile-label">RAM Parameters</div>
+      <div class="stat-tile-value" id="stat-ram">—</div>
+      <div class="stat-tile-sub">adjustable online</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-tile-label">Variant-Coded</div>
+      <div class="stat-tile-value" id="stat-variant">—</div>
+      <div class="stat-tile-sub">conditional parameters</div>
+    </div>
+  </div>
+
+  <!-- ─── Filter bar ─── -->
+  <div class="filter-bar">
+    <input
+      type="search"
+      class="filter-search"
+      id="search-input"
+      placeholder="Search parameter name or description…"
+      oninput="applyFilters()"
+      aria-label="Search parameters"
+    >
+    <div class="filter-sep"></div>
+    <div class="filter-group" id="section-filters" role="group" aria-label="Filter by memory section">
+      <button class="filter-btn active" data-section="all"   onclick="setSectionFilter(this)">All</button>
+      <button class="filter-btn"        data-section="Flash" onclick="setSectionFilter(this)">Flash</button>
+      <button class="filter-btn"        data-section="RAM"   onclick="setSectionFilter(this)">RAM</button>
+      <button class="filter-btn"        data-section="NVM"   onclick="setSectionFilter(this)">NVM</button>
+    </div>
+    <div class="filter-sep"></div>
+    <div class="filter-group" id="type-filters" role="group" aria-label="Filter by parameter type">
+      <button class="filter-btn active" data-ptype="all"    onclick="setTypeFilter(this)">All Types</button>
+      <button class="filter-btn"        data-ptype="Map"    onclick="setTypeFilter(this)">Maps</button>
+      <button class="filter-btn"        data-ptype="Curve"  onclick="setTypeFilter(this)">Curves</button>
+      <button class="filter-btn"        data-ptype="Scalar" onclick="setTypeFilter(this)">Scalars</button>
+      <button class="filter-btn"        data-ptype="Array"  onclick="setTypeFilter(this)">Arrays</button>
+      <button class="filter-btn"        data-ptype="Switch" onclick="setTypeFilter(this)">Switches</button>
+    </div>
+    <div class="filter-sep"></div>
+    <select class="filter-select" id="asil-filter" onchange="applyFilters()" aria-label="Filter by ASIL level">
+      <option value="all">All ASIL</option>
+      <option value="d">ASIL-D only</option>
+      <option value="c">ASIL-C and above</option>
+      <option value="b">ASIL-B and above</option>
+      <option value="a">ASIL-A and above</option>
+      <option value="qm">QM only</option>
+    </select>
+  </div>
+
+  <!-- ─── Type legend ─── -->
+  <div class="legend-bar" role="legend">
+    <span class="legend-label">Type key</span>
+    <div class="legend-item"><span class="type-badge map">Map</span>2D lookup table</div>
+    <div class="legend-item"><span class="type-badge curve">Curve</span>1D lookup table</div>
+    <div class="legend-item"><span class="type-badge scalar">Scalar</span>single value</div>
+    <div class="legend-item"><span class="type-badge array">Array</span>1D fixed array</div>
+    <div class="legend-item"><span class="type-badge switch">Switch</span>enumeration</div>
+    <div class="legend-item"><span class="variant-dot-legend"></span>variant-coded parameter</div>
+  </div>
+
+  <!-- ─── Card grid ─── -->
+  <div class="card-grid" id="card-grid" aria-live="polite"></div>
+
+</div><!-- /page-wrapper -->
+
+<!-- ─── Parameter detail dialog ─── -->
+<dialog id="detail-dialog" aria-modal="true" aria-labelledby="dlg-param-name">
+  <div class="dialog-head">
+    <div>
+      <div class="dialog-title" id="dlg-param-name">—</div>
+      <div class="dialog-subtitle" id="dlg-param-group">—</div>
+    </div>
+    <button class="dialog-close" onclick="closeDialog()" aria-label="Close">✕</button>
+  </div>
+  <div class="dialog-body" id="dlg-body"></div>
+</dialog>
+
+<script>
+/* ═══════════════════════════════════════
+   DATA
+═══════════════════════════════════════ */
+const groups = [
+  {
+    name: 'Motor Control PID', asil: 'd',
+    section: 'Flash', addrRange: '0x00010000–0x0001003F',
+    params: [
+      { name: 'Kp_SpeedCtrl',  type: 'Scalar', dims: '1',     range: '0.0–10.0',  unit: 'Nm/rpm',     default: '2.5',  addr: '0x00010000', dtype: 'Float32',     desc: 'Proportional gain for speed controller',          variant: '',              safetyGoal: 'SG-02 Unintended acceleration prevention' },
+      { name: 'Ki_SpeedCtrl',  type: 'Scalar', dims: '1',     range: '0.0–5.0',   unit: 'Nm/(rpm·s)', default: '0.8',  addr: '0x00010004', dtype: 'Float32',     desc: 'Integral gain for speed controller',              variant: '',              safetyGoal: 'SG-02 Unintended acceleration prevention' },
+      { name: 'Kd_SpeedCtrl',  type: 'Scalar', dims: '1',     range: '0.0–1.0',   unit: 'Nm·s/rpm',   default: '0.05', addr: '0x00010008', dtype: 'Float32',     desc: 'Derivative gain for speed controller',            variant: '',              safetyGoal: 'SG-02 Unintended acceleration prevention' },
+      { name: 'TorqueMap',     type: 'Map',    dims: '16×16', range: '0–500 Nm',  unit: 'Nm',         default: '—',    addr: '0x0001000C', dtype: 'UInt16[256]', desc: 'Speed-vs-Current torque lookup table',            variant: 'VariantA,VariantB', safetyGoal: 'SG-01 Torque accuracy' },
+    ]
+  },
+  {
+    name: 'Thermal Derating', asil: 'b',
+    section: 'Flash', addrRange: '0x00010100–0x0001013F',
+    params: [
+      { name: 'ThermalDerating_Curve', type: 'Curve',  dims: '10', range: '0–100%',   unit: '%',   default: '—',   addr: '0x00010100', dtype: 'UInt8[10]', desc: 'Derating factor vs. motor temperature',         variant: '',         safetyGoal: 'SG-05 Thermal runaway prevention' },
+      { name: 'T_Overtemp_Threshold',  type: 'Scalar', dims: '1',  range: '80–160°C', unit: '°C',  default: '140', addr: '0x00010114', dtype: 'Float32',   desc: 'Temperature threshold for overtemp DTC',       variant: '',         safetyGoal: 'SG-05 Thermal runaway prevention' },
+      { name: 'T_Hysteresis',          type: 'Scalar', dims: '1',  range: '2–20°C',   unit: '°C',  default: '10',  addr: '0x00010118', dtype: 'Float32',   desc: 'Hysteresis band for threshold re-arm',          variant: '',         safetyGoal: '' },
+    ]
+  },
+  {
+    name: 'Battery Management', asil: 'b',
+    section: 'NVM', addrRange: '0x00060000–0x00060080',
+    params: [
+      { name: 'SOC_Correction_Offset', type: 'Scalar', dims: '1',  range: '-10–10%',  unit: '%', default: '0.0', addr: '0x00060000', dtype: 'Int8',       desc: 'Manufacturing SOC trim offset (NVM)',            variant: '',          safetyGoal: '' },
+      { name: 'CellVoltage_OV_Limit',  type: 'Scalar', dims: '1',  range: '3.8–4.3V', unit: 'V', default: '4.2', addr: '0x00060001', dtype: 'Float32',    desc: 'Cell overvoltage protection threshold',          variant: 'LiFePO4,NMC', safetyGoal: 'SG-07 Battery overvoltage protection' },
+      { name: 'SOC_Lookup_Map',        type: 'Map',    dims: '8×3', range: '0–100%',  unit: '%', default: '—',   addr: '0x00060010', dtype: 'UInt8[24]',  desc: 'OCV vs SOC lookup by temperature',               variant: '',          safetyGoal: '' },
+    ]
+  },
+  {
+    name: 'Diagnostics Config', asil: 'qm',
+    section: 'RAM', addrRange: '0x20001000–0x2000104F',
+    params: [
+      { name: 'DTC_Aging_Counter',    type: 'Scalar', dims: '1', range: '0–255',       unit: 'cycles', default: '40',   addr: '0x20001000', dtype: 'UInt8',  desc: 'DTC aging counter threshold',                   variant: '', safetyGoal: '' },
+      { name: 'DebounceCounter_Fast', type: 'Scalar', dims: '1', range: '1–20',         unit: 'cycles', default: '5',    addr: '0x20001001', dtype: 'UInt8',  desc: 'Fast debounce counter for critical faults',     variant: '', safetyGoal: '' },
+      { name: 'UDS_Session_Timeout',  type: 'Scalar', dims: '1', range: '500–10000ms',  unit: 'ms',     default: '5000', addr: '0x20001002', dtype: 'UInt16', desc: 'UDS extended session P3 timeout',               variant: '', safetyGoal: '' },
+    ]
+  },
+  {
+    name: 'Communication Timing', asil: 'c',
+    section: 'Flash', addrRange: '0x00012000–0x00012040',
+    params: [
+      { name: 'CAN_TxPeriod_MotorSpeed', type: 'Scalar', dims: '1', range: '5–100ms', unit: 'ms',      default: '10', addr: '0x00012000', dtype: 'UInt8', desc: 'CAN transmission period for message 0x101',  variant: '', safetyGoal: 'SG-03 Communication latency' },
+      { name: 'CAN_TimeoutFactor',       type: 'Scalar', dims: '1', range: '2–10×',   unit: '×period', default: '3',  addr: '0x00012001', dtype: 'UInt8', desc: 'Reception timeout multiplier for CAN receive', variant: '', safetyGoal: 'SG-03 Communication latency' },
+    ]
+  },
+];
+
+/* ═══════════════════════════════════════
+   STATE
+═══════════════════════════════════════ */
+let activeSectionFilter = 'all';
+let activeTypeFilter    = 'all';
+const expandedCards     = new Set();
+
+const ASIL_RANK = { d: 4, c: 3, b: 2, a: 1, qm: 0 };
+
+/* ═══════════════════════════════════════
+   INIT — stats
+═══════════════════════════════════════ */
+(function initStats() {
+  let total = 0, flash = 0, ram = 0, nvm = 0, variant = 0;
+  groups.forEach(g => {
+    g.params.forEach(p => {
+      total++;
+      if (g.section === 'Flash') flash++;
+      else if (g.section === 'RAM') ram++;
+      else if (g.section === 'NVM') nvm++;
+      if (p.variant) variant++;
+    });
+  });
+  document.getElementById('total-param-count').textContent = `${total} total`;
+  document.getElementById('stat-total').textContent   = total;
+  document.getElementById('stat-flash').textContent   = flash;
+  document.getElementById('stat-ram').textContent     = ram;
+  document.getElementById('stat-variant').textContent = variant;
+})();
+
+/* ═══════════════════════════════════════
+   HELPERS — badge HTML
+═══════════════════════════════════════ */
+function asilBadge(lvl) {
+  const labels = { d: 'ASIL-D', c: 'ASIL-C', b: 'ASIL-B', a: 'ASIL-A', qm: 'QM' };
+  return `<span class="ve-badge asil-${lvl}">${labels[lvl] || lvl.toUpperCase()}</span>`;
+}
+function sectionBadge(sec) {
+  return `<span class="section-badge ${sec.toLowerCase()}">${sec}</span>`;
+}
+function typeBadge(t) {
+  return `<span class="type-badge ${t.toLowerCase()}">${t}</span>`;
+}
+
+/* ═══════════════════════════════════════
+   RENDER
+═══════════════════════════════════════ */
+function renderCards() {
+  const grid      = document.getElementById('card-grid');
+  const query     = (document.getElementById('search-input').value || '').toLowerCase().trim();
+  const asilSel   = document.getElementById('asil-filter').value;
+  grid.innerHTML  = '';
+  let visible     = 0;
+
+  groups.forEach((group, gi) => {
+    /* Section filter */
+    if (activeSectionFilter !== 'all' && group.section !== activeSectionFilter) return;
+
+    /* ASIL filter */
+    if (asilSel !== 'all') {
+      if (asilSel === 'qm' && group.asil !== 'qm') return;
+      if (asilSel !== 'qm' && ASIL_RANK[group.asil] < ASIL_RANK[asilSel]) return;
+    }
+
+    /* Type filter — group must contain at least one matching param */
+    if (activeTypeFilter !== 'all' && !group.params.some(p => p.type === activeTypeFilter)) return;
+
+    /* Search — filter param list within group */
+    const matchedParams = query
+      ? group.params.filter(p =>
+          p.name.toLowerCase().includes(query) ||
+          p.desc.toLowerCase().includes(query))
+      : group.params;
+    if (query && matchedParams.length === 0) return;
+
+    /* Further filter by type within matched */
+    const displayParams = activeTypeFilter !== 'all'
+      ? matchedParams.filter(p => p.type === activeTypeFilter)
+      : matchedParams;
+    if (displayParams.length === 0) return;
+
+    visible++;
+    grid.appendChild(buildCard(group, gi, displayParams));
+  });
+
+  if (visible === 0) {
+    const msg = document.createElement('div');
+    msg.className = 'no-results';
+    msg.textContent = 'No parameter groups match the current filters.';
+    grid.appendChild(msg);
+  }
+}
+
+function buildCard(group, gi, displayParams) {
+  const isExpanded   = expandedCards.has(gi);
+  const visiblePrms  = isExpanded ? displayParams : displayParams.slice(0, 3);
+  const hiddenCount  = displayParams.length - visiblePrms.length;
+  const variantCount = group.params.filter(p => p.variant).length;
+
+  const card = document.createElement('div');
+  card.className = 'group-card';
+
+  card.innerHTML = `
+    <div class="card-head">
+      <div class="card-head-left">
+        <div class="card-name">${group.name}</div>
+        <div class="card-meta-row">
+          ${sectionBadge(group.section)}
+          <span class="card-addr">${group.addrRange}</span>
+        </div>
+        <div class="card-meta-row">
+          <span class="card-count">${group.params.length} param${group.params.length !== 1 ? 's' : ''}</span>
+          ${variantCount ? `<span class="card-count">· ${variantCount} variant-coded</span>` : ''}
+        </div>
+      </div>
+      <div style="flex-shrink:0;padding-top:0.125rem">${asilBadge(group.asil)}</div>
+    </div>
+    <div class="card-table-wrap">
+      <table class="card-table" role="grid">
+        <thead>
+          <tr>
+            <th>Name</th><th>Type</th><th>Dims</th>
+            <th>Range</th><th>Unit</th><th>Default</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${visiblePrms.map(p => buildParamRow(p, gi)).join('')}
+        </tbody>
+      </table>
+    </div>
+    ${(hiddenCount > 0 || (isExpanded && displayParams.length > 3)) ? `
+    <div class="card-footer">
+      <button class="show-more-btn" data-gi="${gi}">
+        ${isExpanded ? 'Show fewer' : `Show all ${displayParams.length} parameters ↓`}
+      </button>
+    </div>` : ''}
+  `;
+
+  /* Delegate events */
+  card.querySelectorAll('tbody tr').forEach((row, idx) => {
+    row.addEventListener('click', () => openDetail(visiblePrms[idx], group));
+  });
+  const toggleBtn = card.querySelector('.show-more-btn');
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      if (expandedCards.has(gi)) expandedCards.delete(gi);
+      else expandedCards.add(gi);
+      renderCards();
+    });
+  }
+
+  return card;
+}
+
+function buildParamRow(p) {
+  const varDot = p.variant
+    ? `<span class="variant-dot" title="Variant: ${p.variant}"></span>` : '';
+  return `<tr role="row" tabindex="0">
+    <td><span class="param-name">${p.name}</span>${varDot}</td>
+    <td>${typeBadge(p.type)}</td>
+    <td><span class="param-mono">${p.dims}</span></td>
+    <td><span class="param-mono">${p.range}</span></td>
+    <td><span class="param-mono">${p.unit}</span></td>
+    <td><span class="param-mono">${p.default}</span></td>
+  </tr>`;
+}
+
+/* ═══════════════════════════════════════
+   FILTERS
+═══════════════════════════════════════ */
+function setSectionFilter(btn) {
+  document.querySelectorAll('#section-filters .filter-btn')
+    .forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeSectionFilter = btn.dataset.section;
+  applyFilters();
+}
+function setTypeFilter(btn) {
+  document.querySelectorAll('#type-filters .filter-btn')
+    .forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeTypeFilter = btn.dataset.ptype;
+  applyFilters();
+}
+function applyFilters() { renderCards(); }
+
+/* ═══════════════════════════════════════
+   DETAIL DIALOG
+═══════════════════════════════════════ */
+function openDetail(p, group) {
+  document.getElementById('dlg-param-name').textContent  = p.name;
+  document.getElementById('dlg-param-group').textContent = group.name + ' · ' + group.section;
+
+  document.getElementById('dlg-body').innerHTML = `
+    <div class="detail-desc">${p.desc || 'No description available.'}</div>
+
+    <div class="detail-grid">
+      <div class="detail-field">
+        <span class="detail-key">AUTOSAR Parameter Name</span>
+        <span class="detail-val mono">${p.name}</span>
+      </div>
+      <div class="detail-field">
+        <span class="detail-key">AUTOSAR Data Type</span>
+        <span class="detail-val mono">${p.dtype}</span>
+      </div>
+      <div class="detail-field">
+        <span class="detail-key">Memory Section</span>
+        <span class="detail-val">${sectionBadge(group.section)}</span>
+      </div>
+      <div class="detail-field">
+        <span class="detail-key">Exact Address</span>
+        <span class="detail-val mono">${p.addr}</span>
+      </div>
+      <div class="detail-field">
+        <span class="detail-key">Parameter Type</span>
+        <span class="detail-val">${typeBadge(p.type)}</span>
+      </div>
+      <div class="detail-field">
+        <span class="detail-key">Dimensions</span>
+        <span class="detail-val mono">${p.dims}</span>
+      </div>
+      <div class="detail-field">
+        <span class="detail-key">Valid Range</span>
+        <span class="detail-val mono">${p.range}</span>
+      </div>
+      <div class="detail-field">
+        <span class="detail-key">Physical Unit</span>
+        <span class="detail-val mono">${p.unit}</span>
+      </div>
+      <div class="detail-field">
+        <span class="detail-key">Initialization Value</span>
+        <span class="detail-val mono">${p.default}</span>
+      </div>
+      <div class="detail-field">
+        <span class="detail-key">ASIL Level</span>
+        <span class="detail-val">${asilBadge(group.asil)}</span>
+      </div>
+    </div>
+
+    ${p.safetyGoal ? `
+    <div class="detail-sep"></div>
+    <div class="detail-field">
+      <span class="detail-key">Linked Safety Goal</span>
+      <div class="detail-safety-box">${p.safetyGoal}</div>
+    </div>` : ''}
+
+    ${p.variant ? `
+    <div class="detail-sep"></div>
+    <div class="detail-field">
+      <span class="detail-key">Variant Conditions</span>
+      <div class="detail-variant-box">${p.variant.split(',').join('  ·  ')}</div>
+    </div>` : ''}
+  `;
+
+  document.getElementById('detail-dialog').showModal();
+}
+
+function closeDialog() {
+  document.getElementById('detail-dialog').close();
+}
+
+/* Close on backdrop click */
+document.getElementById('detail-dialog').addEventListener('click', function(e) {
+  const r = this.getBoundingClientRect();
+  if (e.clientX < r.left || e.clientX > r.right ||
+      e.clientY < r.top  || e.clientY > r.bottom) {
+    this.close();
+  }
+});
+
+/* Keyboard: row click via Enter */
+document.getElementById('card-grid').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.closest('tr[tabindex]')) {
+    e.target.closest('tr').click();
+  }
+});
+
+/* ═══════════════════════════════════════
+   EXPORT CSV
+═══════════════════════════════════════ */
+function exportCSV() {
+  const cols = ['Group','Name','Type','Dims','Section','Address','DataType',
+                'Range','Unit','Default','ASIL','Variant','Description'];
+  const rows = [cols.join(',')];
+  groups.forEach(g => {
+    g.params.forEach(p => {
+      rows.push([
+        `"${g.name}"`,
+        `"${p.name}"`,
+        p.type,
+        `"${p.dims}"`,
+        g.section,
+        p.addr,
+        p.dtype,
+        `"${p.range}"`,
+        `"${p.unit}"`,
+        `"${p.default}"`,
+        g.asil.toUpperCase(),
+        `"${p.variant}"`,
+        `"${p.desc.replace(/"/g, '""')}"`
+      ].join(','));
+    });
+  });
+  const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = Object.assign(document.createElement('a'), {
+    href: url, download: 'calibration_parameters.csv'
+  });
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* ═══════════════════════════════════════
+   INITIAL RENDER
+═══════════════════════════════════════ */
+renderCards();
+</script>
+</body>
+</html>
