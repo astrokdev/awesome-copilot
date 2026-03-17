@@ -42,6 +42,8 @@ skills/visual-explainer/
 | `/plan-review` | Plan vs. codebase → gap analysis |
 | `/project-recap` | Codebase → mental model snapshot |
 | `/fact-check` | Document → accuracy verification report |
+| `/generate-roadmap` | GitHub Project / CSV → executive timeline + Kanban + health dashboard |
+| `/generate-public-roadmap` | GitHub Project / CSV → public-facing Now/Next/Later swimlane roadmap with shadow-item filtering |
 ### Embedded & Automotive Domain
 | Command | Purpose |
 |---------|---------|

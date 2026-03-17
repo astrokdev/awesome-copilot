@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feature Roadmap — Visual Explainer</title>
+  <!-- Font: Plus Jakarta Sans + Azeret Mono — /generate-roadmap default pairing -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Azeret+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <style>
+    /* ═══════════════════════════════════════════════════════
+       THEME — corporate-light (read tokens from themes.md)
+       Replace these values with the active theme when generating
+    ═══════════════════════════════════════════════════════ */
+    :root {
+      --bg:              #f5f5f0;
+      --surface:         #ffffff;
+      --surface-raised:  #fafaf8;
+      --border:          #e0ddd8;
+      --border-strong:   #b0aca6;
+      --text:            #1a1a1a;
+      --text-dim:        #6b6b6b;
+      --text-inverse:    #ffffff;
+      --accent:          #005a9e;
+      --accent-hover:    #004880;
+      --accent-2:        #c05a2e;
+      --code-bg:         #f0ede8;
+      --shadow:          rgba(0,0,0,0.08);
+
+      /* Status colors */
+      --s-triage:        #f59e0b;   /* amber  */
+      --s-backlog:       #6b6b6b;   /* grey   */
+      --s-design:        #005a9e;   /* accent */
+      --s-in-progress:   #7c3aed;   /* purple */
+      --s-validation:    #0891b2;   /* cyan   */
+      --s-done:          #16a34a;   /* green  */
+
+      /* Health metric colors */
+      --health-green:    #16a34a;
+      --health-amber:    #f59e0b;
+      --health-red:      #dc2626;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:              #0f0f0f;
+        --surface:         #1c1c1c;
+        --surface-raised:  #242424;
+        --border:          #2e2e2e;
+        --border-strong:   #444444;
+        --text:            #e8e8e8;
+        --text-dim:        #888888;
+        --text-inverse:    #0f0f0f;
+        --accent:          #4da6ff;
+        --accent-hover:    #70b8ff;
+        --accent-2:        #e07a4e;
+        --code-bg:         #242424;
+        --shadow:          rgba(0,0,0,0.4);
+
+        --s-triage:        #f59e0b;
+        --s-backlog:       #888888;
+        --s-design:        #4da6ff;
+        --s-in-progress:   #a78bfa;
+        --s-validation:    #22d3ee;
+        --s-done:          #4ade80;
+
+        --health-green:    #4ade80;
+        --health-amber:    #fbbf24;
+        --health-red:      #f87171;
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem;
+      min-height: 100vh;
+    }
+
+    /* ─── Page header ─── */
+    .rm-header {
+      max-width: 1400px;
+      margin: 0 auto 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--border-strong);
+    }
+
+    .rm-header-left h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
+    .rm-header-left .rm-subtitle {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-top: 0.25rem;
+    }
+
+    .rm-header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .rm-project-badge {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.6875rem;
+      color: var(--text-dim);
+      background: var(--surface-raised);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.25rem 0.625rem;
+    }
+
+    /* ─── Section labels ─── */
+    .rm-section {
+      max-width: 1400px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .rm-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .rm-section-title {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      font-family: 'Azeret Mono', monospace;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .rm-section-title::before {
+      content: '';
+      display: inline-block;
+      width: 3px;
+      height: 14px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    /* ─── Panel card wrapper ─── */
+    .rm-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       PANEL 1 — Executive Timeline (Mermaid Gantt)
+    ═══════════════════════════════════════════════════════ */
+    .ve-mermaid-container {
+      position: relative;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface-raised);
+    }
+
+    .ve-mermaid-container .mermaid {
+      padding: 1rem;
+      min-width: 800px;
+    }
+
+    .ve-mermaid-controls {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      align-items: center;
+    }
+
+    .ve-mermaid-controls button {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.6875rem;
+      background: var(--surface-raised);
+      border: 1px solid var(--border-strong);
+      color: var(--text-dim);
+      border-radius: 4px;
+      padding: 0.25rem 0.625rem;
+      cursor: pointer;
+    }
+
+    .ve-mermaid-controls button:hover {
+      background: var(--border);
+      color: var(--text);
+    }
+
+    .gantt-legend {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .gantt-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .gantt-legend-bar {
+      width: 28px;
+      height: 10px;
+      border-radius: 3px;
+      background: var(--accent);
+    }
+
+    .gantt-legend-bar.opacity-high   { opacity: 1.0; }
+    .gantt-legend-bar.opacity-med    { opacity: 0.70; }
+    .gantt-legend-bar.opacity-low    { opacity: 0.40; }
+
+    /* ═══════════════════════════════════════════════════════
+       PANEL 2 — Engineering Kanban
+    ═══════════════════════════════════════════════════════ */
+    .kanban-board {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(180px, 1fr));
+      gap: 0.75rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+    }
+
+    .kanban-column {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      min-width: 180px;
+    }
+
+    .kanban-col-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.625rem;
+      border-radius: 6px 6px 0 0;
+      border-bottom: 2px solid currentColor;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-family: 'Azeret Mono', monospace;
+    }
+
+    .kanban-col-header.status-triage      { color: var(--s-triage);      border-color: var(--s-triage);      background: rgba(245,158,11,0.06); }
+    .kanban-col-header.status-backlog     { color: var(--s-backlog);     border-color: var(--s-backlog);     background: rgba(107,107,107,0.06); }
+    .kanban-col-header.status-design      { color: var(--s-design);      border-color: var(--s-design);      background: rgba(0,90,158,0.06); }
+    .kanban-col-header.status-in-progress { color: var(--s-in-progress); border-color: var(--s-in-progress); background: rgba(124,58,237,0.06); }
+    .kanban-col-header.status-validation  { color: var(--s-validation);  border-color: var(--s-validation);  background: rgba(8,145,178,0.06); }
+    .kanban-col-header.status-done        { color: var(--s-done);        border-color: var(--s-done);        background: rgba(22,163,74,0.06); }
+
+    .kanban-col-header.wip-violation {
+      background: rgba(245,158,11,0.18) !important;
+      border-color: var(--s-triage) !important;
+      color: var(--s-triage) !important;
+    }
+
+    .kanban-col-count {
+      background: currentColor;
+      color: var(--text-inverse);
+      border-radius: 999px;
+      font-size: 0.625rem;
+      padding: 0 0.4rem;
+      line-height: 1.6;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    .kanban-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex: 1;
+    }
+
+    /* ─── Kanban card ─── */
+    .kanban-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      box-shadow: 0 1px 3px var(--shadow);
+      transition: box-shadow 0.15s;
+      cursor: default;
+    }
+
+    .kanban-card:hover {
+      box-shadow: 0 3px 10px var(--shadow);
+    }
+
+    .kanban-card.triage-orphan {
+      border: 1.5px dashed var(--s-triage);
+      background: rgba(245,158,11,0.03);
+    }
+
+    .kanban-card-title {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      line-height: 1.35;
+      color: var(--text);
+    }
+
+    .kanban-card-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      flex-wrap: wrap;
+    }
+
+    /* Theme badge */
+    .theme-badge {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.5625rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      border-radius: 4px;
+      padding: 0.1rem 0.375rem;
+      background: var(--code-bg);
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    /* Confidence pill */
+    .conf-pill {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.5625rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      border-radius: 999px;
+      padding: 0.1rem 0.4rem;
+      border: 1px solid;
+    }
+
+    .conf-pill.high    { color: var(--health-green); border-color: var(--health-green); }
+    .conf-pill.med     { color: var(--health-amber); border-color: var(--health-amber); }
+    .conf-pill.low     { color: var(--health-red);   border-color: var(--health-red);   border-style: dashed; }
+    .conf-pill.unknown { color: var(--text-dim);     border-color: var(--text-dim);     border-style: dashed; }
+
+    .kanban-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    /* Assignee avatar-initials */
+    .assignee-avatar {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: var(--text-inverse);
+      font-size: 0.5625rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Azeret Mono', monospace;
+      flex-shrink: 0;
+    }
+
+    .ship-date {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.5625rem;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+
+    /* Empty-state placeholder for columns with no cards */
+    .kanban-empty {
+      padding: 1rem 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-family: 'Azeret Mono', monospace;
+      text-align: center;
+    }
+
+    /* Done column cards are dimmed to indicate completion */
+    .kanban-card.kanban-card-done {
+      opacity: 0.7;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       PANEL 3 — Roadmap Health
+    ═══════════════════════════════════════════════════════ */
+    .health-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 900px) {
+      .health-grid { grid-template-columns: 1fr; }
+      .kanban-board { grid-template-columns: repeat(3, minmax(160px, 1fr)); }
+    }
+
+    /* Metric tiles row */
+    .health-tiles {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .health-tile {
+      background: var(--surface-raised);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+    }
+
+    .health-tile-label {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.625rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+    }
+
+    .health-tile-value {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .health-tile-value.green { color: var(--health-green); }
+    .health-tile-value.amber { color: var(--health-amber); }
+    .health-tile-value.red   { color: var(--health-red);   }
+    .health-tile-value.blue  { color: var(--accent); }
+
+    /* Say/Do gauge */
+    .say-do-panel {
+      background: var(--surface-raised);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .say-do-title {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.625rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+    }
+
+    .say-do-chart-wrap {
+      position: relative;
+      height: 180px;
+    }
+
+    .say-do-center-label {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -55%);
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .say-do-pct {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 1.75rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .say-do-sub {
+      font-size: 0.625rem;
+      color: var(--text-dim);
+      font-family: 'Azeret Mono', monospace;
+    }
+
+    /* Alerts / WIP violations */
+    .health-alerts-panel {
+      background: var(--surface-raised);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .health-alerts-title {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.625rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+    }
+
+    .alert-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.625rem;
+      padding: 0.625rem 0.75rem;
+      border-radius: 6px;
+      border-left: 3px solid;
+    }
+
+    .alert-row.alert-amber { background: rgba(245,158,11,0.07); border-color: var(--health-amber); }
+    .alert-row.alert-red   { background: rgba(220,38,38,0.07);  border-color: var(--health-red);   }
+    .alert-row.alert-grey  { background: var(--bg);             border-color: var(--border-strong); }
+
+    .alert-icon {
+      font-size: 0.875rem;
+      line-height: 1.4;
+      flex-shrink: 0;
+    }
+
+    .alert-text {
+      font-size: 0.8125rem;
+      line-height: 1.4;
+      color: var(--text);
+    }
+
+    .alert-text strong {
+      font-weight: 600;
+    }
+
+    .alert-count-badge {
+      display: inline-block;
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.5625rem;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 0.1rem 0.4rem;
+      background: var(--health-amber);
+      color: var(--surface);
+      margin-left: 0.25rem;
+      vertical-align: middle;
+    }
+
+    .alert-count-badge.red { background: var(--health-red); }
+
+    /* ─── Governance notes banner ─── */
+    .governance-banner {
+      max-width: 1400px;
+      margin: 0 auto 2rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+    }
+
+    .gov-banner-title {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--text-dim);
+      margin-bottom: 0.75rem;
+    }
+
+    .gov-rules {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 0.625rem;
+    }
+
+    .gov-rule {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+      color: var(--text-dim);
+      line-height: 1.45;
+    }
+
+    .gov-rule::before {
+      content: '–';
+      color: var(--border-strong);
+      flex-shrink: 0;
+      margin-top: 0.05rem;
+    }
+
+    /* ─── Footer ─── */
+    .rm-footer {
+      max-width: 1400px;
+      margin: 2rem auto 0;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.6875rem;
+      color: var(--text-dim);
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       KANBAN CARD INTERACTIVITY
+    ═══════════════════════════════════════════════════════ */
+
+    /* Cards become clickable */
+    .kanban-card {
+      cursor: pointer;
+    }
+
+    /* Description snippet — hidden by default, slides in on hover */
+    .kanban-card-snippet {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      line-height: 1.45;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.2s ease, opacity 0.2s ease;
+    }
+
+    .kanban-card:hover .kanban-card-snippet,
+    .kanban-card:focus-visible .kanban-card-snippet {
+      max-height: 3rem;
+      opacity: 1;
+    }
+
+    /* Label chips on hover */
+    .kanban-card-label-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-height 0.2s ease, opacity 0.2s ease;
+    }
+
+    .kanban-card:hover .kanban-card-label-row,
+    .kanban-card:focus-visible .kanban-card-label-row {
+      max-height: 2.5rem;
+      opacity: 1;
+    }
+
+    .kanban-label-chip {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.5rem;
+      font-weight: 600;
+      border-radius: 999px;
+      padding: 0.1rem 0.4rem;
+      border: 1px solid rgba(0,0,0,0.1);
+      white-space: nowrap;
+    }
+
+    /* Click hint */
+    .kanban-card-hint {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.5625rem;
+      color: var(--text-dim);
+      opacity: 0;
+      transition: opacity 0.15s;
+      text-align: right;
+    }
+
+    .kanban-card:hover .kanban-card-hint,
+    .kanban-card:focus-visible .kanban-card-hint {
+      opacity: 1;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       KANBAN DETAIL DRAWER (slide-in from right)
+    ═══════════════════════════════════════════════════════ */
+    .km-drawer-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      z-index: 100;
+    }
+
+    .km-drawer-backdrop.open { display: block; }
+
+    .km-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: min(480px, 95vw);
+      background: var(--surface);
+      border-left: 1px solid var(--border-strong);
+      box-shadow: -8px 0 32px var(--shadow);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.22s ease;
+      z-index: 101;
+      overflow: hidden;
+    }
+
+    .km-drawer-backdrop.open .km-drawer {
+      transform: translateX(0);
+    }
+
+    .km-drawer-header {
+      padding: 1.25rem 1.25rem 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .km-drawer-status-bar {
+      width: 4px;
+      border-radius: 2px;
+      align-self: stretch;
+      flex-shrink: 0;
+    }
+
+    .km-drawer-header-content { flex: 1; min-width: 0; }
+
+    .km-drawer-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.375rem;
+    }
+
+    .km-drawer-issue-ref {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.6875rem;
+      color: var(--text-dim);
+    }
+
+    .km-drawer-title {
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.3;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+      word-break: break-word;
+    }
+
+    .km-drawer-meta-row {
+      display: flex;
+      gap: 0.625rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .km-drawer-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-dim);
+      font-size: 1.125rem;
+      padding: 0.25rem;
+      border-radius: 4px;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .km-drawer-close:hover { color: var(--text); background: var(--bg); }
+
+    .km-drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .km-drawer-section-label {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.5625rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      margin-bottom: 0.375rem;
+    }
+
+    .km-drawer-body-text {
+      font-size: 0.875rem;
+      color: var(--text);
+      line-height: 1.65;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .km-drawer-labels {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.375rem;
+    }
+
+    .km-drawer-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .km-drawer-stat {
+      background: var(--surface-raised);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.625rem 0.75rem;
+    }
+
+    .km-drawer-stat-value {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+      margin-bottom: 0.2rem;
+    }
+
+    .km-drawer-stat-label {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.5rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .km-drawer-footer {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .km-drawer-footer-meta {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.6875rem;
+      color: var(--text-dim);
+    }
+
+    .km-drawer-gh-link {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 0.375rem 0.75rem;
+      transition: background 0.12s, color 0.12s;
+    }
+
+    .km-drawer-gh-link:hover {
+      background: var(--accent);
+      color: var(--text-inverse);
+    }
+
+    /* ─── Print styles ─── */
+    @media print {
+      body { padding: 1rem; background: white; }
+      .kanban-board { display: block; }
+      .kanban-column { break-inside: avoid; margin-bottom: 1rem; }
+      .ve-mermaid-controls { display: none; }
+      .health-grid { grid-template-columns: 1fr; }
+      .kanban-card { cursor: default; }
+      .kanban-card-hint { display: none; }
+      .km-drawer-backdrop { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── Page header ─── -->
+  <header class="rm-header">
+    <div class="rm-header-left">
+      <h1>Feature Roadmap</h1>
+      <!-- Replace placeholder values when generating -->
+      <div class="rm-subtitle">GitHub Project · Q1–Q4 2026 · Generated 2026-03-16</div>
+    </div>
+    <div class="rm-header-right">
+      <span class="rm-project-badge">github/orgs/github · project #4247</span>
+    </div>
+  </header>
+
+  <!-- ─── Governance protocol banner ─── -->
+  <div class="governance-banner">
+    <div class="gov-banner-title">Governance Protocol</div>
+    <div class="gov-rules">
+      <div class="gov-rule">All new issues land in <strong>Triage</strong>. Review weekly — promote or close within 7 days.</div>
+      <div class="gov-rule"><strong>Monday Protocol:</strong> Update Status and Confidence every week. No silent slips.</div>
+      <div class="gov-rule"><strong>WIP Limit:</strong> No engineer carries &gt;2 In Progress items simultaneously.</div>
+      <div class="gov-rule"><strong>Stale Sweeper:</strong> In Progress with no update in 14 days is flagged automatically.</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       PANEL 1 — Executive Timeline
+  ═══════════════════════════════════════════════════════ -->
+  <section class="rm-section">
+    <div class="rm-section-header">
+      <span class="rm-section-title">Executive Timeline</span>
+      <span style="font-family:'Azeret Mono',monospace; font-size:0.6875rem; color:var(--text-dim);">Committed items only (Design → Done) · Triage and Backlog excluded</span>
+    </div>
+    <div class="rm-panel">
+      <div class="ve-mermaid-controls">
+        <button onclick="document.querySelector('.ve-mermaid-container').scrollLeft -= 200">← Scroll</button>
+        <button onclick="document.querySelector('.ve-mermaid-container').scrollLeft += 200">Scroll →</button>
+      </div>
+      <div class="ve-mermaid-container">
+        <!-- Replace this Mermaid block with actual project data when generating.
+             Confidence is encoded via section names — annotate bars with (H), (M), or (L) in the title.
+             Group by Strategic Theme using Mermaid `section` labels. -->
+        <pre class="mermaid">
+gantt
+    title Feature Roadmap · Q1–Q4 2026
+    dateFormat  YYYY-MM-DD
+    axisFormat  %b %Y
+    todayMarker on
+
+    section User Growth
+    Onboarding revamp (H)       :active, ug1, 2026-01-15, 2026-03-31
+    Referral program (M)        :        ug2, 2026-03-01, 2026-05-15
+    Retention dashboard (L)     :        ug3, 2026-04-01, 2026-07-31
+
+    section Platform
+    GraphQL API v2 (H)          :active, pl1, 2026-02-01, 2026-04-30
+    Webhooks reliability (H)    :done,   pl2, 2026-01-01, 2026-02-28
+    Rate-limit overhaul (M)     :        pl3, 2026-05-01, 2026-08-31
+
+    section Tech Debt
+    Auth middleware rewrite (H) :active, td1, 2026-01-20, 2026-03-20
+    Test coverage uplift (M)    :        td2, 2026-03-01, 2026-06-30
+        </pre>
+      </div>
+      <div class="gantt-legend">
+        <div class="gantt-legend-item">
+          <div class="gantt-legend-bar opacity-high"></div>
+          <span>High confidence</span>
+        </div>
+        <div class="gantt-legend-item">
+          <div class="gantt-legend-bar opacity-med"></div>
+          <span>Med confidence</span>
+        </div>
+        <div class="gantt-legend-item">
+          <div class="gantt-legend-bar opacity-low"></div>
+          <span>Low confidence</span>
+        </div>
+        <div class="gantt-legend-item" style="margin-left:auto;">
+          <span style="font-family:'Azeret Mono',monospace; font-size:0.6875rem; color:var(--text-dim);">Today marker shown in timeline</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       PANEL 2 — Engineering Kanban
+  ═══════════════════════════════════════════════════════ -->
+  <section class="rm-section">
+    <div class="rm-section-header">
+      <span class="rm-section-title">Engineering Kanban</span>
+      <span style="font-family:'Azeret Mono',monospace; font-size:0.6875rem; color:var(--text-dim);">WIP limit: 2 per assignee · Dashed border = missing Theme or Confidence</span>
+    </div>
+    <div class="rm-panel">
+      <div class="kanban-board">
+
+        <!-- ── Triage column ── -->
+        <div class="kanban-column">
+          <div class="kanban-col-header status-triage">
+            Triage
+            <span class="kanban-col-count">2</span>
+          </div>
+          <div class="kanban-cards">
+            <!-- Cards in Triage use dashed amber border (triage-orphan class) -->
+            <div class="kanban-card triage-orphan"
+                 data-status="triage" data-title="Explore push notification support"
+                 data-theme="" data-conf="" data-desc="No description yet. Needs scoping before promotion out of Triage."
+                 data-issue-num="445" data-issue-url="https://github.com/example/repo/issues/445"
+                 data-comments="3" data-prs="0" data-milestone="" data-assignee="" data-updated="2026-03-17"
+                 data-labels='[]'>
+              <div class="kanban-card-title">Explore push notification support</div>
+              <div class="kanban-card-meta">
+                <span class="theme-badge">—</span>
+                <span class="conf-pill unknown">?</span>
+              </div>
+              <div class="kanban-card-snippet">No description yet. Needs scoping before promotion out of Triage.</div>
+              <div class="kanban-card-footer">
+                <span class="ship-date">No date</span>
+              </div>
+              <div class="kanban-card-hint">Click for details</div>
+            </div>
+            <div class="kanban-card triage-orphan"
+                 data-status="triage" data-title="Audit log improvements"
+                 data-theme="Platform" data-conf="" data-desc="No description yet. Theme assigned but confidence and scope not yet defined."
+                 data-issue-num="441" data-issue-url="https://github.com/example/repo/issues/441"
+                 data-comments="1" data-prs="0" data-milestone="" data-assignee="" data-updated="2026-03-16"
+                 data-labels='[{"name":"needs-triage","color":"e4e669"}]'>
+              <div class="kanban-card-title">Audit log improvements</div>
+              <div class="kanban-card-meta">
+                <span class="theme-badge">Platform</span>
+                <span class="conf-pill unknown">?</span>
+              </div>
+              <div class="kanban-card-snippet">No description yet. Theme assigned but confidence and scope not yet defined.</div>
+              <div class="kanban-card-label-row">
+                <span class="kanban-label-chip" style="background:#e4e669;color:#1a1a1a;">needs-triage</span>
+              </div>
+              <div class="kanban-card-footer">
+                <span class="ship-date">No date</span>
+              </div>
+              <div class="kanban-card-hint">Click for details</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Backlog column ── -->
+        <div class="kanban-column">
+          <div class="kanban-col-header status-backlog">
+            Backlog
+            <span class="kanban-col-count">2</span>
+          </div>
+          <div class="kanban-cards">
+            <div class="kanban-card"
+                 data-status="backlog" data-title="Retention dashboard"
+                 data-theme="User Growth" data-conf="low"
+                 data-desc="Built-in cohort retention and feature adoption analytics — no third-party tool required."
+                 data-issue-num="298" data-issue-url="https://github.com/example/repo/issues/298"
+                 data-comments="43" data-prs="0" data-milestone="" data-assignee="" data-updated="2026-02-20"
+                 data-labels='[{"name":"analytics","color":"0075ca"},{"name":"needs-design","color":"e4e669"}]'>
+              <div class="kanban-card-title">Retention dashboard</div>
+              <div class="kanban-card-meta">
+                <span class="theme-badge">User Growth</span>
+                <span class="conf-pill low">Low</span>
+              </div>
+              <div class="kanban-card-snippet">Built-in cohort retention and feature adoption analytics — no third-party tool required.</div>
+              <div class="kanban-card-label-row">
+                <span class="kanban-label-chip" style="background:#0075ca;color:#ffffff;">analytics</span>
+                <span class="kanban-label-chip" style="background:#e4e669;color:#1a1a1a;">needs-design</span>
+              </div>
+              <div class="kanban-card-footer">
+                <span class="ship-date">Q3 2026</span>
+              </div>
+              <div class="kanban-card-hint">Click for details</div>
+            </div>
+            <div class="kanban-card"
+                 data-status="backlog" data-title="Rate-limit overhaul"
+                 data-theme="Platform" data-conf="med"
+                 data-desc="Per-endpoint quotas, clear error messages, and a self-service usage dashboard for API consumers."
+                 data-issue-num="277" data-issue-url="https://github.com/example/repo/issues/277"
+                 data-comments="17" data-prs="0" data-milestone="" data-assignee="" data-updated="2026-01-30"
+                 data-labels='[{"name":"api","color":"0075ca"},{"name":"infrastructure","color":"e4e2e6"}]'>
+              <div class="kanban-card-title">Rate-limit overhaul</div>
+              <div class="kanban-card-meta">
+                <span class="theme-badge">Platform</span>
+                <span class="conf-pill med">Med</span>
+              </div>
+              <div class="kanban-card-snippet">Per-endpoint quotas, clear error messages, and a self-service usage dashboard for API consumers.</div>
+              <div class="kanban-card-label-row">
+                <span class="kanban-label-chip" style="background:#0075ca;color:#ffffff;">api</span>
+                <span class="kanban-label-chip" style="background:#e4e2e6;color:#1a1a1a;">infrastructure</span>
+              </div>
+              <div class="kanban-card-footer">
+                <span class="ship-date">Q3 2026</span>
+              </div>
+              <div class="kanban-card-hint">Click for details</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Design column ── -->
+        <div class="kanban-column">
+          <div class="kanban-col-header status-design">
+            Design
+            <span class="kanban-col-count">2</span>
+          </div>
+          <div class="kanban-cards">
+            <div class="kanban-card"
+                 data-status="design" data-title="Referral program"
+                 data-theme="User Growth" data-conf="med"
+                 data-desc="Invite-and-earn mechanic: users earn credits when referrals activate. Mechanics design in progress."
+                 data-issue-num="356" data-issue-url="https://github.com/example/repo/issues/356"
+                 data-comments="22" data-prs="1" data-milestone="" data-assignee="Alice" data-updated="2026-03-08"
+                 data-labels='[{"name":"growth","color":"fbca04"},{"name":"design","color":"c5def5"}]'>
+              <div class="kanban-card-title">Referral program</div>
+              <div class="kanban-card-meta">
+                <span class="theme-badge">User Growth</span>
+                <span class="conf-pill med">Med</span>
+              </div>
+              <div class="kanban-card-snippet">Invite-and-earn mechanic: users earn credits when referrals activate. Mechanics design in progress.</div>
+              <div class="kanban-card-label-row">
+                <span class="kanban-label-chip" style="background:#fbca04;color:#1a1a1a;">growth</span>
+                <span class="kanban-label-chip" style="background:#c5def5;color:#1a1a1a;">design</span>
+              </div>
+              <div class="kanban-card-footer">
+                <div class="assignee-avatar" title="Alice">AL</div>
+                <span class="ship-date">2026-05-15</span>
+              </div>
+              <div class="kanban-card-hint">Click for details</div>
+            </div>
+            <div class="kanban-card"
+                 data-status="design" data-title="Test coverage uplift"
+                 data-theme="Tech Debt" data-conf="med"
+                 data-desc="Raise statement + branch coverage to ≥90% across the core modules. Automated PR reports included."
+                 data-issue-num="341" data-issue-url="https://github.com/example/repo/issues/341"
+                 data-comments="5" data-prs="0" data-milestone="" data-assignee="Bob" data-updated="2026-03-01"
+                 data-labels='[{"name":"dx","color":"7057ff"},{"name":"testing","color":"0e8a16"}]'>
+              <div class="kanban-card-title">Test coverage uplift</div>
+              <div class="kanban-card-meta">
+                <span class="theme-badge">Tech Debt</span>
+                <span class="conf-pill med">Med</span>
+              </div>
+              <div class="kanban-card-snippet">Raise statement + branch coverage to ≥90% across the core modules. Automated PR reports included.</div>
+              <div class="kanban-card-label-row">
+                <span class="kanban-label-chip" style="background:#7057ff;color:#ffffff;">dx</span>
+                <span class="kanban-label-chip" style="background:#0e8a16;color:#ffffff;">testing</span>
+              </div>
+              <div class="kanban-card-footer">
+                <div class="assignee-avatar" title="Bob" style="background:var(--accent-2);">BO</div>
+                <span class="ship-date">2026-06-30</span>
+              </div>
+              <div class="kanban-card-hint">Click for details</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── In Progress column ── -->
+        <!-- Add class="wip-violation" to header if any assignee has >2 cards -->
+        <div class="kanban-column">
+          <div class="kanban-col-header status-in-progress">
+            In Progress
+            <span class="kanban-col-count">3</span>
+          </div>
+          <div class="kanban-cards">
+            <div class="kanban-card"
+                 data-status="in-progress" data-title="Auth middleware rewrite"
+                 data-theme="Tech Debt" data-conf="high"
+                 data-desc="Full rewrite of the auth middleware: reduces login latency, eliminates session drops, and adds SSO groundwork."
+                 data-issue-num="401" data-issue-url="https://github.com/example/repo/issues/401"
+                 data-comments="8" data-prs="2" data-milestone="v2.1" data-assignee="Alice" data-updated="2026-03-15"
+                 data-labels='[{"name":"security","color":"d93f0b"},{"name":"performance","color":"0e8a16"}]'>
+              <div class="kanban-card-title">Auth middleware rewrite</div>
+              <div class="kanban-card-meta">
+                <span class="theme-badge">Tech Debt</span>
+                <span class="conf-pill high">High</span>
+              </div>
+              <div class="kanban-card-snippet">Full rewrite of the auth middleware: reduces login latency, eliminates session drops, adds SSO groundwork.</div>
+              <div class="kanban-card-label-row">
+                <span class="kanban-label-chip" style="background:#d93f0b;color:#ffffff;">security</span>
+                <span class="kanban-label-chip" style="background:#0e8a16;color:#ffffff;">performance</span>
+              </div>
+              <div class="kanban-card-footer">
+                <div class="assignee-avatar" title="Alice">AL</div>
+                <span class="ship-date">2026-03-20</span>
+              </div>
+              <div class="kanban-card-hint">Click for details</div>
+            </div>
+            <div class="kanban-card"
+                 data-status="in-progress" data-title="Onboarding revamp"
+                 data-theme="User Growth" data-conf="high"
+                 data-desc="New step-by-step setup flow: sign-up to first working project in under five minutes."
+                 data-issue-num="412" data-issue-url="https://github.com/example/repo/issues/412"
+                 data-comments="14" data-prs="3" data-milestone="v2.1" data-assignee="Carol" data-updated="2026-03-15"
+                 data-labels='[{"name":"enhancement","color":"a2eeef"},{"name":"ux","color":"e4e669"}]'>
+              <div class="kanban-card-title">Onboarding revamp</div>
+              <div class="kanban-card-meta">
+                <span class="theme-badge">User Growth</span>
+                <span class="conf-pill high">High</span>
+              </div>
+              <div class="kanban-card-snippet">New step-by-step setup flow: sign-up to first working project in under five minutes.</div>
+              <div class="kanban-card-label-row">
+                <span class="kanban-label-chip" style="background:#a2eeef;color:#1a1a1a;">enhancement</span>
+                <span class="kanban-label-chip" style="background:#e4e669;color:#1a1a1a;">ux</span>
+              </div>
+              <div class="kanban-card-footer">
+                <div class="assignee-avatar" title="Carol" style="background:#0891b2;">CA</div>
+                <span class="ship-date">2026-03-31</span>
+              </div>
+              <div class="kanban-card-hint">Click for details</div>
+            </div>
+            <div class="kanban-card"
+                 data-status="in-progress" data-title="GraphQL API v2"
+                 data-theme="Platform" data-conf="high"
+                 data-desc="Versioned GraphQL API replacing REST endpoints — richer queries, subscriptions, easier integrations."
+                 data-issue-num="389" data-issue-url="https://github.com/example/repo/issues/389"
+                 data-comments="31" data-prs="4" data-milestone="v3.0" data-assignee="Bob" data-updated="2026-03-14"
+                 data-labels='[{"name":"api","color":"0075ca"},{"name":"breaking-change","color":"e11d48"}]'>
+              <div class="kanban-card-title">GraphQL API v2</div>
+              <div class="kanban-card-meta">
+                <span class="theme-badge">Platform</span>
+                <span class="conf-pill high">High</span>
+              </div>
+              <div class="kanban-card-snippet">Versioned GraphQL API replacing REST endpoints — richer queries, subscriptions, easier integrations.</div>
+              <div class="kanban-card-label-row">
+                <span class="kanban-label-chip" style="background:#0075ca;color:#ffffff;">api</span>
+                <span class="kanban-label-chip" style="background:#e11d48;color:#ffffff;">breaking-change</span>
+              </div>
+              <div class="kanban-card-footer">
+                <div class="assignee-avatar" title="Bob" style="background:var(--accent-2);">BO</div>
+                <span class="ship-date">2026-04-30</span>
+              </div>
+              <div class="kanban-card-hint">Click for details</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Validation column ── -->
+        <div class="kanban-column">
+          <div class="kanban-col-header status-validation">
+            Validation
+            <span class="kanban-col-count">0</span>
+          </div>
+          <div class="kanban-cards">
+            <div class="kanban-empty">No items</div>
+          </div>
+        </div>
+
+        <!-- ── Done column ── -->
+        <div class="kanban-column">
+          <div class="kanban-col-header status-done">
+            Done
+            <span class="kanban-col-count">1</span>
+          </div>
+          <div class="kanban-cards">
+            <div class="kanban-card kanban-card-done"
+                 tabindex="0" role="button" aria-label="Open details for Webhooks reliability"
+                 data-status="done" data-title="Webhooks reliability"
+                 data-theme="Platform" data-conf="high"
+                 data-desc="Hardened webhook delivery with at-least-once guarantees, exponential back-off, and a per-endpoint delivery log. Shipped Q1 2026."
+                 data-issue-num="201" data-issue-url="https://github.com/example/repo/issues/201"
+                 data-comments="18" data-prs="3" data-milestone="v2.5" data-assignee="Carol" data-updated="2026-02-28"
+                 data-labels='[{"name":"reliability","color":"0e7490"},{"name":"shipped","color":"16a34a"}]'>
+              <div class="kanban-card-title">Webhooks reliability</div>
+              <div class="kanban-card-meta">
+                <span class="theme-badge">Platform</span>
+                <span class="conf-pill high">High</span>
+              </div>
+              <div class="kanban-card-snippet">Hardened webhook delivery with at-least-once guarantees, exponential back-off, and a per-endpoint delivery log.</div>
+              <div class="kanban-card-label-row">
+                <span class="kanban-label-chip" style="background:#0e7490;color:#fff;">reliability</span>
+                <span class="kanban-label-chip" style="background:#16a34a;color:#fff;">shipped</span>
+              </div>
+              <div class="kanban-card-footer">
+                <div class="assignee-avatar" title="Carol" style="background:#0891b2;">CA</div>
+                <span class="ship-date">2026-02-28 ✓</span>
+              </div>
+              <div class="kanban-card-hint">Click for details</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /.kanban-board -->
+    </div><!-- /.rm-panel -->
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       PANEL 3 — Roadmap Health
+  ═══════════════════════════════════════════════════════ -->
+  <section class="rm-section">
+    <div class="rm-section-header">
+      <span class="rm-section-title">Roadmap Health</span>
+      <span style="font-family:'Azeret Mono',monospace; font-size:0.6875rem; color:var(--text-dim);">Q1 2026 · Say/Do measured over committed vs. delivered initiatives</span>
+    </div>
+    <div class="rm-panel">
+      <div class="health-grid">
+
+        <!-- Metric tiles row -->
+        <div class="health-tiles">
+          <div class="health-tile">
+            <div class="health-tile-label">Total Initiatives</div>
+            <div class="health-tile-value blue">10</div>
+          </div>
+          <div class="health-tile">
+            <div class="health-tile-label">In Flight</div>
+            <div class="health-tile-value" style="color:var(--s-in-progress);">3</div>
+          </div>
+          <div class="health-tile">
+            <div class="health-tile-label">Delivered (QTD)</div>
+            <div class="health-tile-value green">1</div>
+          </div>
+          <div class="health-tile">
+            <div class="health-tile-label">Triage Queue</div>
+            <div class="health-tile-value amber">2</div>
+          </div>
+          <div class="health-tile">
+            <div class="health-tile-label">Orphan Items</div>
+            <div class="health-tile-value red">0</div>
+          </div>
+        </div>
+
+        <!-- Say/Do gauge -->
+        <div class="say-do-panel">
+          <div class="say-do-title">Say / Do Ratio · Q1 2026</div>
+          <div class="say-do-chart-wrap">
+            <canvas id="sayDoChart"></canvas>
+            <div class="say-do-center-label">
+              <div class="say-do-pct" id="sayDoPct">50%</div>
+              <div class="say-do-sub">1 of 2 committed</div>
+            </div>
+          </div>
+          <div style="font-size:0.75rem; color:var(--text-dim);">
+            1 initiative delivered of 2 committed this quarter.
+            Target ≥ 80% for green status.
+          </div>
+        </div>
+
+        <!-- Alerts / WIP violations -->
+        <div class="health-alerts-panel">
+          <div class="health-alerts-title">Alerts &amp; Governance Flags</div>
+
+          <!-- WIP violation example: remove if none -->
+          <div class="alert-row alert-amber">
+            <span class="alert-icon">⚠</span>
+            <span class="alert-text">
+              <strong>WIP approaching limit:</strong> Bob has 2 active items
+              (GraphQL API v2 + Test coverage uplift).
+              No new work until one closes.
+            </span>
+          </div>
+
+          <!-- Triage queue -->
+          <div class="alert-row alert-amber">
+            <span class="alert-icon">⏳</span>
+            <span class="alert-text">
+              <strong>Triage queue:</strong> 2 items awaiting review.
+              <span class="alert-count-badge">2</span>
+              Assign a theme and confidence by next Monday.
+            </span>
+          </div>
+
+          <!-- All clear example — show when no violations -->
+          <div class="alert-row alert-grey">
+            <span class="alert-icon">✓</span>
+            <span class="alert-text">
+              <strong>No orphan items</strong> — all In Progress and Validation
+              items have an assigned owner.
+            </span>
+          </div>
+
+          <div class="alert-row alert-grey">
+            <span class="alert-icon">✓</span>
+            <span class="alert-text">
+              <strong>No stale items</strong> — all In Progress items updated
+              within the last 14 days.
+            </span>
+          </div>
+        </div>
+
+      </div><!-- /.health-grid -->
+    </div><!-- /.rm-panel -->
+  </section>
+
+  <!-- ─── Footer ─── -->
+  <footer class="rm-footer">
+    <span>Source: GitHub Project #4247</span>
+    <span>Generated: 2026-03-16</span>
+    <span>Strategy: "If it is not on the GitHub Roadmap, it does not exist."</span>
+  </footer>
+
+  <!-- ═══════════════════════════════════════════════════════
+       KANBAN DETAIL DRAWER
+       Populated from data-* attributes on .kanban-card elements.
+       All content comes from GitHub Project data — no inference.
+  ═══════════════════════════════════════════════════════ -->
+  <div class="km-drawer-backdrop" id="kmDrawerBackdrop">
+    <div class="km-drawer" id="kmDrawer" role="dialog" aria-modal="true" aria-labelledby="kmDrawerTitle">
+
+      <div class="km-drawer-header">
+        <div class="km-drawer-status-bar" id="kmDrawerStatusBar"></div>
+        <div class="km-drawer-header-content">
+          <div class="km-drawer-eyebrow">
+            <span class="km-drawer-issue-ref" id="kmDrawerIssueRef"></span>
+            <span class="theme-badge" id="kmDrawerTheme"></span>
+            <span class="conf-pill" id="kmDrawerConf"></span>
+          </div>
+          <div class="km-drawer-title" id="kmDrawerTitle"></div>
+          <div class="km-drawer-meta-row" id="kmDrawerMetaRow"></div>
+        </div>
+        <button class="km-drawer-close" id="kmDrawerClose" aria-label="Close">✕</button>
+      </div>
+
+      <div class="km-drawer-body">
+        <div id="kmDrawerDescSection">
+          <div class="km-drawer-section-label">Description</div>
+          <div class="km-drawer-body-text" id="kmDrawerDesc"></div>
+        </div>
+        <div id="kmDrawerLabelsSection">
+          <div class="km-drawer-section-label">Labels</div>
+          <div class="km-drawer-labels" id="kmDrawerLabels"></div>
+        </div>
+        <div id="kmDrawerStatsSection">
+          <div class="km-drawer-section-label">Details</div>
+          <div class="km-drawer-stats" id="kmDrawerStats"></div>
+        </div>
+      </div>
+
+      <div class="km-drawer-footer">
+        <span class="km-drawer-footer-meta" id="kmDrawerUpdated"></span>
+        <a href="#" class="km-drawer-gh-link" id="kmDrawerGhLink" target="_blank" rel="noopener">↗ Open on GitHub</a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─── Scripts ─── -->
+  <script>
+    // Mermaid init — single call; theme selected by colour scheme preference
+    const _isDarkScheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (_isDarkScheme) {
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: 'dark',
+        themeVariables: {
+          fontFamily: 'Plus Jakarta Sans, sans-serif',
+          fontSize: '13px',
+          primaryColor: '#4da6ff',
+          primaryTextColor: '#e8e8e8',
+          primaryBorderColor: '#444444',
+          lineColor: '#444444',
+          secondaryColor: '#242424',
+          tertiaryColor: '#1c1c1c',
+          background: '#1c1c1c',
+          mainBkg: '#0f0f0f',
+          titleColor: '#e8e8e8',
+          sectionBkgColor: 'rgba(77,166,255,0.08)',
+          altSectionBkgColor: 'rgba(251,191,36,0.06)',
+          gridColor: '#2e2e2e',
+          doneTaskBkgColor: 'rgba(74,222,128,0.15)',
+          doneTaskBorderColor: '#4ade80',
+          activeTaskBkgColor: 'rgba(167,139,250,0.15)',
+          activeTaskBorderColor: '#a78bfa',
+          critBorderColor: '#f87171',
+          critBkgColor: 'rgba(248,113,113,0.12)',
+          todayLineColor: '#f87171',
+        }
+      });
+    } else {
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: 'base',
+        themeVariables: {
+          fontFamily: 'Plus Jakarta Sans, sans-serif',
+          fontSize: '13px',
+          primaryColor: '#005a9e',
+          primaryTextColor: '#1a1a1a',
+          primaryBorderColor: '#b0aca6',
+          lineColor: '#b0aca6',
+          secondaryColor: '#fafaf8',
+          tertiaryColor: '#ffffff',
+          background: '#ffffff',
+          mainBkg: '#f5f5f0',
+          titleColor: '#1a1a1a',
+          sectionBkgColor: 'rgba(0,90,158,0.06)',
+          altSectionBkgColor: 'rgba(245,158,11,0.05)',
+          gridColor: '#e0ddd8',
+          doneTaskBkgColor: 'rgba(22,163,74,0.15)',
+          doneTaskBorderColor: '#16a34a',
+          activeTaskBkgColor: 'rgba(124,58,237,0.15)',
+          activeTaskBorderColor: '#7c3aed',
+          critBorderColor: '#dc2626',
+          critBkgColor: 'rgba(220,38,38,0.12)',
+          todayLineColor: '#dc2626',
+        }
+      });
+    }
+
+    // Say/Do doughnut chart
+    (function () {
+      const delivered = 1;
+      const committed = 2;
+      const pct = Math.round((delivered / committed) * 100);
+
+      // Colour thresholds: green ≥ 80%, amber 60–79%, red < 60%
+      const color = pct >= 80 ? '#16a34a' : pct >= 60 ? '#f59e0b' : '#dc2626';
+      // Apply colour via JS only — no inline style on the element to avoid flash
+      document.getElementById('sayDoPct').style.color = color;
+
+      const trackColor = _isDarkScheme ? '#2e2e2e' : '#e0ddd8';
+      const textColor  = _isDarkScheme ? '#888888' : '#6b6b6b';
+
+      Chart.defaults.font.family = 'Plus Jakarta Sans, sans-serif';
+      Chart.defaults.color = textColor;
+
+      const ctx = document.getElementById('sayDoChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          datasets: [{
+            data: [delivered, committed - delivered],
+            backgroundColor: [color, trackColor],
+            borderWidth: 0,
+            hoverOffset: 0,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '72%',
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(ctx) {
+                  return ctx.dataIndex === 0
+                    ? `Delivered: ${delivered}`
+                    : `Remaining: ${committed - delivered}`;
+                }
+              }
+            }
+          }
+        }
+      });
+    })();
+
+    /* ─── Kanban card drawer ─── */
+    const KM_STATUS_COLORS = {
+      triage:      '#f59e0b',
+      backlog:     '#6b6b6b',
+      design:      _isDarkScheme ? '#4da6ff' : '#005a9e',
+      'in-progress': _isDarkScheme ? '#a78bfa' : '#7c3aed',
+      validation:  _isDarkScheme ? '#22d3ee' : '#0891b2',
+      done:        _isDarkScheme ? '#4ade80' : '#16a34a',
+    };
+
+    function openKanbanCard(card) {
+      const title     = card.dataset.title     || card.querySelector('.kanban-card-title')?.textContent.trim() || '';
+      const status    = card.dataset.status    || '';
+      const theme     = card.dataset.theme     || '';
+      const conf      = card.dataset.conf      || '';
+      const desc      = card.dataset.desc      || '';
+      const issueNum  = card.dataset.issueNum  || '';
+      const issueUrl  = card.dataset.issueUrl  || '#';
+      const comments  = card.dataset.comments  || '';
+      const prs       = card.dataset.prs       || '';
+      const milestone = card.dataset.milestone || '';
+      const assignee  = card.dataset.assignee  || '';
+      const updated   = card.dataset.updated   || '';
+      const labelsRaw = card.dataset.labels    || '';
+
+      // Status bar
+      document.getElementById('kmDrawerStatusBar').style.background = KM_STATUS_COLORS[status] || '#b0aca6';
+
+      // Eyebrow
+      document.getElementById('kmDrawerIssueRef').textContent = issueNum ? `#${issueNum}` : '';
+
+      const themeEl = document.getElementById('kmDrawerTheme');
+      themeEl.textContent = theme;
+      themeEl.style.display = theme ? '' : 'none';
+
+      const confEl = document.getElementById('kmDrawerConf');
+      confEl.textContent = conf ? conf.charAt(0).toUpperCase() + conf.slice(1) : '';
+      confEl.className = 'conf-pill ' + (conf || 'unknown');
+      confEl.style.display = conf ? '' : 'none';
+
+      // Title
+      document.getElementById('kmDrawerTitle').textContent = title;
+
+      // Assignee in meta row
+      const metaRow = document.getElementById('kmDrawerMetaRow');
+      metaRow.innerHTML = '';
+      if (assignee) {
+        const av = document.createElement('div');
+        av.className = 'assignee-avatar';
+        av.title = assignee;
+        av.textContent = assignee.slice(0,2).toUpperCase();
+        const nameSpan = document.createElement('span');
+        nameSpan.style.cssText = 'font-size:0.75rem;color:var(--text-dim);';
+        nameSpan.textContent = assignee;
+        metaRow.append(av, nameSpan);
+      }
+
+      // Description
+      const descSection = document.getElementById('kmDrawerDescSection');
+      document.getElementById('kmDrawerDesc').textContent = desc;
+      descSection.style.display = desc ? '' : 'none';
+
+      // Labels
+      const labelsEl = document.getElementById('kmDrawerLabels');
+      const labelsSection = document.getElementById('kmDrawerLabelsSection');
+      labelsEl.innerHTML = '';
+      let labels = [];
+      try { labels = labelsRaw ? JSON.parse(labelsRaw) : []; } catch (_) {}
+      if (labels.length) {
+        labels.forEach(function(l) {
+          const chip = document.createElement('span');
+          chip.className = 'kanban-label-chip';
+          chip.textContent = l.name;
+          const bg = l.color ? '#' + l.color : '#e0ddd8';
+          chip.style.background = bg;
+          const r = parseInt(l.color.slice(0,2),16)||0, g = parseInt(l.color.slice(2,4),16)||0, b2 = parseInt(l.color.slice(4,6),16)||0;
+          chip.style.color = (0.299*r + 0.587*g + 0.114*b2)/255 > 0.55 ? '#1a1a1a' : '#ffffff';
+          labelsEl.appendChild(chip);
+        });
+        labelsSection.style.display = '';
+      } else {
+        labelsSection.style.display = 'none';
+      }
+
+      // Stats
+      const statsEl = document.getElementById('kmDrawerStats');
+      const statsSection = document.getElementById('kmDrawerStatsSection');
+      statsEl.innerHTML = '';
+      const stats = [];
+      if (comments !== '')  stats.push({ value: comments, label: 'Comments' });
+      if (prs !== '')        stats.push({ value: prs,       label: 'Linked PRs' });
+      if (milestone)         stats.push({ value: milestone, label: 'Milestone' });
+      if (stats.length) {
+        stats.forEach(function(s) {
+          const d = document.createElement('div');
+          d.className = 'km-drawer-stat';
+          d.innerHTML = `<div class="km-drawer-stat-value">${s.value}</div><div class="km-drawer-stat-label">${s.label}</div>`;
+          statsEl.appendChild(d);
+        });
+        statsSection.style.display = '';
+      } else {
+        statsSection.style.display = 'none';
+      }
+
+      // Footer
+      document.getElementById('kmDrawerUpdated').textContent = updated ? `Updated ${updated}` : '';
+      const ghLink = document.getElementById('kmDrawerGhLink');
+      ghLink.href = issueUrl;
+      ghLink.style.display = issueUrl && issueUrl !== '#' ? '' : 'none';
+
+      // Open drawer
+      const backdrop = document.getElementById('kmDrawerBackdrop');
+      backdrop.classList.add('open');
+      document.getElementById('kmDrawerClose').focus();
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeKmDrawer() {
+      document.getElementById('kmDrawerBackdrop').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('kmDrawerClose').addEventListener('click', closeKmDrawer);
+    document.getElementById('kmDrawerBackdrop').addEventListener('click', function(e) {
+      if (e.target === this) closeKmDrawer();
+    });
+
+    document.addEventListener('keydown', function(e) {
+      const backdrop = document.getElementById('kmDrawerBackdrop');
+      if (!backdrop.classList.contains('open')) return;
+      if (e.key === 'Escape') { closeKmDrawer(); return; }
+      if (e.key === 'Tab') {
+        const focusable = document.getElementById('kmDrawer').querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])');
+        const first = focusable[0], last = focusable[focusable.length - 1];
+        if (e.shiftKey) { if (document.activeElement === first) { e.preventDefault(); last.focus(); } }
+        else            { if (document.activeElement === last)  { e.preventDefault(); first.focus(); } }
+      }
+    });
+
+    // Wire all kanban cards
+    document.querySelectorAll('.kanban-card').forEach(function(card) {
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-label', 'View details: ' + (card.dataset.title || card.querySelector('.kanban-card-title')?.textContent.trim()));
+      card.addEventListener('click', function() { openKanbanCard(card); });
+      card.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openKanbanCard(card); }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roadmap — Visual Explainer</title>
+  <!-- Font: Plus Jakarta Sans + Azeret Mono — /generate-public-roadmap -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Azeret+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ═══════════════════════════════════════════════════════
+       THEME — always corporate-light for public roadmaps
+       (read tokens from themes.md before generating)
+    ═══════════════════════════════════════════════════════ */
+    :root {
+      --bg:              #f5f5f0;
+      --surface:         #ffffff;
+      --surface-raised:  #fafaf8;
+      --border:          #e0ddd8;
+      --border-strong:   #b0aca6;
+      --text:            #1a1a1a;
+      --text-dim:        #6b6b6b;
+      --text-inverse:    #ffffff;
+      --accent:          #005a9e;
+      --accent-2:        #c05a2e;
+      --code-bg:         #f0ede8;
+      --shadow:          rgba(0,0,0,0.07);
+
+      /* Public status colors (same tokens as internal template for brand consistency) */
+      --s-now:    #7c3aed;   /* purple — in flight */
+      --s-next:   #005a9e;   /* blue   — committed */
+      --s-later:  #6b6b6b;   /* grey   — planned   */
+      --s-done:   #16a34a;   /* green  — shipped   */
+    }
+
+    /* No dark-mode override — public roadmaps are always light */
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      padding: 2.5rem 2rem;
+      min-height: 100vh;
+    }
+
+    /* ─── Max-width wrapper ─── */
+    .rp-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       PAGE HEADER
+    ═══════════════════════════════════════════════════════ */
+    .rp-header {
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 2px solid var(--border-strong);
+    }
+
+    .rp-header-eyebrow {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.6875rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .rp-header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      line-height: 1.15;
+      margin-bottom: 0.75rem;
+    }
+
+    .rp-header-desc {
+      font-size: 1rem;
+      color: var(--text-dim);
+      max-width: 640px;
+      line-height: 1.6;
+    }
+
+    .rp-header-meta {
+      margin-top: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .rp-meta-item {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.6875rem;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+
+    .rp-meta-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--border-strong);
+      flex-shrink: 0;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       STATUS LEGEND
+    ═══════════════════════════════════════════════════════ */
+    .rp-legend {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 2.5rem;
+      padding: 0.875rem 1.25rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .rp-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+      color: var(--text-dim);
+    }
+
+    .rp-legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .rp-legend-dot.now   { background: var(--s-now); }
+    .rp-legend-dot.next  { background: var(--s-next); }
+    .rp-legend-dot.later { background: var(--s-later); }
+    .rp-legend-dot.done  { background: var(--s-done); }
+
+    /* ═══════════════════════════════════════════════════════
+       SWIMLANES
+    ═══════════════════════════════════════════════════════ */
+    .rp-swimlanes {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .rp-lane {
+      border-bottom: 1px solid var(--border);
+      padding: 1.75rem 0;
+    }
+
+    .rp-lane:last-child {
+      border-bottom: none;
+    }
+
+    .rp-lane-header {
+      display: flex;
+      align-items: baseline;
+      gap: 0.875rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .rp-lane-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .rp-lane-title::before {
+      content: '';
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .rp-lane.lane-now    .rp-lane-title { color: var(--s-now); }
+    .rp-lane.lane-next   .rp-lane-title { color: var(--s-next); }
+    .rp-lane.lane-later  .rp-lane-title { color: var(--s-later); }
+    .rp-lane.lane-done   .rp-lane-title { color: var(--s-done); }
+
+    .rp-lane.lane-now   .rp-lane-title::before { background: var(--s-now); }
+    .rp-lane.lane-next  .rp-lane-title::before { background: var(--s-next); }
+    .rp-lane.lane-later .rp-lane-title::before { background: var(--s-later); }
+    .rp-lane.lane-done  .rp-lane-title::before { background: var(--s-done); }
+
+    .rp-lane-subtitle {
+      font-size: 0.8125rem;
+      color: var(--text-dim);
+      line-height: 1.4;
+    }
+
+    .rp-lane-count {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.6875rem;
+      color: var(--text-dim);
+      margin-left: auto;
+    }
+
+    /* ─── Card grid ─── */
+    .rp-card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+
+    /* ─── Initiative card ─── */
+    .rp-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left-width: 3px;
+      border-radius: 0 10px 10px 0;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      box-shadow: 0 1px 4px var(--shadow);
+      transition: box-shadow 0.15s, transform 0.15s;
+    }
+
+    .rp-card:hover {
+      box-shadow: 0 4px 14px var(--shadow);
+      transform: translateY(-1px);
+    }
+
+    .rp-lane.lane-now   .rp-card { border-left-color: var(--s-now);   }
+    .rp-lane.lane-next  .rp-card { border-left-color: var(--s-next);  }
+    .rp-lane.lane-later .rp-card { border-left-color: var(--s-later); }
+    .rp-lane.lane-done  .rp-card { border-left-color: var(--s-done); opacity: 0.8; }
+
+    .rp-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .rp-card-title {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      line-height: 1.35;
+      color: var(--text);
+      flex: 1;
+    }
+
+    .rp-card-horizon {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.6875rem;
+      color: var(--text-dim);
+      white-space: nowrap;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.15rem 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .rp-card-desc {
+      font-size: 0.875rem;
+      color: var(--text-dim);
+      line-height: 1.55;
+    }
+
+    .rp-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: auto;
+    }
+
+    /* Theme badge */
+    .rp-theme-badge {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.5625rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      border-radius: 4px;
+      padding: 0.15rem 0.5rem;
+      background: var(--code-bg);
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+      text-transform: uppercase;
+    }
+
+    /* Feedback / vote link */
+    .rp-feedback-link {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 0.25rem 0.625rem;
+      transition: background 0.12s, color 0.12s;
+      white-space: nowrap;
+    }
+
+    .rp-feedback-link:hover {
+      background: var(--accent);
+      color: var(--text-inverse);
+    }
+
+    /* ─── Empty lane placeholder ─── */
+    .rp-lane-empty {
+      font-size: 0.875rem;
+      color: var(--text-dim);
+      padding: 1rem 0;
+      font-style: italic;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       DONE LANE — collapsed by default
+    ═══════════════════════════════════════════════════════ */
+    .rp-done-toggle {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.8125rem;
+      color: var(--text-dim);
+      padding: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .rp-done-toggle:hover { color: var(--text); }
+
+    .rp-done-toggle .toggle-arrow {
+      display: inline-block;
+      transition: transform 0.2s;
+      font-style: normal;
+    }
+
+    .rp-done-toggle.open .toggle-arrow { transform: rotate(90deg); }
+
+    #done-cards { display: none; }
+    #done-cards.visible { display: grid; }
+
+    /* ═══════════════════════════════════════════════════════
+       ABOUT THIS ROADMAP
+    ═══════════════════════════════════════════════════════ */
+    .rp-about {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 720px) {
+      .rp-about { grid-template-columns: 1fr; }
+      .rp-card-grid { grid-template-columns: 1fr; }
+    }
+
+    .rp-about-block h2 {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      margin-bottom: 0.625rem;
+      color: var(--text);
+    }
+
+    .rp-about-block p {
+      font-size: 0.875rem;
+      color: var(--text-dim);
+      line-height: 1.65;
+      margin-bottom: 0.75rem;
+    }
+
+    .rp-about-block p:last-child { margin-bottom: 0; }
+
+    .rp-about-link {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .rp-about-link:hover { text-decoration: underline; }
+
+    /* ─── Footer ─── */
+    .rp-footer {
+      margin-top: 2.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.6875rem;
+      color: var(--text-dim);
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       CARD INTERACTIVITY
+    ═══════════════════════════════════════════════════════ */
+
+    /* Cards are clickable */
+    .rp-card {
+      cursor: pointer;
+    }
+
+    /* Labels row — hidden by default, revealed on hover */
+    .rp-card-labels {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-height 0.2s ease, opacity 0.2s ease;
+    }
+
+    .rp-card:hover .rp-card-labels,
+    .rp-card:focus-visible .rp-card-labels {
+      max-height: 4rem;
+      opacity: 1;
+    }
+
+    .rp-label-chip {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.5rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      border-radius: 999px;
+      padding: 0.1rem 0.5rem;
+      /* Background and color are set via inline style from GitHub label color */
+      border: 1px solid rgba(0,0,0,0.12);
+      white-space: nowrap;
+    }
+
+    /* Hover hint shown on card */
+    .rp-card-hint {
+      font-size: 0.6875rem;
+      color: var(--text-dim);
+      opacity: 0;
+      transition: opacity 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-top: auto;
+      padding-top: 0.25rem;
+    }
+
+    .rp-card:hover .rp-card-hint,
+    .rp-card:focus-visible .rp-card-hint {
+      opacity: 1;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       DETAIL MODAL / DRAWER
+    ═══════════════════════════════════════════════════════ */
+    .rp-modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 100;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 3rem 1rem;
+      overflow-y: auto;
+    }
+
+    .rp-modal-backdrop.open {
+      display: flex;
+    }
+
+    .rp-modal {
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: 14px;
+      width: 100%;
+      max-width: 640px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      animation: rp-modal-in 0.18s ease;
+    }
+
+    @keyframes rp-modal-in {
+      from { opacity: 0; transform: translateY(-12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .rp-modal-header {
+      padding: 1.5rem 1.5rem 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .rp-modal-status-bar {
+      width: 4px;
+      border-radius: 2px;
+      align-self: stretch;
+      flex-shrink: 0;
+    }
+
+    .rp-modal-header-content {
+      flex: 1;
+    }
+
+    .rp-modal-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .rp-modal-issue-ref {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.6875rem;
+      color: var(--text-dim);
+    }
+
+    .rp-modal-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      line-height: 1.3;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    .rp-modal-meta-row {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .rp-modal-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-dim);
+      font-size: 1.25rem;
+      line-height: 1;
+      padding: 0.25rem;
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-top: -0.125rem;
+    }
+
+    .rp-modal-close:hover { color: var(--text); background: var(--bg); }
+
+    .rp-modal-body {
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .rp-modal-section-label {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.5625rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      margin-bottom: 0.375rem;
+    }
+
+    .rp-modal-desc {
+      font-size: 0.9rem;
+      color: var(--text);
+      line-height: 1.65;
+      white-space: pre-wrap;
+    }
+
+    .rp-modal-labels {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.375rem;
+    }
+
+    .rp-modal-stats {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .rp-modal-stat {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .rp-modal-stat-value {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .rp-modal-stat-label {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.5625rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .rp-modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .rp-modal-footer-meta {
+      font-family: 'Azeret Mono', monospace;
+      font-size: 0.6875rem;
+      color: var(--text-dim);
+    }
+
+    .rp-modal-gh-link {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 0.375rem 0.75rem;
+      transition: background 0.12s, color 0.12s;
+    }
+
+    .rp-modal-gh-link:hover {
+      background: var(--accent);
+      color: var(--text-inverse);
+    }
+
+    /* ─── Print styles ─── */
+    @media print {
+      body { padding: 1rem; background: white; }
+      .rp-done-toggle { display: none; }
+      #done-cards { display: grid !important; }
+      .rp-feedback-link { display: none; }
+      .rp-card { break-inside: avoid; box-shadow: none; transform: none; cursor: default; }
+      .rp-card:hover { box-shadow: none; transform: none; }
+      .rp-card-hint { display: none; }
+      .rp-modal-backdrop { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+<div class="rp-wrap">
+
+  <!-- ─── Page header ─── -->
+  <header class="rp-header">
+    <div class="rp-header-eyebrow">Product Roadmap</div>
+    <!-- Replace with actual product name when generating -->
+    <h1>What we're building</h1>
+    <p class="rp-header-desc">
+      A living view of what the team is working on, what's coming next, and what has already shipped.
+      Updated every two weeks. Dates are approximate — they reflect our best current estimate.
+    </p>
+    <div class="rp-header-meta">
+      <span class="rp-meta-item">
+        <span class="rp-meta-dot"></span>
+        Last updated: 2026-03-16
+      </span>
+      <span class="rp-meta-item">
+        <span class="rp-meta-dot"></span>
+        10 initiatives · 3 themes
+      </span>
+    </div>
+  </header>
+
+  <!-- ─── Status legend ─── -->
+  <div class="rp-legend">
+    <div class="rp-legend-item">
+      <span class="rp-legend-dot now"></span>
+      <span><strong>Now</strong> — actively being built</span>
+    </div>
+    <div class="rp-legend-item">
+      <span class="rp-legend-dot next"></span>
+      <span><strong>Next</strong> — committed, starting soon</span>
+    </div>
+    <div class="rp-legend-item">
+      <span class="rp-legend-dot later"></span>
+      <span><strong>Later</strong> — on the horizon, not yet started</span>
+    </div>
+    <div class="rp-legend-item">
+      <span class="rp-legend-dot done"></span>
+      <span><strong>Done</strong> — shipped</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SWIMLANES
+  ═══════════════════════════════════════════════════════ -->
+  <div class="rp-swimlanes">
+
+    <!-- ── NOW ── -->
+    <div class="rp-lane lane-now">
+      <div class="rp-lane-header">
+        <div class="rp-lane-title">Now</div>
+        <div class="rp-lane-subtitle">Actively in progress — expect to ship within the next few weeks</div>
+        <span class="rp-lane-count">3 items</span>
+      </div>
+      <div class="rp-card-grid">
+
+        <!-- data-* attributes are populated by /generate-public-roadmap from gh project item-list JSON.
+             data-labels: JSON array of {name, color} from GitHub issue labels.
+             data-desc: full issue body text (plain text, no markdown rendering).
+             data-issue-num, data-issue-url: from GitHub item id / html_url.
+             data-comments: comment count from GitHub.
+             data-milestone: milestone title from GitHub.
+             data-updated: last updated date (ISO).
+        -->
+        <div class="rp-card"
+             data-status="now"
+             data-title="Redesigned onboarding experience"
+             data-theme="User Growth"
+             data-horizon="Q1 2026"
+             data-desc="A new step-by-step setup flow that guides you from sign-up to your first working project in under five minutes — no prior configuration knowledge required."
+             data-issue-num="412"
+             data-issue-url="https://github.com/example/repo/issues/412"
+             data-comments="14"
+             data-milestone="v2.1"
+             data-updated="2026-03-15"
+             data-labels='[{"name":"enhancement","color":"a2eeef"},{"name":"ux","color":"e4e669"}]'>
+          <div class="rp-card-top">
+            <div class="rp-card-title">Redesigned onboarding experience</div>
+            <span class="rp-card-horizon">Q1 2026</span>
+          </div>
+          <div class="rp-card-desc">
+            A new step-by-step setup flow that guides you from sign-up to your first working project
+            in under five minutes — no prior configuration knowledge required.
+          </div>
+          <!-- Labels revealed on hover -->
+          <div class="rp-card-labels">
+            <span class="rp-label-chip" style="background:#a2eeef;color:#1a1a1a;">enhancement</span>
+            <span class="rp-label-chip" style="background:#e4e669;color:#1a1a1a;">ux</span>
+          </div>
+          <div class="rp-card-footer">
+            <span class="rp-theme-badge">User Growth</span>
+            <a href="https://github.com/example/repo/issues/412" class="rp-feedback-link" target="_blank" rel="noopener">↗ Give feedback</a>
+          </div>
+          <div class="rp-card-hint">Click for full details</div>
+        </div>
+
+        <div class="rp-card"
+             data-status="now"
+             data-title="GraphQL API v2"
+             data-theme="Platform"
+             data-horizon="Q2 2026"
+             data-desc="A fully documented, versioned GraphQL API that replaces the current REST endpoints — enabling richer queries, subscriptions, and easier integrations."
+             data-issue-num="389"
+             data-issue-url="https://github.com/example/repo/issues/389"
+             data-comments="31"
+             data-milestone="v3.0"
+             data-updated="2026-03-14"
+             data-labels='[{"name":"api","color":"0075ca"},{"name":"breaking-change","color":"e11d48"}]'>
+          <div class="rp-card-top">
+            <div class="rp-card-title">GraphQL API v2</div>
+            <span class="rp-card-horizon">Q2 2026</span>
+          </div>
+          <div class="rp-card-desc">
+            A fully documented, versioned GraphQL API that replaces the current REST endpoints —
+            enabling richer queries, subscriptions, and easier integrations.
+          </div>
+          <div class="rp-card-labels">
+            <span class="rp-label-chip" style="background:#0075ca;color:#ffffff;">api</span>
+            <span class="rp-label-chip" style="background:#e11d48;color:#ffffff;">breaking-change</span>
+          </div>
+          <div class="rp-card-footer">
+            <span class="rp-theme-badge">Platform</span>
+            <a href="https://github.com/example/repo/issues/389" class="rp-feedback-link" target="_blank" rel="noopener">↗ Give feedback</a>
+          </div>
+          <div class="rp-card-hint">Click for full details</div>
+        </div>
+
+        <div class="rp-card"
+             data-status="now"
+             data-title="Faster and more reliable authentication"
+             data-theme="Platform"
+             data-horizon="Q1 2026"
+             data-desc="A full rewrite of our auth layer to reduce login latency, eliminate intermittent session drops, and lay the groundwork for future SSO and MFA options."
+             data-issue-num="401"
+             data-issue-url="https://github.com/example/repo/issues/401"
+             data-comments="8"
+             data-milestone="v2.1"
+             data-updated="2026-03-10"
+             data-labels='[{"name":"security","color":"d93f0b"},{"name":"performance","color":"0e8a16"}]'>
+          <div class="rp-card-top">
+            <div class="rp-card-title">Faster and more reliable authentication</div>
+            <span class="rp-card-horizon">Q1 2026</span>
+          </div>
+          <div class="rp-card-desc">
+            A full rewrite of our auth layer to reduce login latency, eliminate intermittent
+            session drops, and lay the groundwork for future SSO and MFA options.
+          </div>
+          <div class="rp-card-labels">
+            <span class="rp-label-chip" style="background:#d93f0b;color:#ffffff;">security</span>
+            <span class="rp-label-chip" style="background:#0e8a16;color:#ffffff;">performance</span>
+          </div>
+          <div class="rp-card-footer">
+            <span class="rp-theme-badge">Platform</span>
+            <a href="https://github.com/example/repo/issues/401" class="rp-feedback-link" target="_blank" rel="noopener">↗ Give feedback</a>
+          </div>
+          <div class="rp-card-hint">Click for full details</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── NEXT ── -->
+    <div class="rp-lane lane-next">
+      <div class="rp-lane-header">
+        <div class="rp-lane-title">Next</div>
+        <div class="rp-lane-subtitle">Committed work — design underway, starting soon</div>
+        <span class="rp-lane-count">2 items</span>
+      </div>
+      <div class="rp-card-grid">
+
+        <div class="rp-card"
+             data-status="next"
+             data-title="Referral program"
+             data-theme="User Growth"
+             data-horizon="~H1 2026"
+             data-desc="Invite your team or friends and earn credits when they sign up. We're designing the mechanics now and plan to begin building in the coming weeks."
+             data-issue-num="356"
+             data-issue-url="https://github.com/example/repo/issues/356"
+             data-comments="22"
+             data-milestone=""
+             data-updated="2026-03-08"
+             data-labels='[{"name":"growth","color":"fbca04"},{"name":"design","color":"c5def5"}]'>
+          <div class="rp-card-top">
+            <div class="rp-card-title">Referral program</div>
+            <span class="rp-card-horizon">~H1 2026</span>
+          </div>
+          <div class="rp-card-desc">
+            Invite your team or friends and earn credits when they sign up. We're designing
+            the mechanics now and plan to begin building in the coming weeks.
+          </div>
+          <div class="rp-card-labels">
+            <span class="rp-label-chip" style="background:#fbca04;color:#1a1a1a;">growth</span>
+            <span class="rp-label-chip" style="background:#c5def5;color:#1a1a1a;">design</span>
+          </div>
+          <div class="rp-card-footer">
+            <span class="rp-theme-badge">User Growth</span>
+            <a href="https://github.com/example/repo/issues/356" class="rp-feedback-link" target="_blank" rel="noopener">↗ Give feedback</a>
+          </div>
+          <div class="rp-card-hint">Click for full details</div>
+        </div>
+
+        <div class="rp-card"
+             data-status="next"
+             data-title="Improved test coverage tooling"
+             data-theme="Platform"
+             data-horizon="~H1 2026"
+             data-desc="Better visibility into test gaps across your codebase — automated coverage reports surfaced directly in pull requests."
+             data-issue-num="341"
+             data-issue-url="https://github.com/example/repo/issues/341"
+             data-comments="5"
+             data-milestone=""
+             data-updated="2026-03-01"
+             data-labels='[{"name":"dx","color":"7057ff"},{"name":"testing","color":"0e8a16"}]'>
+          <div class="rp-card-top">
+            <div class="rp-card-title">Improved test coverage tooling</div>
+            <span class="rp-card-horizon">~H1 2026</span>
+          </div>
+          <div class="rp-card-desc">
+            Better visibility into test gaps across your codebase — automated coverage reports
+            surfaced directly in pull requests.
+          </div>
+          <div class="rp-card-labels">
+            <span class="rp-label-chip" style="background:#7057ff;color:#ffffff;">dx</span>
+            <span class="rp-label-chip" style="background:#0e8a16;color:#ffffff;">testing</span>
+          </div>
+          <div class="rp-card-footer">
+            <span class="rp-theme-badge">Platform</span>
+            <a href="https://github.com/example/repo/issues/341" class="rp-feedback-link" target="_blank" rel="noopener">↗ Give feedback</a>
+          </div>
+          <div class="rp-card-hint">Click for full details</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── LATER ── -->
+    <div class="rp-lane lane-later">
+      <div class="rp-lane-header">
+        <div class="rp-lane-title">Later</div>
+        <div class="rp-lane-subtitle">On our horizon — planned but not yet started</div>
+        <span class="rp-lane-count">2 items</span>
+      </div>
+      <div class="rp-card-grid">
+
+        <div class="rp-card"
+             data-status="later"
+             data-title="Retention analytics dashboard"
+             data-theme="User Growth"
+             data-horizon="~2026"
+             data-desc="A built-in dashboard showing how your users engage over time — cohort retention, feature adoption, and drop-off points — without needing a third-party analytics tool."
+             data-issue-num="298"
+             data-issue-url="https://github.com/example/repo/issues/298"
+             data-comments="43"
+             data-milestone=""
+             data-updated="2026-02-20"
+             data-labels='[{"name":"analytics","color":"0075ca"},{"name":"needs-design","color":"e4e669"}]'>
+          <div class="rp-card-top">
+            <div class="rp-card-title">Retention analytics dashboard</div>
+            <span class="rp-card-horizon">~2026</span>
+          </div>
+          <div class="rp-card-desc">
+            A built-in dashboard showing how your users engage over time — cohort retention,
+            feature adoption, and drop-off points — without needing a third-party analytics tool.
+          </div>
+          <div class="rp-card-labels">
+            <span class="rp-label-chip" style="background:#0075ca;color:#ffffff;">analytics</span>
+            <span class="rp-label-chip" style="background:#e4e669;color:#1a1a1a;">needs-design</span>
+          </div>
+          <div class="rp-card-footer">
+            <span class="rp-theme-badge">User Growth</span>
+            <a href="https://github.com/example/repo/issues/298" class="rp-feedback-link" target="_blank" rel="noopener">↗ Vote on this</a>
+          </div>
+          <div class="rp-card-hint">Click for full details</div>
+        </div>
+
+        <div class="rp-card"
+             data-status="later"
+             data-title="Rate limiting improvements"
+             data-theme="Platform"
+             data-horizon="~2026"
+             data-desc="Smarter, fairer rate limits for API consumers — with clear error messages, per-endpoint quotas, and a self-service dashboard to monitor your usage."
+             data-issue-num="277"
+             data-issue-url="https://github.com/example/repo/issues/277"
+             data-comments="17"
+             data-milestone=""
+             data-updated="2026-01-30"
+             data-labels='[{"name":"api","color":"0075ca"},{"name":"infrastructure","color":"e4e2e6"}]'>
+          <div class="rp-card-top">
+            <div class="rp-card-title">Rate limiting improvements</div>
+            <span class="rp-card-horizon">~2026</span>
+          </div>
+          <div class="rp-card-desc">
+            Smarter, fairer rate limits for API consumers — with clear error messages,
+            per-endpoint quotas, and a self-service dashboard to monitor your usage.
+          </div>
+          <div class="rp-card-labels">
+            <span class="rp-label-chip" style="background:#0075ca;color:#ffffff;">api</span>
+            <span class="rp-label-chip" style="background:#e4e2e6;color:#1a1a1a;">infrastructure</span>
+          </div>
+          <div class="rp-card-footer">
+            <span class="rp-theme-badge">Platform</span>
+            <a href="https://github.com/example/repo/issues/277" class="rp-feedback-link" target="_blank" rel="noopener">↗ Vote on this</a>
+          </div>
+          <div class="rp-card-hint">Click for full details</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── DONE ── -->
+    <div class="rp-lane lane-done">
+      <div class="rp-lane-header">
+        <div class="rp-lane-title">Done</div>
+        <span class="rp-lane-count">1 item</span>
+      </div>
+
+      <!-- Toggle button — collapsed by default -->
+      <button class="rp-done-toggle" id="doneToggle" onclick="toggleDone()" aria-expanded="false" aria-controls="done-cards">
+        <span class="toggle-arrow">▶</span>
+        Show shipped items
+      </button>
+
+      <div id="done-cards" class="rp-card-grid" role="region" aria-label="Shipped items">
+
+        <div class="rp-card"
+             data-status="done"
+             data-title="Webhook reliability improvements"
+             data-theme="Platform"
+             data-horizon="Shipped Q1 2026"
+             data-desc="Retry logic, delivery receipts, and a debug log for webhook events — your integrations now survive transient network failures automatically."
+             data-issue-num="251"
+             data-issue-url="https://github.com/example/repo/issues/251"
+             data-comments="9"
+             data-milestone="v2.0"
+             data-updated="2026-02-28"
+             data-labels='[{"name":"shipped","color":"0e8a16"},{"name":"reliability","color":"006b75"}]'>
+          <div class="rp-card-top">
+            <div class="rp-card-title">Webhook reliability improvements</div>
+            <span class="rp-card-horizon">Shipped Q1 2026</span>
+          </div>
+          <div class="rp-card-desc">
+            Retry logic, delivery receipts, and a debug log for webhook events — your
+            integrations now survive transient network failures automatically.
+          </div>
+          <div class="rp-card-labels">
+            <span class="rp-label-chip" style="background:#0e8a16;color:#ffffff;">shipped</span>
+            <span class="rp-label-chip" style="background:#006b75;color:#ffffff;">reliability</span>
+          </div>
+          <div class="rp-card-footer">
+            <span class="rp-theme-badge">Platform</span>
+            <a href="https://github.com/example/repo/issues/251" class="rp-feedback-link" target="_blank" rel="noopener">↗ View issue</a>
+          </div>
+          <div class="rp-card-hint">Click for full details</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /.rp-swimlanes -->
+
+  <!-- ═══════════════════════════════════════════════════════
+       ABOUT THIS ROADMAP
+  ═══════════════════════════════════════════════════════ -->
+  <div class="rp-about">
+    <div class="rp-about-block">
+      <h2>How this roadmap works</h2>
+      <p>
+        This page shows the work our team has committed to, and what we're exploring next.
+        It is not a contract — dates and scope can shift as we learn more.
+        We update it every two weeks after our planning sync.
+      </p>
+      <p>
+        Items in <strong>Now</strong> are actively being built.
+        Items in <strong>Next</strong> are fully designed and starting soon.
+        Items in <strong>Later</strong> are planned but not yet scheduled.
+      </p>
+    </div>
+    <div class="rp-about-block">
+      <h2>Have a suggestion or question?</h2>
+      <p>
+        We read every piece of feedback. Use the "Give feedback" links on each item to open
+        a discussion on the relevant issue. For new ideas not yet on this roadmap, open a
+        feature request in our issue tracker.
+      </p>
+      <!-- Replace href with actual issue tracker / discussion URL -->
+      <p><a href="#" class="rp-about-link">→ Browse open feature requests</a></p>
+      <p><a href="#" class="rp-about-link">→ Open a new feature request</a></p>
+    </div>
+  </div>
+
+  <!-- ─── Footer ─── -->
+  <footer class="rp-footer">
+    <span>Last updated: 2026-03-16</span>
+    <span>Dates are approximate estimates, not commitments</span>
+  </footer>
+
+</div><!-- /.rp-wrap -->
+
+<!-- ═══════════════════════════════════════════════════════
+     DETAIL MODAL
+     Populated by openCard() from data-* attributes on .rp-card elements.
+     All content comes from GitHub Project data — no inference.
+═══════════════════════════════════════════════════════ -->
+<div class="rp-modal-backdrop" id="rpModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="rpModalTitle">
+  <div class="rp-modal" id="rpModal">
+
+    <div class="rp-modal-header">
+      <div class="rp-modal-status-bar" id="rpModalStatusBar"></div>
+      <div class="rp-modal-header-content">
+        <div class="rp-modal-eyebrow">
+          <span class="rp-modal-issue-ref" id="rpModalIssueRef"></span>
+          <span class="rp-theme-badge" id="rpModalTheme"></span>
+          <span class="rp-card-horizon" id="rpModalHorizon"></span>
+        </div>
+        <div class="rp-modal-title" id="rpModalTitle"></div>
+        <div class="rp-modal-meta-row" id="rpModalMetaRow"></div>
+      </div>
+      <button class="rp-modal-close" id="rpModalClose" aria-label="Close">✕</button>
+    </div>
+
+    <div class="rp-modal-body">
+      <!-- Description -->
+      <div id="rpModalDescSection">
+        <div class="rp-modal-section-label">Description</div>
+        <div class="rp-modal-desc" id="rpModalDesc"></div>
+      </div>
+
+      <!-- Labels -->
+      <div id="rpModalLabelsSection">
+        <div class="rp-modal-section-label">Labels</div>
+        <div class="rp-modal-labels" id="rpModalLabels"></div>
+      </div>
+
+      <!-- Stats row: comments, milestone -->
+      <div id="rpModalStatsSection">
+        <div class="rp-modal-section-label">Details</div>
+        <div class="rp-modal-stats" id="rpModalStats"></div>
+      </div>
+    </div>
+
+    <div class="rp-modal-footer">
+      <span class="rp-modal-footer-meta" id="rpModalUpdated"></span>
+      <a href="#" class="rp-modal-gh-link" id="rpModalGhLink" target="_blank" rel="noopener">
+        ↗ Open on GitHub
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  /* ─── Done lane toggle ─── */
+  function toggleDone() {
+    const btn   = document.getElementById('doneToggle');
+    const cards = document.getElementById('done-cards');
+    const open  = cards.classList.toggle('visible');
+    btn.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', String(open));
+    btn.childNodes[2].nodeValue = open ? ' Hide shipped items' : ' Show shipped items';
+  }
+
+  /* ─── Card detail modal ─── */
+  const STATUS_COLORS = {
+    now:   '#7c3aed',
+    next:  '#005a9e',
+    later: '#6b6b6b',
+    done:  '#16a34a',
+  };
+
+  function openCard(card) {
+    // Read all data from the card's data-* attributes — nothing inferred
+    const title      = card.dataset.title      || card.querySelector('.rp-card-title')?.textContent.trim() || '';
+    const status     = card.dataset.status     || '';
+    const theme      = card.dataset.theme      || '';
+    const horizon    = card.dataset.horizon    || '';
+    const desc       = card.dataset.desc       || '';
+    const issueNum   = card.dataset.issueNum   || '';
+    const issueUrl   = card.dataset.issueUrl   || '#';
+    const comments   = card.dataset.comments   || '';
+    const milestone  = card.dataset.milestone  || '';
+    const updated    = card.dataset.updated    || '';
+    const labelsRaw  = card.dataset.labels     || '';   // JSON array: [{"name":"bug","color":"d73a4a"},…]
+
+    // Status bar colour
+    const bar = document.getElementById('rpModalStatusBar');
+    bar.style.background = STATUS_COLORS[status] || '#b0aca6';
+
+    // Issue ref
+    document.getElementById('rpModalIssueRef').textContent = issueNum ? `#${issueNum}` : '';
+
+    // Theme + horizon
+    document.getElementById('rpModalTheme').textContent   = theme;
+    document.getElementById('rpModalHorizon').textContent = horizon;
+    document.getElementById('rpModalTheme').style.display   = theme   ? '' : 'none';
+    document.getElementById('rpModalHorizon').style.display = horizon ? '' : 'none';
+
+    // Title
+    document.getElementById('rpModalTitle').textContent = title;
+
+    // Description
+    const descEl = document.getElementById('rpModalDesc');
+    const descSection = document.getElementById('rpModalDescSection');
+    if (desc) {
+      descEl.textContent = desc;
+      descSection.style.display = '';
+    } else {
+      descSection.style.display = 'none';
+    }
+
+    // Labels
+    const labelsEl = document.getElementById('rpModalLabels');
+    const labelsSection = document.getElementById('rpModalLabelsSection');
+    labelsEl.innerHTML = '';
+    let labels = [];
+    try { labels = labelsRaw ? JSON.parse(labelsRaw) : []; } catch (_) {}
+    if (labels.length) {
+      labels.forEach(function(l) {
+        const chip = document.createElement('span');
+        chip.className = 'rp-label-chip';
+        chip.textContent = l.name;
+        // GitHub label color is a hex string without '#'
+        const bg = l.color ? '#' + l.color : '#e0ddd8';
+        chip.style.background = bg;
+        // Choose black or white text based on perceived luminance
+        const r = parseInt(l.color.slice(0,2),16) || 0;
+        const g = parseInt(l.color.slice(2,4),16) || 0;
+        const b = parseInt(l.color.slice(4,6),16) || 0;
+        const lum = (0.299*r + 0.587*g + 0.114*b) / 255;
+        chip.style.color = lum > 0.55 ? '#1a1a1a' : '#ffffff';
+        labelsEl.appendChild(chip);
+      });
+      labelsSection.style.display = '';
+    } else {
+      labelsSection.style.display = 'none';
+    }
+
+    // Stats
+    const statsEl = document.getElementById('rpModalStats');
+    const statsSection = document.getElementById('rpModalStatsSection');
+    statsEl.innerHTML = '';
+    const stats = [];
+    if (comments !== '') stats.push({ value: comments, label: 'Comments' });
+    if (milestone)       stats.push({ value: milestone, label: 'Milestone' });
+    if (stats.length) {
+      stats.forEach(function(s) {
+        const div = document.createElement('div');
+        div.className = 'rp-modal-stat';
+        div.innerHTML = `<span class="rp-modal-stat-value">${s.value}</span><span class="rp-modal-stat-label">${s.label}</span>`;
+        statsEl.appendChild(div);
+      });
+      statsSection.style.display = '';
+    } else {
+      statsSection.style.display = 'none';
+    }
+
+    // Footer
+    document.getElementById('rpModalUpdated').textContent = updated ? `Updated ${updated}` : '';
+    const ghLink = document.getElementById('rpModalGhLink');
+    ghLink.href = issueUrl;
+    ghLink.style.display = issueUrl && issueUrl !== '#' ? '' : 'none';
+
+    // Open
+    const backdrop = document.getElementById('rpModalBackdrop');
+    backdrop.classList.add('open');
+    document.getElementById('rpModalClose').focus();
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    document.getElementById('rpModalBackdrop').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // Wire close button and backdrop click
+  document.getElementById('rpModalClose').addEventListener('click', closeModal);
+  document.getElementById('rpModalBackdrop').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  // Keyboard: Escape closes, Tab trapped inside modal
+  document.addEventListener('keydown', function(e) {
+    const backdrop = document.getElementById('rpModalBackdrop');
+    if (!backdrop.classList.contains('open')) return;
+    if (e.key === 'Escape') { closeModal(); return; }
+    if (e.key === 'Tab') {
+      const focusable = backdrop.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])');
+      const first = focusable[0];
+      const last  = focusable[focusable.length - 1];
+      if (e.shiftKey) { if (document.activeElement === first) { e.preventDefault(); last.focus(); } }
+      else            { if (document.activeElement === last)  { e.preventDefault(); first.focus(); } }
+    }
+  });
+
+  // Wire all cards
+  document.querySelectorAll('.rp-card').forEach(function(card) {
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('role', 'button');
+    card.setAttribute('aria-label', 'View details for: ' + (card.dataset.title || card.querySelector('.rp-card-title')?.textContent.trim()));
+    card.addEventListener('click', function(e) {
+      // Don't open modal if clicking the feedback link itself
+      if (e.target.closest('.rp-feedback-link')) return;
+      openCard(card);
+    });
+    card.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openCard(card); }
+    });
+  });
+</script>
+</body>
+</html>
