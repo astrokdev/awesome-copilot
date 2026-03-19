@@ -1,0 +1,12 @@
+{
+  "hooks": [
+    {
+      "event": "pre-commit",
+      "pattern": "**.c,**.h",
+      "command": "cppcheck --enable=all --addon=misra.json --suppress=missingInclude --error-exitcode=1 ${files}",
+      "description": "Run MISRA-C:2012 compliance check on staged C files",
+      "blocking": true,
+      "severity": "error"
+    }
+  ]
+}

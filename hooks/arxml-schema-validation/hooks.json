@@ -1,0 +1,12 @@
+{
+  "hooks": [
+    {
+      "event": "pre-commit",
+      "pattern": "**.arxml",
+      "command": "xmllint --schema ${AUTOSAR_SCHEMA_PATH:-./tools/schema/AUTOSAR_00051.xsd} --noout ${files}",
+      "description": "Validate ARXML files against AUTOSAR schema",
+      "blocking": true,
+      "severity": "error"
+    }
+  ]
+}

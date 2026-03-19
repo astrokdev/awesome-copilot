@@ -1,7 +1,6 @@
 # ⚡ Agentic Workflows
 
 [Agentic Workflows](https://github.github.com/gh-aw) are AI-powered repository automations that run coding agents in GitHub Actions. Defined in markdown with natural language instructions, they enable event-triggered and scheduled automation with built-in guardrails and security-first design.
-
 ### How to Contribute
 
 See [CONTRIBUTING.md](../CONTRIBUTING.md#adding-agentic-workflows) for guidelines on how to contribute new workflows, improve existing ones, and share your use cases.
@@ -32,4 +31,8 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md#adding-agentic-workflows) for guideline
 - Respond to slash commands in issues and PRs
 - Orchestrate multi-step repository automation
 
-_No entries found yet._
+| Name | Description | Triggers |
+| ---- | ----------- | -------- |
+| [autosar-swc-development](../workflows/autosar-swc-development.md) | End-to-end workflow for developing a new AUTOSAR Software Component, from requirements through integration testing. | N/A |
+| [ecu-integration-build](../workflows/ecu-integration-build.md) | Multi-component ECU integration, build, and verification workflow. | N/A |
+| [safety-code-review](../workflows/safety-code-review.md) | ISO 26262 compliant code review process for safety-relevant AUTOSAR software components. | N/A |

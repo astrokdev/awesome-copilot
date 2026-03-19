@@ -1,0 +1,41 @@
+{
+  "name": "autosar-development-toolkit",
+  "description": "Complete AUTOSAR Classic Platform development toolkit: architecture design, SWC development, BSW configuration, MISRA-C compliance, RTE engineering, linker/memory management, and embedded testing.",
+  "version": "1.0.0",
+  "keywords": [
+    "autosar",
+    "embedded",
+    "automotive",
+    "misra",
+    "arxml",
+    "bsw",
+    "rte",
+    "safety",
+    "iso26262"
+  ],
+  "author": { "name": "AURA Maintainers" },
+  "repository": "https://github.vitesco.io/SWProductivity/AURA_Marketplace",
+  "license": "MIT",
+  "agents": [
+    "./agents/autosar-architect.md",
+    "./agents/autosar-swc-design.md",
+    "./agents/autosar-bsw-configurator.md",
+    "./agents/autosar-rte-engineer.md",
+    "./agents/embedded-c-reviewer.md",
+    "./agents/misra-c-advisor.md",
+    "./agents/linker-memory-engineer.md",
+    "./agents/embedded-test-architect.md"
+  ],
+  "skills": [
+    "./skills/autosar-swc-scaffold/",
+    "./skills/arxml-generator/",
+    "./skills/rte-contract-generator/",
+    "./skills/linker-script-generator/",
+    "./skills/bsw-module-configurator/",
+    "./skills/memory-map-analyzer/",
+    "./skills/integration-test-harness/",
+    "./skills/ceedling-unit-test/",
+    "./skills/can-dbc-parser/",
+    "./skills/iso26262-review/"
+  ]
+}

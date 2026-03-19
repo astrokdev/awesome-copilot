@@ -1,7 +1,6 @@
 # 🪝 Hooks
 
 Hooks enable automated workflows triggered by specific events during GitHub Copilot coding agent sessions, such as session start, session end, user prompts, and tool usage.
-
 ### How to Contribute
 
 See [CONTRIBUTING.md](../CONTRIBUTING.md#adding-hooks) for guidelines on how to contribute new hooks, improve existing ones, and share your use cases.
@@ -30,4 +29,7 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md#adding-hooks) for guidelines on how to 
 - Integrate with external tools and services
 - Custom session workflows
 
-_No entries found yet._
+| Name | Description | Events | Bundled Assets |
+| ---- | ----------- | ------ | -------------- |
+| [arxml-schema-validation](../hooks/arxml-schema-validation/README.md) | Pre-commit hook that validates ARXML files against the AUTOSAR schema, blocking commits on schema violations. | 0 | `hooks.json` |
+| [misra-compliance-check](../hooks/misra-compliance-check/README.md) | Pre-commit hook that runs MISRA-C:2012 compliance checking on staged C/H files using cppcheck with MISRA addon, blocking commits on mandatory rule violations. | 0 | `hooks.json` |

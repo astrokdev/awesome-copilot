@@ -11,6 +11,12 @@
   },
   "plugins": [
     {
+      "name": "autosar-development-toolkit",
+      "source": "autosar-development-toolkit",
+      "description": "Complete AUTOSAR Classic Platform development toolkit: architecture design, SWC development, BSW configuration, MISRA-C compliance, RTE engineering, linker/memory management, and embedded testing.",
+      "version": "1.0.0"
+    },
+    {
       "name": "embedded-c-starter",
       "source": "embedded-c-starter",
       "description": "Starter toolkit for embedded C/C++ development: MISRA-aware code reviewer, AUTOSAR SWC designer agent, and a CMake build helper skill.",
