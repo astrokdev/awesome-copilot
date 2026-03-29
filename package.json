@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "start": "npm run build",
-    "build": "node ./eng/update-readme.mjs && node ./eng/generate-marketplace.mjs",
+    "build": "node ./eng/update-readme.mjs && node ./eng/generate-marketplace.mjs && node ./eng/generate-badges.mjs",
     "plugin:validate": "node ./eng/validate-plugins.mjs",
     "plugin:create": "node ./eng/create-plugin.mjs",
     "skill:validate": "node ./eng/validate-skills.mjs",

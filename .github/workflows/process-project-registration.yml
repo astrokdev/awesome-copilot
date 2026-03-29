@@ -1,0 +1,188 @@
+name: Process Project Registration
+
+on:
+  issues:
+    types: [labeled]
+
+concurrency:
+  group: project-registration
+  cancel-in-progress: false
+
+jobs:
+  register-project:
+    if: contains(github.event.issue.labels.*.name, 'project-registration')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+
+    steps:
+      - name: Checkout develop branch
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+
+      - name: Parse issue and register project
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const body = context.payload.issue.body;
+            if (!body) {
+              core.setFailed('Issue body is empty');
+              return;
+            }
+
+            // Parse GitHub Issue form fields (structured as ### Header\n\nValue)
+            function parseField(body, fieldName) {
+              const regex = new RegExp(`### ${fieldName}\\s*\\n\\n([\\s\\S]*?)(?=\\n### |$)`, 'i');
+              const match = body.match(regex);
+              if (!match) return '';
+              return match[1].trim();
+            }
+
+            const projectName = parseField(body, 'Project Name');
+            const projectUrl = parseField(body, 'Project URL');
+            const description = parseField(body, 'Description');
+            const team = parseField(body, 'Team / Organization');
+            const assetsRaw = parseField(body, 'Assets Used');
+
+            if (!projectName) {
+              core.setFailed('Project name is required');
+              return;
+            }
+
+            // Generate kebab-case id
+            const id = projectName
+              .toLowerCase()
+              .replace(/[^a-z0-9\s-]/g, '')
+              .replace(/\s+/g, '-')
+              .replace(/-+/g, '-')
+              .replace(/^-|-$/g, '');
+
+            // Parse asset paths (one per line, skip empty lines)
+            const assets = assetsRaw
+              .split('\n')
+              .map(line => line.trim())
+              .filter(line => line.length > 0 && !line.startsWith('_'));
+
+            // Validate asset paths exist in the repo
+            const invalidAssets = [];
+            for (const asset of assets) {
+              // Check both as file and directory
+              const asFile = path.join(process.cwd(), asset);
+              const asDir = path.join(process.cwd(), asset);
+              if (!fs.existsSync(asFile) && !fs.existsSync(asDir)) {
+                invalidAssets.push(asset);
+              }
+            }
+
+            if (invalidAssets.length > 0) {
+              const message = `The following asset paths were not found in the repository:\n${invalidAssets.map(a => `- \`${a}\``).join('\n')}\n\nPlease verify the paths and resubmit.`;
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: message,
+              });
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                name: 'project-registration',
+              });
+              core.setFailed(`Invalid asset paths: ${invalidAssets.join(', ')}`);
+              return;
+            }
+
+            // Load existing projects
+            const projectsPath = path.join(process.cwd(), 'community', 'projects.json');
+            let projects = [];
+            if (fs.existsSync(projectsPath)) {
+              projects = JSON.parse(fs.readFileSync(projectsPath, 'utf8'));
+            }
+
+            // Check for duplicates
+            if (projects.some(p => p.id === id)) {
+              const message = `A project with id \`${id}\` is already registered. If you need to update it, please contact a maintainer.`;
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: message,
+              });
+              core.setFailed(`Duplicate project id: ${id}`);
+              return;
+            }
+
+            // Create new project entry
+            const newProject = {
+              id,
+              name: projectName,
+              url: projectUrl || '',
+              description,
+              team: team || '',
+              assets,
+              registeredAt: new Date().toISOString().split('T')[0],
+            };
+
+            projects.push(newProject);
+
+            // Write updated projects file
+            fs.mkdirSync(path.dirname(projectsPath), { recursive: true });
+            fs.writeFileSync(projectsPath, JSON.stringify(projects, null, 2) + '\n');
+
+            // Store project info for later steps
+            core.exportVariable('PROJECT_NAME', projectName);
+            core.exportVariable('PROJECT_ID', id);
+            core.exportVariable('ASSETS_COUNT', assets.length);
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add community/projects.json
+          git commit -m "chore: register project ${PROJECT_NAME}"
+          git push origin develop
+
+      - name: Comment with badge and close issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pagesUrl = 'https://astrokdev.github.io/awesome-copilot';
+            const projectName = process.env.PROJECT_NAME;
+            const assetsCount = process.env.ASSETS_COUNT;
+
+            const message = `## Project Registered Successfully!
+
+            **${projectName}** has been registered with ${assetsCount} asset(s).
+
+            ### Your Badge
+
+            Add this badge to your project's README:
+
+            \`\`\`markdown
+            [![Powered by AURA](${pagesUrl}/badges/powered-by-aura.svg)](${pagesUrl}/)
+            \`\`\`
+
+            The badge will render as:
+
+            ![Powered by AURA](${pagesUrl}/badges/powered-by-aura.svg)
+
+            Your project will appear on the [Projects page](${pagesUrl}/docs/README.projects.md) after the next build.`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: message,
+            });
+
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              state: 'closed',
+            });

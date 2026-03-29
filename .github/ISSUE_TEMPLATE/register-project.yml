@@ -1,0 +1,56 @@
+name: Register Project
+description: Register your project as a user of AURA Marketplace assets
+title: "[Project Registration] "
+labels: ["project-registration"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Register your project to get a "Powered by AURA" badge and help the community discover which assets are used in production.
+
+  - type: input
+    id: project-name
+    attributes:
+      label: Project Name
+      description: The name of your project
+      placeholder: e.g., My ECU Firmware
+    validations:
+      required: true
+
+  - type: input
+    id: project-url
+    attributes:
+      label: Project URL
+      description: A link to your project (GitHub repo, internal wiki, website, etc.). Can be any URL, not just GitHub.
+      placeholder: e.g., https://github.example.com/team/project
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A brief description of your project
+      placeholder: e.g., Production ECU firmware for brake controller using AUTOSAR Classic
+    validations:
+      required: true
+
+  - type: input
+    id: team
+    attributes:
+      label: Team / Organization
+      description: Your team or organizational unit
+      placeholder: e.g., Chassis Controls Team
+
+  - type: textarea
+    id: assets
+    attributes:
+      label: Assets Used
+      description: |
+        List the AURA Marketplace assets your project uses, one per line.
+        Use the asset path format (e.g., agents/autosar-architect.agent.md, skills/cmake-build-helper).
+        Browse available assets at the [AURA Marketplace](../../../README.md).
+      placeholder: |
+        agents/autosar-architect.agent.md
+        skills/cmake-build-helper
+        instructions/autosar-coding-guidelines.instructions.md
+    validations:
+      required: true

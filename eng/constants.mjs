@@ -4,6 +4,14 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+// GitHub repo URL for Discussions and community links
+const repoUrl =
+  "https://github.vitesco.io/SWProductivity/AURA_Marketplace";
+
+// GitHub Pages site URL for badge references
+const pagesUrl =
+  "https://astrokdev.github.io/awesome-copilot";
+
 // Template sections for the README
 const TEMPLATES = {
   instructionsSection: `## 📋 Custom Instructions
@@ -142,6 +150,51 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md#adding-hooks) for guidelines on how to 
 
 [Agentic Workflows](https://github.github.com/gh-aw) are AI-powered repository automations that run coding agents in GitHub Actions. Defined in markdown with natural language instructions, they enable event-triggered and scheduled automation with built-in guardrails and security-first design.`,
 
+  communitySection: `## 💬 Community
+
+Join the conversation and connect with other users of the AURA Marketplace. Share feedback, propose ideas, and showcase your projects.`,
+
+  communityUsage: `### Discussion Channels
+
+| Category | Description | Link |
+| -------- | ----------- | ---- |
+| **Q&A** | Ask questions and get help from the community | [Go to Q&A](${repoUrl}/discussions/categories/q-a) |
+| **Ideas** | Propose new assets, improvements, or features | [Go to Ideas](${repoUrl}/discussions/categories/ideas) |
+| **Asset Feedback** | Share feedback on existing agents, skills, and plugins | [Go to Asset Feedback](${repoUrl}/discussions/categories/asset-feedback) |
+
+### Quick Links
+
+- [Start a new Q&A discussion](${repoUrl}/discussions/new?category=q-a)
+- [Propose a new idea](${repoUrl}/discussions/new?category=ideas)
+- [Give asset feedback](${repoUrl}/discussions/new?category=asset-feedback)
+
+### How to Participate
+
+All organization members with access to this repository can view and participate in discussions. Simply click the links above to browse or start a new discussion.`,
+
+  communityFooter: `\n---\n\n💬 **[Join the Community](docs/README.community.md)** - Discussions, project showcase, and community badges`,
+
+  communityFooterRelative: `\n---\n\n💬 **[Join the Community](README.community.md)** - Discussions, project showcase, and community badges`,
+
+  projectsSection: `## 🏗️ Projects
+
+Projects using assets from the AURA Marketplace. Register your project to get a badge and help others discover which assets are used in production.`,
+
+  projectsUsage: `### How to Register Your Project
+
+1. [Open a new project registration issue](${repoUrl}/issues/new?template=register-project.yml)
+2. Fill in your project details and select the assets you use
+3. Your project will be automatically added to this page
+4. You will receive a badge to display in your project's README
+
+### Badge
+
+After registration, add this badge to your project's README:
+
+\`\`\`markdown
+[![Powered by AURA](${pagesUrl}/badges/powered-by-aura.svg)](${pagesUrl}/)
+\`\`\``,
+
   workflowsUsage: `### How to Contribute
 
 See [CONTRIBUTING.md](../CONTRIBUTING.md#adding-agentic-workflows) for guidelines on how to contribute new workflows, improve existing ones, and share your use cases.
@@ -197,6 +250,7 @@ const HOOKS_DIR = path.join(ROOT_FOLDER, "hooks");
 const PLUGINS_DIR = path.join(ROOT_FOLDER, "plugins");
 const WORKFLOWS_DIR = path.join(ROOT_FOLDER, "workflows");
 const COOKBOOK_DIR = path.join(ROOT_FOLDER, "cookbook");
+const COMMUNITY_DIR = path.join(ROOT_FOLDER, "community");
 const MAX_PLUGIN_ITEMS = 50;
 
 // Agent Skills validation constants
@@ -210,13 +264,16 @@ const DOCS_DIR = path.join(ROOT_FOLDER, "docs");
 export {
   AGENTS_DIR,
   AKA_INSTALL_URLS,
+  COMMUNITY_DIR,
   COOKBOOK_DIR,
   DOCS_DIR,
   HOOKS_DIR,
   INSTRUCTIONS_DIR,
   MAX_PLUGIN_ITEMS,
+  pagesUrl,
   PLUGINS_DIR,
   repoBaseUrl,
+  repoUrl,
   ROOT_FOLDER,
   SKILL_DESCRIPTION_MAX_LENGTH,
   SKILL_DESCRIPTION_MIN_LENGTH,

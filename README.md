@@ -15,6 +15,8 @@ This repository provides a contribution framework for enhancing GitHub Copilot w
 - **[Agentic Workflows](docs/README.workflows.md)** - AI-powered repository automations that run coding agents in GitHub Actions
 - **[Plugins](docs/README.plugins.md)** - Curated bundles of related agents and skills organized around specific themes
 - **[Cookbook Recipes](cookbook/README.md)** - Practical, copy-paste-ready code snippets and real-world examples
+- **[Community](docs/README.community.md)** - Discussions, project showcase, and community badges
+- **[Projects](docs/README.projects.md)** - Projects using AURA Marketplace assets
 
 ## In Scope
 

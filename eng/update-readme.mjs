@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import {
     AGENTS_DIR,
     AKA_INSTALL_URLS,
+    COMMUNITY_DIR,
     DOCS_DIR,
     HOOKS_DIR,
     INSTRUCTIONS_DIR,
@@ -284,7 +285,7 @@ function makeBadges(link, type) {
 /**
  * Generate the instructions section with a table of all instructions
  */
-function generateInstructionsSection(instructionsDir) {
+function generateInstructionsSection(instructionsDir, _registryNames, starsMap = new Map(), projectsIndex = new Map()) {
   // Check if directory exists
   if (!fs.existsSync(instructionsDir)) {
     return "";
@@ -327,15 +328,17 @@ function generateInstructionsSection(instructionsDir) {
     // Create badges for installation links
     const badges = makeBadges(link, "instructions");
 
+    const communityBadges = formatCommunityBadges(link, starsMap, projectsIndex);
+
     if (customDescription && customDescription !== "null") {
       // Use the description from frontmatter, table-safe
-      instructionsContent += `| [${title}](../${link})<br />${badges} | ${formatTableCell(
+      instructionsContent += `| [${title}](../${link})<br />${badges}${communityBadges} | ${formatTableCell(
         customDescription
       )} |\n`;
     } else {
       // Fallback to the default approach - use last word of title for description, removing trailing 's' if present
       const topic = title.split(" ").pop().replace(/s$/, "");
-      instructionsContent += `| [${title}](../${link})<br />${badges} | ${topic} specific coding standards and best practices |\n`;
+      instructionsContent += `| [${title}](../${link})<br />${badges}${communityBadges} | ${topic} specific coding standards and best practices |\n`;
     }
   }
 
@@ -447,7 +450,7 @@ function generateMcpServerLinks(servers, registryNames) {
  * @param {string} agentsDir - Directory path
  * @param {{ name: string, displayName: string }[]} registryNames - Pre-loaded MCP registry names
  */
-function generateAgentsSection(agentsDir, registryNames = []) {
+function generateAgentsSection(agentsDir, registryNames = [], starsMap = new Map(), projectsIndex = new Map()) {
   return generateUnifiedModeSection({
     dir: agentsDir,
     extension: ".agent.md",
@@ -457,13 +460,15 @@ function generateAgentsSection(agentsDir, registryNames = []) {
     sectionTemplate: TEMPLATES.agentsSection,
     usageTemplate: TEMPLATES.agentsUsage,
     registryNames,
+    starsMap,
+    projectsIndex,
   });
 }
 
 /**
  * Generate the hooks section with a table of all hooks
  */
-function generateHooksSection(hooksDir) {
+function generateHooksSection(hooksDir, _registryNames, starsMap = new Map(), projectsIndex = new Map()) {
   if (!fs.existsSync(hooksDir)) {
     console.log(`Hooks directory does not exist: ${hooksDir}`);
     return "";
@@ -513,7 +518,9 @@ function generateHooksSection(hooksDir) {
         ? hook.assets.map((a) => `\`${a}\``).join("<br />")
         : "None";
 
-    content += `| [${hook.name}](${link}) | ${formatTableCell(
+    const hookAssetPath = `hooks/${hook.folder}`;
+    const communityBadges = formatCommunityBadges(hookAssetPath, starsMap, projectsIndex);
+    content += `| [${hook.name}](${link})${communityBadges} | ${formatTableCell(
       hook.description
     )} | ${events} | ${assetsList} |\n`;
   }
@@ -524,7 +531,7 @@ function generateHooksSection(hooksDir) {
 /**
  * Generate the workflows section with a table of all agentic workflows
  */
-function generateWorkflowsSection(workflowsDir) {
+function generateWorkflowsSection(workflowsDir, _registryNames, starsMap = new Map(), projectsIndex = new Map()) {
   if (!fs.existsSync(workflowsDir)) {
     console.log(`Workflows directory does not exist: ${workflowsDir}`);
     return "";
@@ -568,7 +575,9 @@ function generateWorkflowsSection(workflowsDir) {
     const link = `../workflows/${workflow.file}`;
     const triggers = workflow.triggers.length > 0 ? workflow.triggers.join(", ") : "N/A";
 
-    content += `| [${workflow.name}](${link}) | ${formatTableCell(
+    const workflowAssetPath = `workflows/${workflow.file}`;
+    const communityBadges = formatCommunityBadges(workflowAssetPath, starsMap, projectsIndex);
+    content += `| [${workflow.name}](${link})${communityBadges} | ${formatTableCell(
       workflow.description
     )} | ${triggers} |\n`;
   }
@@ -579,7 +588,7 @@ function generateWorkflowsSection(workflowsDir) {
 /**
  * Generate the skills section with a table of all skills
  */
-function generateSkillsSection(skillsDir) {
+function generateSkillsSection(skillsDir, _registryNames, starsMap = new Map(), projectsIndex = new Map()) {
   if (!fs.existsSync(skillsDir)) {
     console.log(`Skills directory does not exist: ${skillsDir}`);
     return "";
@@ -626,7 +635,9 @@ function generateSkillsSection(skillsDir) {
         ? skill.assets.map((a) => `\`${a}\``).join("<br />")
         : "None";
 
-    content += `| [${skill.name}](${link}) | ${formatTableCell(
+    const skillAssetPath = `skills/${skill.folder}`;
+    const communityBadges = formatCommunityBadges(skillAssetPath, starsMap, projectsIndex);
+    content += `| [${skill.name}](${link})${communityBadges} | ${formatTableCell(
       skill.description
     )} | ${assetsList} |\n`;
   }
@@ -656,6 +667,8 @@ function generateUnifiedModeSection(cfg) {
     sectionTemplate,
     usageTemplate,
     registryNames = [],
+    starsMap = new Map(),
+    projectsIndex = new Map(),
   } = cfg;
 
   if (!fs.existsSync(dir)) {
@@ -695,10 +708,11 @@ function generateUnifiedModeSection(cfg) {
 
     const descCell =
       description && description !== "null" ? formatTableCell(description) : "";
+    const communityBadges = formatCommunityBadges(link, starsMap, projectsIndex);
     if (includeMcpServers) {
-      content += `| [${title}](../${link})<br />${badges} | ${descCell} | ${mcpServerCell} |\n`;
+      content += `| [${title}](../${link})<br />${badges}${communityBadges} | ${descCell} | ${mcpServerCell} |\n`;
     } else {
-      content += `| [${title}](../${link})<br />${badges} | ${descCell} |\n`;
+      content += `| [${title}](../${link})<br />${badges}${communityBadges} | ${descCell} |\n`;
     }
   }
 
@@ -869,6 +883,119 @@ function generateFeaturedPluginsSection(pluginsDir) {
   return `${TEMPLATES.featuredPluginsSection}\n\n${featuredContent}`;
 }
 
+/**
+ * Load star counts from community/stars.json
+ * @returns {Map<string, number>} Map of asset path to star count
+ */
+function loadStars() {
+  const starsPath = path.join(COMMUNITY_DIR, "stars.json");
+  if (!fs.existsSync(starsPath)) return new Map();
+  try {
+    const data = JSON.parse(fs.readFileSync(starsPath, "utf8"));
+    return new Map(Object.entries(data));
+  } catch (e) {
+    console.warn(`Failed to load stars.json: ${e.message}`);
+    return new Map();
+  }
+}
+
+/**
+ * Load projects from community/projects.json
+ * @returns {Array} Array of project objects
+ */
+function loadProjects() {
+  const projectsPath = path.join(COMMUNITY_DIR, "projects.json");
+  if (!fs.existsSync(projectsPath)) return [];
+  try {
+    return JSON.parse(fs.readFileSync(projectsPath, "utf8"));
+  } catch (e) {
+    console.warn(`Failed to load projects.json: ${e.message}`);
+    return [];
+  }
+}
+
+/**
+ * Build reverse index from asset path to projects that use it
+ * @param {Array} projects - Array of project objects
+ * @returns {Map<string, Array>} Map of asset path to array of project objects
+ */
+function buildProjectsReverseIndex(projects) {
+  const index = new Map();
+  for (const project of projects) {
+    if (!Array.isArray(project.assets)) continue;
+    for (const assetPath of project.assets) {
+      if (!index.has(assetPath)) {
+        index.set(assetPath, []);
+      }
+      index.get(assetPath).push(project);
+    }
+  }
+  return index;
+}
+
+/**
+ * Format star count and project usage badges for an asset table cell
+ * @param {string} assetPath - The asset path (e.g., "agents/autosar-architect.agent.md")
+ * @param {Map<string, number>} starsMap - Star counts map
+ * @param {Map<string, Array>} projectsIndex - Projects reverse index
+ * @returns {string} Formatted badges string to append to the name cell
+ */
+function formatCommunityBadges(assetPath, starsMap, projectsIndex) {
+  const parts = [];
+  const starCount = starsMap.get(assetPath) || 0;
+  if (starCount > 0) {
+    parts.push(`⭐ ${starCount}`);
+  }
+  const projects = projectsIndex.get(assetPath) || [];
+  if (projects.length > 0) {
+    const label = projects.length === 1 ? "1 project" : `${projects.length} projects`;
+    parts.push(`📦 ${label}`);
+  }
+  if (parts.length === 0) return "";
+  return `<br /><sub>${parts.join(" · ")}</sub>`;
+}
+
+/**
+ * Generate the community section
+ */
+function generateCommunitySection() {
+  return `${TEMPLATES.communitySection}\n${TEMPLATES.communityUsage}`;
+}
+
+/**
+ * Generate the projects section with a table of all registered projects
+ * @param {Array} projects - Array of project objects from projects.json
+ * @param {Map<string, number>} starsMap - Star counts (unused here, for consistency)
+ */
+function generateProjectsSection(projects) {
+  if (projects.length === 0) {
+    return `${TEMPLATES.projectsSection}\n${TEMPLATES.projectsUsage}\n\n_No projects registered yet. Be the first to register your project!_`;
+  }
+
+  // Sort by registration date (newest first)
+  const sorted = [...projects].sort((a, b) =>
+    (b.registeredAt || "").localeCompare(a.registeredAt || "")
+  );
+
+  let content =
+    "| Project | Description | Assets Used | Team | Registered |\n| ------- | ----------- | ----------- | ---- | ---------- |\n";
+
+  for (const project of sorted) {
+    const nameCell = project.url
+      ? `[${project.name}](${project.url})`
+      : project.name;
+    const description = formatTableCell(project.description || "");
+    const assetCount = (project.assets || []).length;
+    const assetsCell = assetCount === 1 ? "1 asset" : `${assetCount} assets`;
+    const team = project.team || "";
+    const registered = project.registeredAt || "";
+
+    content += `| ${nameCell} | ${description} | ${assetsCell} | ${team} | ${registered} |\n`;
+  }
+
+  return `${TEMPLATES.projectsSection}\n${TEMPLATES.projectsUsage}\n\n${content}`;
+}
+
 // Utility: write file only if content changed
 function writeFileIfChanged(filePath, content) {
   const exists = fs.existsSync(filePath);
@@ -893,9 +1020,11 @@ function buildCategoryReadme(
   dirPath,
   headerLine,
   usageLine,
-  registryNames = []
+  registryNames = [],
+  starsMap = new Map(),
+  projectsIndex = new Map()
 ) {
-  const section = sectionBuilder(dirPath, registryNames);
+  const section = sectionBuilder(dirPath, registryNames, starsMap, projectsIndex);
   if (section && section.trim()) {
     // Upgrade the first markdown heading level from ## to # for standalone README files
     return section.replace(/^##\s/m, "# ");
@@ -911,6 +1040,12 @@ async function main() {
 
     // Load MCP registry names once at the beginning
     const registryNames = await loadMcpRegistryNames();
+
+    // Load community data
+    const starsMap = loadStars();
+    const projects = loadProjects();
+    const projectsIndex = buildProjectsReverseIndex(projects);
+    console.log(`Loaded ${starsMap.size} star entries, ${projects.length} projects`);
 
     // Compose headers for standalone files by converting section headers to H1
     const instructionsHeader = TEMPLATES.instructionsSection.replace(
@@ -931,7 +1066,9 @@ async function main() {
       INSTRUCTIONS_DIR,
       instructionsHeader,
       TEMPLATES.instructionsUsage,
-      registryNames
+      registryNames,
+      starsMap,
+      projectsIndex
     );
     // Generate agents README
     const agentsReadme = buildCategoryReadme(
@@ -939,7 +1076,9 @@ async function main() {
       AGENTS_DIR,
       agentsHeader,
       TEMPLATES.agentsUsage,
-      registryNames
+      registryNames,
+      starsMap,
+      projectsIndex
     );
 
     // Generate hooks README
@@ -948,7 +1087,9 @@ async function main() {
       HOOKS_DIR,
       hooksHeader,
       TEMPLATES.hooksUsage,
-      registryNames
+      registryNames,
+      starsMap,
+      projectsIndex
     );
 
     // Generate workflows README
@@ -957,7 +1098,9 @@ async function main() {
       WORKFLOWS_DIR,
       workflowsHeader,
       TEMPLATES.workflowsUsage,
-      registryNames
+      registryNames,
+      starsMap,
+      projectsIndex
     );
 
     // Generate skills README
@@ -966,7 +1109,9 @@ async function main() {
       SKILLS_DIR,
       skillsHeader,
       TEMPLATES.skillsUsage,
-      registryNames
+      registryNames,
+      starsMap,
+      projectsIndex
     );
 
     // Generate plugins README
@@ -975,8 +1120,20 @@ async function main() {
       PLUGINS_DIR,
       pluginsHeader,
       TEMPLATES.pluginsUsage,
-      registryNames
+      registryNames,
+      starsMap,
+      projectsIndex
     );
+
+    // Generate community README
+    const communityHeader = TEMPLATES.communitySection.replace(/^##\s/m, "# ");
+    const communityContent = generateCommunitySection().replace(/^##\s/m, "# ");
+    const communityReadme = communityContent;
+
+    // Generate projects README
+    const projectsHeader = TEMPLATES.projectsSection.replace(/^##\s/m, "# ");
+    const projectsContent = generateProjectsSection(projects).replace(/^##\s/m, "# ");
+    const projectsReadme = projectsContent;
 
     // Ensure docs directory exists for category outputs
     if (!fs.existsSync(DOCS_DIR)) {
@@ -995,6 +1152,14 @@ async function main() {
     writeFileIfChanged(
       path.join(DOCS_DIR, "README.plugins.md"),
       pluginsReadme
+    );
+    writeFileIfChanged(
+      path.join(DOCS_DIR, "README.community.md"),
+      communityReadme
+    );
+    writeFileIfChanged(
+      path.join(DOCS_DIR, "README.projects.md"),
+      projectsReadme
     );
 
     // Plugin READMEs are authoritative (already exist in each plugin folder)
