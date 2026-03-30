@@ -14,7 +14,11 @@
     "agent:create": "node ./eng/create-agent.mjs",
     "instructions:create": "node ./eng/create-instructions.mjs",
     "plugin:clean": "node ./eng/clean-materialized-plugins.mjs",
-    "plugin:generate-marketplace": "node ./eng/generate-marketplace.mjs"
+    "plugin:generate-marketplace": "node ./eng/generate-marketplace.mjs",
+    "website:data": "node ./eng/generate-website-data.mjs",
+    "website:dev": "npm run website:data && npm run --prefix website dev",
+    "website:build": "npm run build && npm run website:data && npm run --prefix website build",
+    "website:preview": "npm run --prefix website preview"
   },
   "repository": {
     "type": "git",
