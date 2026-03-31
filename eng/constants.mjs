@@ -10,7 +10,7 @@ const repoUrl =
 
 // GitHub Pages site URL for badge references
 const pagesUrl =
-  "https://astrokdev.github.io/awesome-copilot";
+  "https://astrokdev.github.io/aura-marketplace";
 
 // Template sections for the README
 const TEMPLATES = {

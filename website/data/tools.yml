@@ -1,10 +1,10 @@
 # yaml-language-server: $schema=../../.schemas/tools.schema.json
-# Tools data for the Awesome GitHub Copilot website
+# Tools data for the AURA Marketplace website
 # Each tool entry provides information for the tools page
 
 tools:
   - id: mcp-server
-    name: Awesome Copilot MCP Server
+    name: AURA Marketplace MCP Server
     description: >-
       A Model Context Protocol (MCP) Server that provides prompts for searching and installing
       prompts, instructions, agents, and skills directly from this repository. Makes it easy
@@ -14,23 +14,23 @@ tools:
     requirements:
       - Docker installed and running
     links:
-      blog: https://developer.microsoft.com/blog/announcing-awesome-copilot-mcp-server
-      vscode: https://aka.ms/awesome-copilot/mcp/vscode
-      vscode-insiders: https://aka.ms/awesome-copilot/mcp/vscode-insiders
-      visual-studio: https://aka.ms/awesome-copilot/mcp/vs
+      blog: https://developer.microsoft.com/blog/announcing-aura-marketplace-mcp-server
+      vscode: https://aka.ms/aura-marketplace/mcp/vscode
+      vscode-insiders: https://aka.ms/aura-marketplace/mcp/vscode-insiders
+      visual-studio: https://aka.ms/aura-marketplace/mcp/vs
     configuration:
       type: json
       content: |
         {
           "servers": {
-            "awesome-copilot": {
+            "aura-marketplace": {
               "type": "stdio",
               "command": "docker",
               "args": [
                 "run",
                 "-i",
                 "--rm",
-                "ghcr.io/microsoft/mcp-dotnet-samples/awesome-copilot:latest"
+                "ghcr.io/microsoft/mcp-dotnet-samples/aura-marketplace:latest"
               ]
             }
           }
@@ -42,10 +42,10 @@ tools:
       - install
 
   - id: vscode-extension
-    name: Awesome GitHub Copilot Browser
+    name: AURA Marketplace Browser
     description: >-
       A VS Code extension that allows you to browse, preview, and download GitHub Copilot
-      customizations from the awesome-copilot repository. Features a tree view for exploring
+      customizations from the aura-marketplace repository. Features a tree view for exploring
       agents, prompts, instructions, and skills with smart caching for better performance.
     category: VS Code Extensions
     featured: true
@@ -54,10 +54,10 @@ tools:
       - Internet connection to fetch repository data
       - A workspace folder open in VS Code (for downloads)
     links:
-      github: https://github.com/timheuer/vscode-awesome-copilot
-      vscode: vscode:extension/TimHeuer.awesome-copilot
-      vscode-insiders: vscode-insiders:extension/TimHeuer.awesome-copilot
-      marketplace: https://marketplace.visualstudio.com/items?itemName=TimHeuer.awesome-copilot
+      github: https://github.com/timheuer/vscode-aura-marketplace
+      vscode: vscode:extension/TimHeuer.aura-marketplace
+      vscode-insiders: vscode-insiders:extension/TimHeuer.aura-marketplace
+      marketplace: https://marketplace.visualstudio.com/items?itemName=TimHeuer.aura-marketplace
     features:
       - "🔍 Browse: Explore chat modes, instructions, prompts, agents, and skills in a tree view"
       - "📖 Preview: View file content before downloading"
@@ -167,7 +167,7 @@ tools:
       marketplace: https://marketplace.visualstudio.com/items?itemName=AmadeusITGroup.prompt-registry
     features:
       - "🎨 Visual Marketplace: Browse bundles with search, filters, and one-click install"
-      - "🔌 Multi-Source: Connect to GitHub, local directories, APM, or Awesome Copilot"
+      - "🔌 Multi-Source: Connect to GitHub, local directories, APM, or AURA Marketplace"
       - "📦 Version Management: Track versions and enable automatic updates"
       - "👥 Profiles & Hubs: Organize bundles by project/team"
       - "🌍 Cross-Platform: Works on macOS, Linux, and Windows"
@@ -217,14 +217,14 @@ tools:
       - Internet connection to access Context7 platform
       - GitHub repository with Copilot customizations (prompts, instructions, agents, or skills)
     links:
-      documentation: https://context7.com/github/awesome-copilot
+      documentation: https://context7.com/github/aura-marketplace
     features:
       - "🔍 Semantic Search: Intelligently find relevant prompts, instructions, and agents across your repository"
       - "📊 Automatic Indexing: AI-powered analysis and categorization of your customizations"
       - "✅ Validation: Built-in tools for validating collection manifests and file structure"
       - "📝 Documentation Generation: Auto-generate README files and discovery interfaces"
       - "🎯 Trust Scoring: Verification and reliability scoring for community contributions"
-      - "🔗 Deep Integration: Works with awesome-copilot and other Copilot customization repositories"
+      - "🔗 Deep Integration: Works with aura-marketplace and other Copilot customization repositories"
     tags:
       - documentation
       - discovery

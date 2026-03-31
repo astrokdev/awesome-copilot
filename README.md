@@ -2,7 +2,7 @@
 
 A company-internal collection of custom agents, instructions, and skills to supercharge GitHub Copilot for embedded and automotive development.
 
-Based on the [Awesome GitHub Copilot](https://github.com/github/awesome-copilot) framework.
+Based on the [AURA Marketplace](https://github.com/github/aura-marketplace) framework.
 
 ## What is This?
 

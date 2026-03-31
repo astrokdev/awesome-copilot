@@ -1,12 +1,12 @@
 import { getEmbeddedData as getEmbeddedPageData } from "./embedded-data";
 
 /**
- * Utility functions for the Awesome Copilot website
+ * Utility functions for the AURA Marketplace website
  */
 
 const REPO_BASE_URL =
-  "https://raw.githubusercontent.com/github/awesome-copilot/main";
-const REPO_GITHUB_URL = "https://github.com/github/awesome-copilot/blob/main";
+  "https://raw.githubusercontent.com/github/aura-marketplace/main";
+const REPO_GITHUB_URL = "https://github.com/github/aura-marketplace/blob/main";
 
 // VS Code install URL configurations
 const VSCODE_INSTALL_CONFIG: Record<
@@ -14,15 +14,15 @@ const VSCODE_INSTALL_CONFIG: Record<
   { baseUrl: string; scheme: string }
 > = {
   instructions: {
-    baseUrl: "https://aka.ms/awesome-copilot/install/instructions",
+    baseUrl: "https://aka.ms/aura-marketplace/install/instructions",
     scheme: "chat-instructions",
   },
   instruction: {
-    baseUrl: "https://aka.ms/awesome-copilot/install/instructions",
+    baseUrl: "https://aka.ms/aura-marketplace/install/instructions",
     scheme: "chat-instructions",
   },
   agent: {
-    baseUrl: "https://aka.ms/awesome-copilot/install/agent",
+    baseUrl: "https://aka.ms/aura-marketplace/install/agent",
     scheme: "chat-agent",
   },
 };

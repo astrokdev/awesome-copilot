@@ -3,7 +3,7 @@ import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
 import pagefindResources from "./src/integrations/pagefind-resources";
 
-const site = "https://awesome-copilot.github.com/";
+const site = "https://aura-marketplace.github.com/";
 const siteDescription =
   "Community-contributed agents, instructions, and skills to enhance your GitHub Copilot experience";
 const socialImageUrl = new URL("/images/social-image.png", site).toString();
@@ -15,7 +15,7 @@ export default defineConfig({
   output: "static",
   integrations: [
     starlight({
-      title: "Awesome GitHub Copilot",
+      title: "AURA Marketplace",
       favicon: "/images/favicon.svg",
       description: siteDescription,
       social: [],
@@ -45,7 +45,7 @@ export default defineConfig({
       customCss: ["./src/styles/starlight-overrides.css", "./src/styles/global.css"],
       editLink: {
         baseUrl:
-          "https://github.com/github/awesome-copilot/edit/staged/website/",
+          "https://github.com/github/aura-marketplace/edit/staged/website/",
       },
       sidebar: [
         {
@@ -59,7 +59,6 @@ export default defineConfig({
             { label: "Workflows", link: "/workflows/" },
             { label: "Plugins", link: "/plugins/" },
             { label: "Tools", link: "/tools/" },
-            { label: "Contributors", link: "/contributors/" },
           ],
         },
         {
@@ -118,6 +117,7 @@ export default defineConfig({
       components: {
         Head: "./src/components/Head.astro",
         Footer: "./src/components/Footer.astro",
+        SiteTitle: "./src/components/SiteTitle.astro",
       },
     }),
     sitemap(),

@@ -63,7 +63,7 @@ The ROS2 template uses a `.claude/` project-local structure:
 
 Unlike the ROS2 template (a single project you clone), our design produces:
 
-1. **Marketplace Resources** — Agents, instructions, skills, hooks, workflows, and plugins that live in the awesome-copilot repo and are installable individually or as a plugin bundle
+1. **Marketplace Resources** — Agents, instructions, skills, hooks, workflows, and plugins that live in the aura-marketplace repo and are installable individually or as a plugin bundle
 2. **Project Template Skill** — A skill that generates a `.claude/CLAUDE.md` + project skeleton for AUTOSAR projects (the "clone and go" experience)
 
 This dual approach gives teams flexibility: install just what they need, or adopt the full template.

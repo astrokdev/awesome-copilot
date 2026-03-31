@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-This is an internal golden repo for embedded and automotive development, based on the [Awesome GitHub Copilot](https://github.com/github/awesome-copilot) framework. It provides a contribution model for company users to add specialized GitHub Copilot agents, instructions, skills, plugins, hooks, and workflows focused on embedded systems, AUTOSAR, safety-critical development, and related domains.
+This is an internal golden repo for embedded and automotive development, based on the [AURA Marketplace](https://github.com/github/aura-marketplace) framework. It provides a contribution model for company users to add specialized GitHub Copilot agents, instructions, skills, plugins, hooks, and workflows focused on embedded systems, AUTOSAR, safety-critical development, and related domains.
 
 ## Commands
 

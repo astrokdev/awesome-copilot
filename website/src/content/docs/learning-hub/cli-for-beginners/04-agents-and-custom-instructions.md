@@ -164,7 +164,7 @@ When reviewing code, always check for:
 cp .github/agents/python-reviewer.agent.md ~/.copilot/agents/
 ```
 
-For more community agents, see [github/awesome-copilot](https://github.com/github/awesome-copilot)
+For more community agents, see [github/aura-marketplace](https://github.com/github/aura-marketplace)
 
 </details>
 
@@ -454,7 +454,7 @@ For teams that want more granular control, split instructions into topic-specifi
 
 > 💡 **Note**: Instruction files work with any language. This example uses Python to match our course project, but you can create similar files for TypeScript, Go, Rust, or any technology your team uses.
 
-**Finding community instruction files**: Browse [github/awesome-copilot](https://github.com/github/awesome-copilot) for pre-made instruction files covering .NET, Angular, Azure, Python, Docker, and many more technologies.
+**Finding community instruction files**: Browse [github/aura-marketplace](https://github.com/github/aura-marketplace) for pre-made instruction files covering .NET, Angular, Azure, Python, Docker, and many more technologies.
 
 ### Disabling Custom Instructions
 
@@ -539,7 +539,7 @@ This project includes working examples in the [.github/agents/](../.github/agent
 - [python-reviewer.agent.md](https://github.com/github/copilot-cli-for-beginners/blob/main/github/agents/python-reviewer.agent.md) - Python code quality reviewer
 - [pytest-helper.agent.md](https://github.com/github/copilot-cli-for-beginners/blob/main/github/agents/pytest-helper.agent.md) - Pytest testing specialist
 
-For community agents, see [github/awesome-copilot](https://github.com/github/awesome-copilot).
+For community agents, see [github/aura-marketplace](https://github.com/github/aura-marketplace).
 
 </details>
 

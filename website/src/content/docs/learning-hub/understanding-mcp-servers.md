@@ -198,7 +198,6 @@ The MCP ecosystem is growing rapidly. Here are key resources:
 
 - **[Official MCP Servers](https://github.com/modelcontextprotocol/servers)**: Reference implementations for common services (PostgreSQL, Slack, Google Drive, etc.)
 - **[MCP Specification](https://spec.modelcontextprotocol.io/)**: The protocol specification for building your own servers
-- **[Awesome MCP Servers](https://github.com/punkpeye/awesome-mcp-servers)**: Community-curated list of MCP servers
 
 ### Building Your Own MCP Server
 

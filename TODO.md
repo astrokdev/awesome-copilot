@@ -68,7 +68,7 @@ On `github.vitesco.io`, create a new repository:
 ### Step 2 — Mirror-push from your local clone
 
 ```bash
-cd /path/to/awesome-copilot   # your local clone
+cd /path/to/aura-marketplace   # your local clone
 
 # Add the GHE remote
 git remote add ghe https://github.vitesco.io/SWProductivity/AURA_Marketplace.git

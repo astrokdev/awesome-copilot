@@ -72,7 +72,7 @@ interface PluginsData {
 }
 
 // Recent searches storage
-const RECENT_SEARCHES_KEY = 'awesome-copilot-recent-searches';
+const RECENT_SEARCHES_KEY = 'aura-marketplace-recent-searches';
 const MAX_RECENT_SEARCHES = 5;
 
 function getRecentSearches(): string[] {

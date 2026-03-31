@@ -1,7 +1,7 @@
 {
-  "name": "awesome-copilot-website",
+  "name": "aura-marketplace-website",
   "version": "1.0.0",
-  "description": "Awesome GitHub Copilot website",
+  "description": "AURA Marketplace website",
   "type": "module",
   "scripts": {
     "dev": "astro dev",

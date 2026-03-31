@@ -167,8 +167,8 @@ function updateModalTitle(titleText: string, filePath: string): void {
   const fileName = getFileName(filePath);
   document.title =
     titleText === fileName
-      ? `${titleText} | Awesome GitHub Copilot`
-      : `${titleText} · ${fileName} | Awesome GitHub Copilot`;
+      ? `${titleText} | AURA Marketplace`
+      : `${titleText} · ${fileName} | AURA Marketplace`;
 }
 
 function getModalBody(): HTMLElement | null {
@@ -989,7 +989,7 @@ async function openPluginModal(
 
   // Update title
   title.textContent = plugin.name;
-  document.title = `${plugin.name} | Awesome GitHub Copilot`;
+  document.title = `${plugin.name} | AURA Marketplace`;
 
   // Render external plugin view (metadata + links) or local plugin view (items list)
   if (plugin.external) {

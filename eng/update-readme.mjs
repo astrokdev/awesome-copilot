@@ -361,19 +361,19 @@ function generateMcpServerLinks(servers, registryNames) {
       type: "vscode",
       url: "https://img.shields.io/badge/Install-VS_Code-0098FF?style=flat-square",
       badgeUrl: (serverName) =>
-        `https://aka.ms/awesome-copilot/install/mcp-vscode?vscode:mcp/by-name/${serverName}/mcp-server`,
+        `https://aka.ms/aura-marketplace/install/mcp-vscode?vscode:mcp/by-name/${serverName}/mcp-server`,
     },
     {
       type: "insiders",
       url: "https://img.shields.io/badge/Install-VS_Code_Insiders-24bfa5?style=flat-square",
       badgeUrl: (serverName) =>
-        `https://aka.ms/awesome-copilot/install/mcp-vscode?vscode-insiders:mcp/by-name/${serverName}/mcp-server`,
+        `https://aka.ms/aura-marketplace/install/mcp-vscode?vscode-insiders:mcp/by-name/${serverName}/mcp-server`,
     },
     {
       type: "visualstudio",
       url: "https://img.shields.io/badge/Install-Visual_Studio-C16FDE?style=flat-square",
       badgeUrl: (serverName) =>
-        `https://aka.ms/awesome-copilot/install/mcp-visualstudio?vscode:mcp/by-name/${serverName}/mcp-server`,
+        `https://aka.ms/aura-marketplace/install/mcp-visualstudio?vscode:mcp/by-name/${serverName}/mcp-server`,
     },
   ];
 
@@ -405,9 +405,9 @@ function generateMcpServerLinks(servers, registryNames) {
       const encodedConfig = encodeURIComponent(JSON.stringify(configPayload));
 
       const installBadgeUrls = [
-        `[![Install MCP](${badges[0].url})](https://aka.ms/awesome-copilot/install/mcp-vscode?name=${serverName}&config=${encodedConfig})`,
-        `[![Install MCP](${badges[1].url})](https://aka.ms/awesome-copilot/install/mcp-vscodeinsiders?name=${serverName}&config=${encodedConfig})`,
-        `[![Install MCP](${badges[2].url})](https://aka.ms/awesome-copilot/install/mcp-visualstudio/mcp-install?${encodedConfig})`,
+        `[![Install MCP](${badges[0].url})](https://aka.ms/aura-marketplace/install/mcp-vscode?name=${serverName}&config=${encodedConfig})`,
+        `[![Install MCP](${badges[1].url})](https://aka.ms/aura-marketplace/install/mcp-vscodeinsiders?name=${serverName}&config=${encodedConfig})`,
+        `[![Install MCP](${badges[2].url})](https://aka.ms/aura-marketplace/install/mcp-visualstudio/mcp-install?${encodedConfig})`,
       ].join("<br />");
 
       // Match against both displayName and full name (case-insensitive)

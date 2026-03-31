@@ -3,10 +3,10 @@
 
 /* ── Dark theme (default) ─────────────────────────────────── */
 :root {
-  --sl-color-accent-low: #1a0d33;
-  --sl-color-accent: #8534f3;
-  --sl-color-accent-high: #c9a5fa;
-  --sl-color-text-accent: #c9a5fa;
+  --sl-color-accent-low: #0a2e1d;
+  --sl-color-accent: #08954c;
+  --sl-color-accent-high: #4ae893;
+  --sl-color-text-accent: #4ae893;
 
   --sl-color-white: #f0f0f5;
   --sl-color-gray-1: #d0d0da;
@@ -26,10 +26,10 @@
    Because our customCss is unlayered it overrides Starlight's layered
    theme swap, so we must provide the inverted palette ourselves. */
 :root[data-theme="light"] {
-  --sl-color-accent-low: #f0e6ff;
-  --sl-color-accent: #6b21c8;
-  --sl-color-accent-high: #3b0d7a;
-  --sl-color-text-accent: #6b21c8;
+  --sl-color-accent-low: #e6f9f0;
+  --sl-color-accent: #08954c;
+  --sl-color-accent-high: #034823;
+  --sl-color-text-accent: #08954c;
 
   --sl-color-white: #0a0a0f;
   --sl-color-gray-1: #111120;

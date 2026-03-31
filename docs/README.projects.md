@@ -13,7 +13,7 @@ Projects using assets from the AURA Marketplace. Register your project to get a 
 After registration, add this badge to your project's README:
 
 ```markdown
-[![Powered by AURA](https://astrokdev.github.io/awesome-copilot/badges/powered-by-aura.svg)](https://astrokdev.github.io/awesome-copilot/)
+[![Powered by AURA](https://astrokdev.github.io/aura-marketplace/badges/powered-by-aura.svg)](https://astrokdev.github.io/aura-marketplace/)
 ```
 
 _No projects registered yet. Be the first to register your project!_

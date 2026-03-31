@@ -58,7 +58,7 @@ hooks/
         └── check.sh
 ```
 
-> Note: Not all of these files are required for a generalised hook implementation. In your own repository, hooks are stored as JSON files in `.github/hooks/` (e.g., `.github/hooks/my-hook.json`). The folder structure above with README.md is specific to the Awesome Copilot repository for documentation purposes.
+> Note: Not all of these files are required for a generalised hook implementation. In your own repository, hooks are stored as JSON files in `.github/hooks/` (e.g., `.github/hooks/my-hook.json`). The folder structure above with README.md is specific to the AURA Marketplace repository for documentation purposes.
 
 
 ### hooks.json
@@ -183,7 +183,7 @@ Each hook entry supports these fields:
 
 ### README.md
 
-The README provides metadata and documentation for the Awesome Copilot repository. While not required in your own implementation, it serves as a useful way to document them for your team.
+The README provides metadata and documentation for the AURA Marketplace repository. While not required in your own implementation, it serves as a useful way to document them for your team.
 
 ```markdown
 ---
